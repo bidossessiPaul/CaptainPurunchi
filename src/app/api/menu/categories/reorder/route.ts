@@ -1,0 +1,23 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { apiHandler } from "@/lib/api-handler";
+
+export const PUT = apiHandler(async (request: Request) => {
+  const { orderedIds } = (await request.json()) as { orderedIds: string[] };
+
+  if (!Array.isArray(orderedIds)) {
+    return NextResponse.json({ error: "orderedIds array is required" }, { status: 400 });
+  }
+
+  await prisma.$transaction(
+    orderedIds.map((id, i) =>
+      prisma.menuCategory.update({ where: { id }, data: { order: i } })
+    )
+  );
+
+  const cats = await prisma.menuCategory.findMany({
+    orderBy: { order: "asc" },
+    include: { items: { orderBy: { order: "asc" } } },
+  });
+  return NextResponse.json(cats);
+});

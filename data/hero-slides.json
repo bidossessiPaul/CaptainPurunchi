@@ -1,0 +1,42 @@
+[
+  {
+    "id": "default-1",
+    "src": "/images/hero/1-2.webp",
+    "title": null,
+    "subtitle": null,
+    "caption": null,
+    "order": 0,
+    "active": true,
+    "createdAt": "2025-03-06T12:00:00.000Z"
+  },
+  {
+    "id": "default-2",
+    "src": "/images/hero/seafood-beach-feast.webp",
+    "title": null,
+    "subtitle": null,
+    "caption": null,
+    "order": 1,
+    "active": true,
+    "createdAt": "2025-03-06T12:00:00.000Z"
+  },
+  {
+    "id": "default-3",
+    "src": "/images/hero/greek-whole-snapper.jpg",
+    "title": null,
+    "subtitle": null,
+    "caption": null,
+    "order": 2,
+    "active": true,
+    "createdAt": "2025-03-06T12:00:00.000Z"
+  },
+  {
+    "id": "default-4",
+    "src": "/images/hero/gourmet-seafood-feast.webp",
+    "title": null,
+    "subtitle": null,
+    "caption": null,
+    "order": 3,
+    "active": true,
+    "createdAt": "2025-03-06T12:00:00.000Z"
+  }
+]

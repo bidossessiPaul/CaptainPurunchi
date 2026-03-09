@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model HeroSlide {
+  id        String   @id @default(uuid())
+  src       String   @db.VarChar(500)
+  title     String?  @db.VarChar(255)
+  subtitle  String?  @db.VarChar(255)
+  caption   String?  @db.VarChar(500)
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("hero_slides")
+}
+
+model Specialty {
+  id          String   @id @default(uuid())
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  src         String   @db.VarChar(500)
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("specialties")
+}
+
+model MenuCategory {
+  id        String     @id @default(uuid())
+  name      String     @db.VarChar(255)
+  icon      String     @db.VarChar(50)
+  order     Int        @default(0)
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  items     MenuItem[]
+
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id          String       @id @default(uuid())
+  categoryId  String
+  category    MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String       @db.VarChar(255)
+  description String       @db.VarChar(500)
+  price       String       @db.VarChar(100)
+  order       Int          @default(0)
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+
+  @@map("menu_items")
+}
+
+model GalleryImage {
+  id        String   @id @default(uuid())
+  src       String   @db.VarChar(500)
+  alt       String   @db.VarChar(255)
+  type      String   @default("image") @db.VarChar(10)
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("gallery_images")
+}
+
+model Room {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(255)
+  shortDesc   String   @db.VarChar(500)
+  price       String   @db.VarChar(100)
+  thumb       String   @db.VarChar(500)
+  capacity    String   @db.VarChar(100)
+  features    String   @db.Text
+  description String   @db.Text
+  gallery     String   @db.Text
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("rooms")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  featured    Boolean  @default(false)
+  tag         String   @db.VarChar(100)
+  title       String   @db.VarChar(255)
+  shortDesc   String   @db.VarChar(500)
+  description String   @db.Text
+  day         String   @db.VarChar(10)
+  month       String   @db.VarChar(10)
+  time        String   @db.VarChar(100)
+  location    String   @db.VarChar(255)
+  price       String   @db.VarChar(100)
+  thumb       String   @db.VarChar(500)
+  gallery     String   @db.Text
+  includes    String   @db.Text
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("events")
+}
+
+model BlogPost {
+  id        String        @id @default(uuid())
+  title     String        @db.VarChar(255)
+  slug      String?       @unique @db.VarChar(255)
+  excerpt   String        @default("") @db.VarChar(500)
+  content   String        @default("") @db.LongText
+  date      String        @db.VarChar(100)
+  author    String        @db.VarChar(255)
+  thumb     String        @db.VarChar(500)
+  order     Int           @default(0)
+  active    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  comments  BlogComment[]
+
+  @@map("blog_posts")
+}
+
+model BlogComment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  name      String   @db.VarChar(255)
+  email     String   @default("") @db.VarChar(255)
+  text      String   @db.Text
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("blog_comments")
+  @@index([postId])
+}
+
+model ContactInfo {
+  id          String   @id @default("singleton")
+  phone       String   @default("") @db.VarChar(100)
+  email       String   @default("") @db.VarChar(255)
+  address     String   @default("") @db.VarChar(500)
+  whatsapp    String   @default("") @db.VarChar(100)
+  facebook    String   @default("") @db.VarChar(500)
+  instagram   String   @default("") @db.VarChar(500)
+  hours1Label String   @default("") @db.VarChar(100)
+  hours1Value String   @default("") @db.VarChar(100)
+  hours2Label String   @default("") @db.VarChar(100)
+  hours2Value String   @default("") @db.VarChar(100)
+  hours3Label String   @default("") @db.VarChar(100)
+  hours3Value String   @default("") @db.VarChar(100)
+  footerDesc  String   @default("") @db.VarChar(500)
+  updatedAt   DateTime @updatedAt
+
+  @@map("contact_info")
+}
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  text      String   @db.Text
+  name      String   @db.VarChar(255)
+  role      String   @db.VarChar(255)
+  image     String?  @db.VarChar(500)
+  avatar    String?  @db.VarChar(500)
+  stars     Float    @default(5)
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("testimonials")
+}
+
+model DailyDish {
+  id            String   @id @default(uuid())
+  name          String   @db.VarChar(255)
+  description   String   @default("") @db.VarChar(500)
+  price         String   @db.VarChar(100)
+  category      String   @db.VarChar(100)
+  photo         String   @default("") @db.VarChar(500)
+  availableDate String   @db.VarChar(20)
+  order         Int      @default(0)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  @@map("daily_dishes")
+  @@index([availableDate, active])
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  customerName  String   @db.VarChar(255)
+  customerPhone String   @db.VarChar(100)
+  items         String   @db.Text
+  totalAmount   String   @db.VarChar(100)
+  notes         String   @default("") @db.Text
+  status        String   @default("pending") @db.VarChar(50)
+  orderDate     String   @db.VarChar(20)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("orders")
+  @@index([orderDate, status])
+}
+
+model TableReservation {
+  id              String   @id @default(uuid())
+  name            String   @db.VarChar(255)
+  phone           String   @db.VarChar(100)
+  numberOfPersons String   @db.VarChar(50)
+  date            String   @db.VarChar(20)
+  time            String   @db.VarChar(20)
+  message         String   @default("") @db.Text
+  status          String   @default("pending") @db.VarChar(50)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("table_reservations")
+  @@index([date, status])
+}
+
+model RoomReservation {
+  id            String   @id @default(uuid())
+  customerName  String   @db.VarChar(255)
+  customerPhone String   @db.VarChar(100)
+  roomId        String   @db.VarChar(255)
+  roomName      String   @db.VarChar(255)
+  checkIn       String   @db.VarChar(20)
+  checkOut      String   @db.VarChar(20)
+  guests        String   @db.VarChar(50)
+  notes         String   @default("") @db.Text
+  status        String   @default("pending") @db.VarChar(50)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("room_reservations")
+  @@index([checkIn, status])
+}
+
+model EventReservation {
+  id            String   @id @default(uuid())
+  customerName  String   @db.VarChar(255)
+  customerPhone String   @db.VarChar(100)
+  eventId       String   @db.VarChar(255)
+  eventTitle    String   @db.VarChar(255)
+  attendees     String   @db.VarChar(50)
+  notes         String   @default("") @db.Text
+  status        String   @default("pending") @db.VarChar(50)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("event_reservations")
+  @@index([status])
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(255)
+  email     String   @default("") @db.VarChar(255)
+  phone     String   @db.VarChar(100)
+  subject   String   @default("") @db.VarChar(255)
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}

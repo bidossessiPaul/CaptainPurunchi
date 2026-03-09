@@ -1,0 +1,153 @@
+.navbar-default .navbar-toggle .icon-bar{
+	background-color: #5BC0EB;
+}
+.main-menu .navbar-default .navbar-nav .active a{
+	color: #5BC0EB;
+}
+.main-menu nav li a::after {
+    background: #5BC0EB;
+}
+.typer{
+	color: #5BC0EB !important;
+}
+.banner-text h2{
+	color: #5BC0EB
+}
+.book-btn a{
+	background: #5BC0EB;
+	border: 3px solid #5BC0EB;
+}
+.book-btn a:hover{
+	border: 3px solid #66afff;
+}
+.hvr-underline-from-center::before{
+	background: #66afff;
+}
+.block-title{
+	color: #5BC0EB;
+}
+.item-type-zoom .item-hover:hover::before{
+	background: rgba(91, 192, 235, 0.5);
+}
+.special-box .owl-theme .owl-controls .owl-page.active span{
+	background: #5BC0EB;
+}
+.offer-item div h3{
+	color: #5BC0EB;
+}
+.tab-menu .is-active{
+	background: #5BC0EB;
+}
+.tab-menu .slick-arrow.slick-prev{
+	background: #5BC0EB url(../../images/back.png) no-repeat center;
+	background-position: 2px 4px;
+}
+.tab-menu .slick-arrow.slick-next{
+	background: #5BC0EB url(../../images/next.png) no-repeat center;
+	background-position: 7px 4px;
+}
+
+.tab-menu .slick-arrow.slick-prev:hover{
+	background:#5BC0EB url(../../images/back_hover.png) no-repeat center;
+	background-position: 2px 4px;
+}
+.tab-menu .slick-arrow.slick-next:hover{
+	background:#5BC0EB url(../../images/next_hover.png) no-repeat center;
+	background-position: 7px 4px;
+}
+
+.offer-item .offer-price{
+	border: 1px solid #5BC0EB;
+}
+.sf-team:hover .text-col{
+	background-color: #5BC0EB;
+}
+.gal-item a::after{
+	background-color: rgba(91, 192, 235, 0.75);
+}
+.overlay i:hover{
+	border: 1px solid #5BC0EB;
+	color: #5BC0EB;
+}
+.blog-btn-v a{
+	background: #5BC0EB;
+	border: 3px solid #5BC0EB;
+}
+.blog-btn-v a:hover{
+	border: 3px solid #66afff;
+}
+.book-srv a{
+	background: #5BC0EB;
+	border: 3px solid #5BC0EB;
+}
+.book-srv a:hover{
+	border: 3px solid #66afff;
+}
+.reserve-book-btn button{
+	background: #5BC0EB;
+	border: 3px solid #5BC0EB;
+}
+.reserve-book-btn button:hover a{
+	color:#000000;
+}
+.reserve-book-btn button:hover {
+	border: 3px solid #66afff;
+}
+
+
+.panel-pricing .panel-heading{
+	background: #5BC0EB;
+}
+.panel-pricing{
+	border: 1px solid #5BC0EB;
+}
+.panel-body p strong span{
+	color: #5BC0EB;
+}
+.pricing-main .panel-footer a{
+	background: #5BC0EB;
+	border: 3px solid #5BC0EB;
+}
+.pricing-main .panel-footer a:hover{
+	border: 3px solid #66afff;
+}
+
+
+.footer-news form a{
+	background: #5BC0EB;
+}
+.footer-news form a:hover{
+	border: 2px dotted #5BC0EB;
+}
+.footer-box-a h3{
+	color: #5BC0EB;
+}
+.footer-box-b h3{
+	color: #5BC0EB;
+}
+.footer-box-c h3{
+	color: #5BC0EB;
+}
+.footer-box-d h3{
+	color: #5BC0EB;
+}
+.footer-box-c p a:hover{
+	color: #5BC0EB;
+}
+.footer-box-b ul li a:hover{
+	color: #5BC0EB;
+}
+.footer-box .socials-box a:hover .social-circle-border{
+	color: #5BC0EB;
+}
+.footer-box-c p i{
+	color: #5BC0EB;
+}
+
+.copyright-main{
+	background: #5BC0EB;
+}
+
+#color-panel a.panel-button:hover{
+	color: #5BC0EB;		
+}

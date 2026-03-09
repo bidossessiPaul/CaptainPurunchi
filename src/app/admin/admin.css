@@ -1,0 +1,982 @@
+/* ===================== ADMIN DESIGN SYSTEM ===================== */
+
+:root {
+  /* Palette Captain Purunchi — issue de la charte du site */
+  --admin-primary: #5BC0EB;
+  --admin-primary-light: #7dd0f0;
+  --admin-primary-dark: #1a3a5c;
+  --admin-primary-darker: #0d1b2a;
+  --admin-primary-bg: rgba(91, 192, 235, 0.1);
+  --admin-primary-gradient: linear-gradient(135deg, #5BC0EB, #3a9cc7);
+  --admin-accent: #c8a97e;
+  --admin-accent-dark: #a8884e;
+  --admin-accent-bg: rgba(200, 169, 126, 0.1);
+  --admin-success: #10b981;
+  --admin-success-bg: rgba(16, 185, 129, 0.1);
+  --admin-danger: #ef4444;
+  --admin-danger-bg: rgba(239, 68, 68, 0.08);
+  --admin-warning: #f59e0b;
+  --admin-warning-bg: rgba(245, 158, 11, 0.1);
+  --admin-info: #0ea5e9;
+  --admin-info-bg: rgba(14, 165, 233, 0.1);
+  --admin-text: #1e293b;
+  --admin-text-secondary: #64748b;
+  --admin-text-muted: #94a3b8;
+  --admin-bg: #f8fafc;
+  --admin-card-bg: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --admin-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --admin-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --admin-radius: 12px;
+  --admin-radius-sm: 8px;
+  --admin-radius-lg: 16px;
+  --admin-transition: all 0.2s ease;
+}
+
+/* ===================== ADMIN BASE OVERRIDES ===================== */
+
+/* Hide public site elements on admin pages */
+body:has(.topbar) #site-header,
+body:has(.topbar) .scrollup,
+body:has(.topbar) .cp-footer {
+  display: none !important;
+}
+
+/* Reset Bootstrap 3 interference on admin pages */
+body:has(.topbar) {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  background: var(--admin-bg) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow-x: hidden;
+  font-size: 14px;
+  color: var(--admin-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override Bootstrap 3 .container-fluid */
+body:has(.topbar) .container-fluid {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Fix BS3 .row margin conflicts */
+body:has(.topbar) .page-wrapper .row {
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+body:has(.topbar) .page-wrapper [class*="col-"] {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* ===================== SIDEBAR TOGGLE ===================== */
+
+@media (min-width: 1200px) {
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) {
+    width: var(--bs-startbar-collapsed-width, 70px);
+    transition: 0.3s;
+  }
+
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .brand {
+    width: var(--bs-startbar-collapsed-width, 70px);
+  }
+
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .logo .logo-lg {
+    width: 0;
+    margin-left: 0;
+    overflow: hidden;
+    transition: 0.3s;
+  }
+
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .menu-label {
+    text-align: center;
+    padding: 0;
+  }
+
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .menu-label span,
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .nav-item .nav-link span,
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .nav-item .nav-link .badge,
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .update-msg {
+    display: none;
+  }
+
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .menu-label small {
+    display: inline-block;
+  }
+
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .nav-item .nav-link {
+    justify-content: center;
+    padding: 10px 0;
+    text-align: center;
+  }
+
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .nav-item .nav-link .menu-icon {
+    margin-right: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  body[data-sidebar-size="collapsed"] .page-wrapper .page-content {
+    margin-left: var(--bs-startbar-collapsed-width, 70px);
+  }
+
+  body[data-sidebar-size="default"] .page-wrapper .page-content {
+    margin-left: var(--bs-startbar-width, 270px);
+  }
+
+  body[data-sidebar-size="collapsed"] .topbar {
+    left: var(--bs-startbar-collapsed-width, 70px);
+  }
+
+  body[data-sidebar-size="default"] .topbar {
+    left: var(--bs-startbar-width, 270px);
+  }
+}
+
+@media (max-width: 1199.98px) {
+  body[data-sidebar-size="collapsed"] .startbar {
+    margin-left: calc(var(--bs-startbar-width, 270px) * -1);
+  }
+
+  body[data-sidebar-size="default"] .startbar {
+    margin-left: 0;
+    z-index: 1050;
+  }
+
+  body[data-sidebar-size="default"] .startbar-overlay {
+    display: block;
+  }
+
+  .topbar {
+    left: 0 !important;
+  }
+
+  .page-wrapper .page-content {
+    margin-left: 0 !important;
+  }
+
+  /* Force same light sidebar on mobile as desktop */
+  .startbar {
+    background-color: #eef3f8 !important;
+  }
+
+  .startbar .startbar-menu,
+  .startbar .startbar-collapse {
+    background-color: #eef3f8 !important;
+  }
+
+  .startbar .navbar-nav .nav-item .nav-link {
+    color: var(--admin-text-secondary) !important;
+  }
+
+  .startbar .navbar-nav .nav-item .nav-link .menu-icon {
+    color: var(--admin-primary) !important;
+  }
+
+  .startbar .nav-link.active {
+    color: var(--admin-primary-dark) !important;
+    background: rgba(91, 192, 235, 0.15) !important;
+  }
+
+  .startbar .menu-label span {
+    color: var(--admin-text-muted) !important;
+  }
+}
+
+/* ===================== SIDEBAR ===================== */
+.startbar {
+  background-color: #eef3f8 !important;
+  border-right: 1px solid var(--admin-border);
+}
+
+.startbar .brand {
+  background: transparent !important;
+  border-bottom: 1px solid var(--admin-border);
+  padding: 16px 20px;
+}
+
+.startbar .navbar-nav .nav-item .nav-link {
+  color: var(--admin-text-secondary) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  padding: 11px 18px !important;
+  margin-bottom: 2px;
+  border-radius: 10px !important;
+  transition: all 0.2s ease;
+}
+
+.startbar .navbar-nav .nav-item .nav-link:hover {
+  color: var(--admin-primary-dark) !important;
+  background: rgba(91, 192, 235, 0.1) !important;
+  transform: translateX(2px);
+}
+
+.startbar .navbar-nav .nav-item .nav-link .menu-icon {
+  color: var(--admin-primary) !important;
+  font-size: 17px !important;
+  width: 22px;
+  text-align: center;
+  margin-right: 14px !important;
+}
+
+.startbar .menu-label {
+  margin-top: 14px !important;
+  margin-bottom: 6px !important;
+}
+
+.startbar .menu-label span {
+  color: var(--admin-text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+/* ===================== NAV ACTIVE STATE ===================== */
+.startbar .nav-link.active {
+  color: var(--admin-primary-dark) !important;
+  background: rgba(91, 192, 235, 0.15) !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+}
+
+.startbar .nav-link.active .menu-icon {
+  color: var(--admin-primary) !important;
+}
+
+/* Override template purple nav disc */
+.startbar .navbar-nav .nav-item .nav-link::before {
+  display: none !important;
+}
+
+/* Sidebar "Voir le site" button */
+.startbar .update-msg .btn-outline-light {
+  border-color: var(--admin-primary) !important;
+  color: var(--admin-primary) !important;
+  background: transparent !important;
+  font-size: 14px;
+  padding: 10px 20px;
+}
+
+.startbar .update-msg .btn-outline-light:hover {
+  background: var(--admin-primary) !important;
+  color: #fff !important;
+}
+
+/* Override template purple (#6f6af8) across admin */
+body:has(.topbar) .text-primary {
+  color: var(--admin-primary) !important;
+}
+
+body:has(.topbar) .bg-primary {
+  background-color: var(--admin-primary) !important;
+}
+
+body:has(.topbar) .border-primary {
+  border-color: var(--admin-primary) !important;
+}
+
+body:has(.topbar) .spinner-border.text-primary {
+  color: var(--admin-primary) !important;
+}
+
+/* ===================== CARDS ===================== */
+body:has(.topbar) .card {
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  margin-bottom: 24px;
+  background: var(--admin-card-bg);
+  transition: var(--admin-transition);
+}
+
+body:has(.topbar) .card:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+
+body:has(.topbar) .card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--admin-border);
+  padding: 16px 20px;
+}
+
+body:has(.topbar) .card-body {
+  padding: 20px;
+}
+
+body:has(.topbar) .card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 0;
+  color: var(--admin-text);
+}
+
+/* Draggable card — lift effect on hover */
+body:has(.topbar) .card[draggable="true"] {
+  cursor: grab;
+}
+
+body:has(.topbar) .card[draggable="true"]:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--admin-shadow-hover);
+}
+
+body:has(.topbar) .card[draggable="true"]:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+/* ===================== BUTTONS ===================== */
+body:has(.topbar) .btn {
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--admin-radius-sm);
+  transition: var(--admin-transition);
+  letter-spacing: 0.01em;
+}
+
+body:has(.topbar) .btn-primary {
+  background: var(--admin-primary-gradient);
+  border-color: var(--admin-primary);
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(91, 192, 235, 0.3);
+}
+
+body:has(.topbar) .btn-primary:hover {
+  background: var(--admin-primary-dark);
+  border-color: var(--admin-primary-dark);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(91, 192, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+body:has(.topbar) .btn-outline-primary {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+  border-width: 1.5px;
+}
+
+body:has(.topbar) .btn-outline-primary:hover {
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(91, 192, 235, 0.3);
+  transform: translateY(-1px);
+}
+
+body:has(.topbar) .btn-outline-danger {
+  border-color: var(--admin-danger);
+  color: var(--admin-danger);
+  border-width: 1.5px;
+}
+
+body:has(.topbar) .btn-outline-danger:hover {
+  background: var(--admin-danger);
+  border-color: var(--admin-danger);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+body:has(.topbar) .btn-light {
+  background: #f1f5f9;
+  border-color: var(--admin-border);
+  color: var(--admin-text-secondary);
+}
+
+body:has(.topbar) .btn-light:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: var(--admin-text);
+}
+
+/* btn-sm — reasonable size, not too big */
+body:has(.topbar) .btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: var(--admin-radius-sm);
+}
+
+/* ===================== FORM CONTROLS ===================== */
+body:has(.topbar) .form-control,
+body:has(.topbar) .form-select {
+  font-size: 14px;
+  border-radius: var(--admin-radius-sm);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+  padding: 10px 14px;
+  transition: var(--admin-transition);
+}
+
+body:has(.topbar) .form-control:focus,
+body:has(.topbar) .form-select:focus {
+  border-color: var(--admin-primary-light);
+  box-shadow: 0 0 0 3px var(--admin-primary-bg);
+}
+
+body:has(.topbar) .form-control::placeholder {
+  color: var(--admin-text-muted);
+}
+
+/* Override form-control-sm to be normal size */
+body:has(.topbar) .form-control-sm,
+body:has(.topbar) .form-select-sm {
+  padding: 10px 14px;
+  font-size: 14px;
+  min-height: 42px;
+  border-radius: var(--admin-radius-sm);
+}
+
+body:has(.topbar) textarea.form-control,
+body:has(.topbar) textarea.form-control-sm {
+  min-height: auto;
+}
+
+body:has(.topbar) .form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin-bottom: 6px;
+}
+
+/* Toggle switch — bigger & colored */
+body:has(.topbar) .form-check-input {
+  width: 2.5em;
+  height: 1.3em;
+  cursor: pointer;
+}
+
+body:has(.topbar) .form-check-input:checked {
+  background-color: var(--admin-success);
+  border-color: var(--admin-success);
+}
+
+body:has(.topbar) .form-check-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--admin-text);
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+/* ===================== TABLE ===================== */
+body:has(.topbar) .table th {
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--admin-text-secondary);
+  border-bottom: 2px solid var(--admin-border);
+  padding: 12px 16px;
+}
+
+body:has(.topbar) .table td {
+  padding: 14px 16px;
+  vertical-align: middle;
+  color: var(--admin-text);
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+}
+
+body:has(.topbar) .table tr:last-child td {
+  border-bottom: none;
+}
+
+body:has(.topbar) .table tr:hover td {
+  background: var(--admin-primary-bg);
+}
+
+/* ===================== BADGES ===================== */
+body:has(.topbar) .badge {
+  font-weight: 600;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* ===================== THUMB SIZES ===================== */
+.thumb-sm {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb-md {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb-lg {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===================== FONT SIZE OVERRIDES — Bigger ===================== */
+body:has(.topbar) .fs-11 {
+  font-size: 12px !important;
+}
+
+body:has(.topbar) .fs-12 {
+  font-size: 13px !important;
+}
+
+body:has(.topbar) .fs-13 {
+  font-size: 14px !important;
+}
+
+body:has(.topbar) .fs-14 {
+  font-size: 14px !important;
+}
+
+.fs-18 {
+  font-size: 18px !important;
+}
+
+body:has(.topbar) .text-muted {
+  color: var(--admin-text-secondary) !important;
+}
+
+/* ===================== PAGE TITLE ===================== */
+.page-title-box {
+  padding-bottom: 24px;
+}
+
+.page-title {
+  font-family: 'nautilus_pompiliusregular', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--admin-primary-dark);
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+/* ===================== BREADCRUMB ===================== */
+body:has(.topbar) .breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+}
+
+body:has(.topbar) .breadcrumb-item a {
+  color: var(--admin-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+body:has(.topbar) .breadcrumb-item a:hover {
+  color: var(--admin-primary-dark);
+}
+
+body:has(.topbar) .breadcrumb-item.active {
+  color: var(--admin-text-muted);
+}
+
+/* ===================== ADMIN HEADER BAR ===================== */
+.admin-header {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--admin-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-header .btn-primary {
+  padding: 10px 24px;
+  font-size: 14px;
+}
+
+/* ===================== STATS BADGES ===================== */
+.admin-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-stat-badge i {
+  font-size: 16px;
+}
+
+.admin-stat-badge.stat-total {
+  background: #f1f5f9;
+  color: var(--admin-text-secondary);
+}
+
+.admin-stat-badge.stat-active {
+  background: var(--admin-success-bg);
+  color: var(--admin-success);
+}
+
+.admin-stat-badge.stat-inactive {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger);
+}
+
+/* ===================== EMPTY STATE ===================== */
+.admin-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.admin-empty-state .empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--admin-primary-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.admin-empty-state .empty-icon i {
+  font-size: 36px;
+  color: var(--admin-primary);
+}
+
+.admin-empty-state h5 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin-bottom: 8px;
+}
+
+.admin-empty-state p {
+  font-size: 15px;
+  color: var(--admin-text-secondary);
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.admin-empty-state .btn {
+  padding: 12px 28px;
+  font-size: 15px;
+}
+
+/* ===================== LOADING STATE ===================== */
+.admin-loading {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.admin-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 3px;
+  color: var(--admin-primary) !important;
+}
+
+.admin-loading p {
+  font-size: 15px;
+  color: var(--admin-text-secondary);
+  margin-top: 16px;
+}
+
+/* ===================== SLIDE / IMAGE CARD THUMB ===================== */
+.admin-slide-thumb {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--admin-radius) var(--admin-radius) 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-slide-thumb::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+}
+
+.admin-slide-thumb .slide-order-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+.admin-slide-thumb .slide-drag-handle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #fff;
+  font-size: 22px;
+  cursor: grab;
+  z-index: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: var(--admin-transition);
+}
+
+.admin-slide-thumb .slide-drag-handle:hover {
+  transform: scale(1.15);
+}
+
+.admin-slide-thumb .slide-inactive-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.admin-slide-thumb .slide-inactive-overlay .badge {
+  font-size: 14px;
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Card body info */
+.admin-slide-filename {
+  font-size: 14px;
+  color: var(--admin-text);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-slide-meta {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  margin-top: 2px;
+  margin-bottom: 0;
+}
+
+/* ===================== CARD ACTIONS ROW (shared pattern) ===================== */
+/* Used by all card components: toggle + action buttons */
+.admin-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.admin-card-actions .btn-group-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.admin-card-actions .btn-group-actions .btn {
+  padding: 6px 10px;
+  font-size: 15px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+}
+
+/* Legacy class alias */
+.admin-slide-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.admin-slide-actions .btn-group-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.admin-slide-actions .btn-group-actions .btn {
+  padding: 6px 10px;
+  font-size: 15px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+}
+
+/* ===================== TOGGLE BUTTON ALWAYS VISIBLE ===================== */
+.mobile-menu-btn {
+  display: inline-flex !important;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+@media (max-width: 991.98px) {
+  .welcome-text {
+    display: none;
+  }
+}
+
+/* Tablet */
+@media (max-width: 767.98px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-header .admin-stats-bar {
+    justify-content: center;
+  }
+
+  .admin-header .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .admin-slide-thumb {
+    height: 180px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  /* Card actions — stack toggle above buttons on tablet when cards are narrow */
+  .admin-card-actions,
+  .admin-slide-actions {
+    gap: 8px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 575.98px) {
+  body:has(.topbar) .card-body {
+    padding: 14px;
+  }
+
+  .admin-header {
+    padding: 14px;
+  }
+
+  .admin-slide-thumb {
+    height: 160px;
+  }
+
+  /* Smaller stat badges on mobile */
+  .admin-stat-badge {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+
+  .admin-stat-badge i {
+    font-size: 14px;
+  }
+
+  /* Action buttons even more compact on mobile */
+  .admin-card-actions .btn-group-actions .btn,
+  .admin-slide-actions .btn-group-actions .btn {
+    padding: 5px 8px;
+    font-size: 14px;
+    min-width: 30px;
+    min-height: 30px;
+    border-radius: 6px;
+  }
+
+  /* Toggle switch slightly smaller on mobile */
+  body:has(.topbar) .form-check-input {
+    width: 2.2em;
+    height: 1.1em;
+  }
+
+  body:has(.topbar) .form-check-label {
+    font-size: 13px;
+  }
+
+  /* btn-sm even more compact on mobile */
+  body:has(.topbar) .btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  /* Card D-flex actions used by other cards (BlogCard, TestimonialCard, etc.) */
+  body:has(.topbar) .card .d-flex.justify-content-between {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  body:has(.topbar) .card .d-flex.gap-1 {
+    gap: 3px !important;
+  }
+
+  /* Reduce form controls on mobile */
+  body:has(.topbar) .form-control-sm,
+  body:has(.topbar) .form-select-sm {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-height: 38px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 399.98px) {
+  .admin-card-actions,
+  .admin-slide-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-card-actions .form-check,
+  .admin-slide-actions .form-check {
+    margin-bottom: 4px;
+  }
+
+  .admin-card-actions .btn-group-actions,
+  .admin-slide-actions .btn-group-actions {
+    justify-content: flex-end;
+  }
+}
