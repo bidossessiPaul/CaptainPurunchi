@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { sendCustomerOrderConfirmation } from "@/lib/mail";
+import { notifyTeamNewOrder } from "@/lib/notification-helpers";
 
 export const GET = apiHandler(async (request) => {
   const { searchParams } = new URL(request.url);
@@ -23,7 +25,7 @@ export const GET = apiHandler(async (request) => {
 
 export const POST = apiHandler(async (request) => {
   const body = await request.json();
-  const { customerName, customerPhone, items, totalAmount, notes, orderDate } = body;
+  const { customerName, customerPhone, customerEmail, items, totalAmount, notes, orderDate, paymentMethod } = body;
 
   if (!customerName || !customerPhone || !items || !Array.isArray(items) || items.length === 0) {
     return NextResponse.json(
@@ -36,13 +38,32 @@ export const POST = apiHandler(async (request) => {
     data: {
       customerName,
       customerPhone,
+      customerEmail: customerEmail || "",
       items: JSON.stringify(items),
       totalAmount: totalAmount || "",
       notes: notes || "",
       status: "pending",
+      paymentMethod: paymentMethod || "",
       orderDate: orderDate || new Date().toISOString().split("T")[0],
     },
   });
+
+  // Send customer confirmation email (non-blocking)
+  if (customerEmail) {
+    sendCustomerOrderConfirmation({
+      to: customerEmail,
+      customerName,
+      items: items.map((i: { dishName: string; quantity: number; price: string }) => ({
+        name: i.dishName,
+        qty: i.quantity,
+        price: i.price,
+      })),
+      totalAmount: totalAmount || "",
+    }).catch(() => {});
+  }
+
+  // Notify team (non-blocking)
+  notifyTeamNewOrder(customerName, items.length, totalAmount || "").catch(() => {});
 
   return NextResponse.json(
     { ...order, items: JSON.parse(order.items) },

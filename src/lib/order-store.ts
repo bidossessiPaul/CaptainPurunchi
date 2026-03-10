@@ -5,10 +5,12 @@ function toOrder(o: {
   id: string;
   customerName: string;
   customerPhone: string;
+  customerEmail: string;
   items: string;
   totalAmount: string;
   notes: string;
   status: string;
+  paymentMethod: string;
   orderDate: string;
   createdAt: Date;
   updatedAt: Date;

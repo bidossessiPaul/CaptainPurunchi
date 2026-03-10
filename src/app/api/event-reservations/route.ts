@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { sendCustomerReservationConfirmation } from "@/lib/mail";
+import { notifyTeamNewReservation } from "@/lib/notification-helpers";
 
 export const GET = apiHandler(async (request) => {
   const { searchParams } = new URL(request.url);
@@ -25,7 +27,7 @@ export const GET = apiHandler(async (request) => {
 
 export const POST = apiHandler(async (request) => {
   const body = await request.json();
-  const { customerName, customerPhone, eventId, eventTitle, attendees, notes } = body;
+  const { customerName, customerPhone, customerEmail, eventId, eventTitle, attendees, notes, paymentMethod } = body;
 
   if (!customerName || !customerPhone || !eventId || !eventTitle) {
     return NextResponse.json(
@@ -38,12 +40,30 @@ export const POST = apiHandler(async (request) => {
     data: {
       customerName,
       customerPhone,
+      customerEmail: customerEmail || "",
       eventId,
       eventTitle,
       attendees: attendees || "",
       notes: notes || "",
+      paymentMethod: paymentMethod || "",
     },
   });
+
+  // Send customer confirmation email (non-blocking)
+  if (customerEmail) {
+    sendCustomerReservationConfirmation({
+      to: customerEmail,
+      customerName,
+      type: "event",
+      details: [
+        { label: "Événement", value: eventTitle },
+        { label: "Participants", value: attendees || "Non précisé" },
+      ],
+    }).catch(() => {});
+  }
+
+  // Notify team (non-blocking)
+  notifyTeamNewReservation("event", customerName, `${eventTitle} — ${attendees || "?"} pers.`, eventTitle).catch(() => {});
 
   return NextResponse.json(
     {

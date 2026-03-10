@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Order } from "@/app/types/order";
 import OrderCard from "./OrderCard";
+import OrderForm from "./OrderForm";
 import ConfirmModal from "../ConfirmModal";
 
 const TABS = [
@@ -17,12 +18,15 @@ function todayStr() {
   return new Date().toISOString().split("T")[0];
 }
 
+type FormMode = null | { action: "create" } | { action: "edit"; data: Order };
+
 export default function OrdersManager() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [selectedDate, setSelectedDate] = useState(todayStr());
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [formMode, setFormMode] = useState<FormMode>(null);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -57,10 +61,24 @@ export default function OrdersManager() {
     await fetchOrders();
   };
 
+  const handleFormSave = () => {
+    setFormMode(null);
+    fetchOrders();
+  };
+
   const pendingCount = orders.filter((o) => o.status === "pending").length;
 
   return (
     <>
+      {/* Form */}
+      {formMode && (
+        <OrderForm
+          order={formMode.action === "edit" ? formMode.data : null}
+          onSave={handleFormSave}
+          onCancel={() => setFormMode(null)}
+        />
+      )}
+
       {/* Date + tabs */}
       <div className="row mb-3">
         <div className="col">
@@ -82,6 +100,15 @@ export default function OrdersManager() {
               {orders.length} commande{orders.length !== 1 ? "s" : ""}
               {pendingCount > 0 && <span className="badge bg-warning ms-2">{pendingCount} en attente</span>}
             </span>
+            {!formMode && (
+              <button
+                className="btn btn-success ms-auto"
+                onClick={() => setFormMode({ action: "create" })}
+              >
+                <i className="fa-solid fa-plus me-1"></i>
+                Nouvelle commande
+              </button>
+            )}
           </div>
 
           <ul className="nav nav-tabs">
@@ -124,6 +151,7 @@ export default function OrdersManager() {
                 order={order}
                 onChangeStatus={handleChangeStatus}
                 onDelete={(id) => setDeleteTarget(id)}
+                onEdit={(o) => setFormMode({ action: "edit", data: o })}
               />
             </div>
           ))}

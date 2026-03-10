@@ -195,10 +195,12 @@ model Order {
   id            String   @id @default(uuid())
   customerName  String   @db.VarChar(255)
   customerPhone String   @db.VarChar(100)
+  customerEmail String   @default("") @db.VarChar(255)
   items         String   @db.Text
   totalAmount   String   @db.VarChar(100)
   notes         String   @default("") @db.Text
   status        String   @default("pending") @db.VarChar(50)
+  paymentMethod String   @default("") @db.VarChar(50)
   orderDate     String   @db.VarChar(20)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -211,11 +213,13 @@ model TableReservation {
   id              String   @id @default(uuid())
   name            String   @db.VarChar(255)
   phone           String   @db.VarChar(100)
+  email           String   @default("") @db.VarChar(255)
   numberOfPersons String   @db.VarChar(50)
   date            String   @db.VarChar(20)
   time            String   @db.VarChar(20)
   message         String   @default("") @db.Text
   status          String   @default("pending") @db.VarChar(50)
+  paymentMethod   String   @default("") @db.VarChar(50)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -227,6 +231,7 @@ model RoomReservation {
   id            String   @id @default(uuid())
   customerName  String   @db.VarChar(255)
   customerPhone String   @db.VarChar(100)
+  customerEmail String   @default("") @db.VarChar(255)
   roomId        String   @db.VarChar(255)
   roomName      String   @db.VarChar(255)
   checkIn       String   @db.VarChar(20)
@@ -234,6 +239,7 @@ model RoomReservation {
   guests        String   @db.VarChar(50)
   notes         String   @default("") @db.Text
   status        String   @default("pending") @db.VarChar(50)
+  paymentMethod String   @default("") @db.VarChar(50)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -245,11 +251,13 @@ model EventReservation {
   id            String   @id @default(uuid())
   customerName  String   @db.VarChar(255)
   customerPhone String   @db.VarChar(100)
+  customerEmail String   @default("") @db.VarChar(255)
   eventId       String   @db.VarChar(255)
   eventTitle    String   @db.VarChar(255)
   attendees     String   @db.VarChar(50)
   notes         String   @default("") @db.Text
   status        String   @default("pending") @db.VarChar(50)
+  paymentMethod String   @default("") @db.VarChar(50)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -268,4 +276,156 @@ model ContactMessage {
   createdAt DateTime @default(now())
 
   @@map("contact_messages")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(255)
+  email     String    @unique @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  role      String    @default("waiter") @db.VarChar(50)
+  avatar    String?   @db.VarChar(500)
+  active    Boolean   @default(true)
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String   @db.VarChar(255)
+  userName  String   @db.VarChar(255)
+  action    String   @db.VarChar(100)
+  target    String   @db.VarChar(100)
+  targetId  String?  @db.VarChar(255)
+  details   String   @default("") @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("activity_logs")
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Revenue {
+  id            String   @id @default(uuid())
+  amount        Int
+  source        String   @db.VarChar(50)
+  sourceId      String   @default("") @db.VarChar(255)
+  description   String   @db.VarChar(500)
+  paymentMethod String   @default("") @db.VarChar(50)
+  date          String   @db.VarChar(20)
+  createdBy     String   @default("") @db.VarChar(255)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("revenues")
+  @@index([date])
+  @@index([source])
+}
+
+model Expense {
+  id            String   @id @default(uuid())
+  amount        Int
+  category      String   @db.VarChar(100)
+  supplier      String   @default("") @db.VarChar(255)
+  description   String   @db.VarChar(500)
+  paymentMethod String   @default("") @db.VarChar(50)
+  receipt       String   @default("") @db.VarChar(500)
+  date          String   @db.VarChar(20)
+  status        String   @default("approved") @db.VarChar(50)
+  createdBy     String   @default("") @db.VarChar(255)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("expenses")
+  @@index([date])
+  @@index([category])
+}
+
+model CashRegister {
+  id             String    @id @default(uuid())
+  date           String    @db.VarChar(20)
+  openedBy       String    @db.VarChar(255)
+  closedBy       String    @default("") @db.VarChar(255)
+  openingBalance Int       @default(0)
+  especes        Int       @default(0)
+  carte          Int       @default(0)
+  mtnMoney       Int       @default(0)
+  moovMoney      Int       @default(0)
+  virement       Int       @default(0)
+  closingBalance Int       @default(0)
+  difference     Int       @default(0)
+  notes          String    @default("") @db.Text
+  status         String    @default("open") @db.VarChar(20)
+  closedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("cash_registers")
+  @@index([date])
+  @@index([status])
+}
+
+model Invoice {
+  id            String   @id @default(uuid())
+  invoiceNumber String   @unique @db.VarChar(50)
+  customerName  String   @db.VarChar(255)
+  customerEmail String   @default("") @db.VarChar(255)
+  customerPhone String   @default("") @db.VarChar(100)
+  items         String   @db.Text
+  subtotal      Int
+  tax           Int      @default(0)
+  total         Int
+  status        String   @default("draft") @db.VarChar(50)
+  dueDate       String   @default("") @db.VarChar(20)
+  paidDate      String   @default("") @db.VarChar(20)
+  notes         String   @default("") @db.Text
+  createdBy     String   @default("") @db.VarChar(255)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("invoices")
+  @@index([status])
+}
+
+model StockItem {
+  id           String   @id @default(uuid())
+  name         String   @db.VarChar(255)
+  description  String   @default("") @db.VarChar(500)
+  category     String   @db.VarChar(100)
+  unit         String   @db.VarChar(50)
+  currentStock Float    @default(0)
+  minStock     Float    @default(0)
+  unitPrice    Int      @default(0)
+  supplier     String   @default("") @db.VarChar(255)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("stock_items")
+  @@index([category])
+  @@index([active])
+}
+
+model StockMovement {
+  id            String   @id @default(uuid())
+  stockItemId   String   @db.VarChar(255)
+  stockItemName String   @default("") @db.VarChar(255)
+  type          String   @db.VarChar(50)
+  quantity      Float
+  unitPrice     Int      @default(0)
+  totalCost     Int      @default(0)
+  reason        String   @default("") @db.VarChar(500)
+  date          String   @db.VarChar(20)
+  createdBy     String   @default("") @db.VarChar(255)
+  createdAt     DateTime @default(now())
+
+  @@map("stock_movements")
+  @@index([stockItemId])
+  @@index([type])
+  @@index([date])
 }

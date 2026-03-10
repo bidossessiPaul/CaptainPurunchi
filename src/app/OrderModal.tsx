@@ -32,6 +32,7 @@ export default function OrderModal({
   const [cart, setCart] = useState<Map<string, CartItem>>(new Map());
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [step, setStep] = useState<"select" | "info" | "success">("select");
   const [submitting, setSubmitting] = useState(false);
@@ -76,6 +77,7 @@ export default function OrderModal({
       body: JSON.stringify({
         customerName: name.trim(),
         customerPhone: phone.trim(),
+        customerEmail: email.trim(),
         items,
         totalAmount: formatTotal(totalAmount),
         notes: notes.trim(),
@@ -191,6 +193,15 @@ export default function OrderModal({
                   />
                 </div>
                 <div className="order-form-group">
+                  <label>Email (optionnel)</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Pour recevoir la confirmation"
+                  />
+                </div>
+                <div className="order-form-group">
                   <label>Notes (optionnel)</label>
                   <textarea
                     value={notes}
@@ -237,7 +248,7 @@ export default function OrderModal({
                 <i className="fa fa-check-circle"></i>
               </div>
               <h3>Commande envoyée !</h3>
-              <p>Nous avons bien reçu votre commande. Vous serez contacté sous peu.</p>
+              <p>{email ? "Un email de confirmation vous a été envoyé." : "Nous avons bien reçu votre commande. Vous serez contacté sous peu."}</p>
             </div>
             <div className="order-modal-body">
               <div className="order-recap">

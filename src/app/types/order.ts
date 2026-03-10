@@ -10,10 +10,12 @@ export interface Order {
   id: string;
   customerName: string;
   customerPhone: string;
+  customerEmail: string;
   items: OrderItem[];
   totalAmount: string;
   notes: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
+  paymentMethod: string;
   orderDate: string;
   createdAt: string;
   updatedAt: string;

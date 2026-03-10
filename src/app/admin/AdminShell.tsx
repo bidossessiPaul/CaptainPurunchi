@@ -16,13 +16,30 @@ interface NotifItem {
   time: string;
 }
 
+interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string | null;
+}
+
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarSize, setSidebarSize] = useState<"default" | "collapsed">("default");
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotifItem[]>([]);
+  const [user, setUser] = useState<UserInfo | null>(null);
   const notifRef = useRef<HTMLLIElement>(null);
   const isLoginPage = pathname === "/admin/login";
+
+  // Fetch current user
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (data) setUser(data); })
+      .catch(() => {});
+  }, []);
 
   // On mobile start collapsed, on desktop start default
   useEffect(() => {
@@ -376,13 +393,36 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 )}
               </li>
               <li className="dropdown topbar-item">
-                <a className="nav-link dropdown-toggle arrow-none nav-icon" href="#" role="button">
+                <Link
+                  href="/admin/profile"
+                  className="nav-link dropdown-toggle arrow-none nav-icon"
+                  title="Mon profil"
+                >
                   <div className="d-flex align-items-center">
-                    <div className="flex-shrink-0 bg-primary-subtle text-primary thumb-md rounded-circle d-flex align-items-center justify-content-center">
-                      <span className="fw-bold">A</span>
-                    </div>
+                    {user?.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="thumb-md rounded-circle"
+                        style={{ objectFit: "cover", width: 36, height: 36 }}
+                      />
+                    ) : (
+                      <div
+                        className="flex-shrink-0 thumb-md rounded-circle d-flex align-items-center justify-content-center"
+                        style={{
+                          background: "linear-gradient(135deg, #5BC0EB, #3a9cc7)",
+                          color: "#fff",
+                          width: 36,
+                          height: 36,
+                        }}
+                      >
+                        <span className="fw-bold" style={{ fontSize: 13 }}>
+                          {user ? user.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) : "A"}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>

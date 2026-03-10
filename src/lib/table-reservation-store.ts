@@ -5,11 +5,13 @@ function toTableReservation(r: {
   id: string;
   name: string;
   phone: string;
+  email: string;
   numberOfPersons: string;
   date: string;
   time: string;
   message: string;
   status: string;
+  paymentMethod: string;
   createdAt: Date;
   updatedAt: Date;
 }): TableReservation {

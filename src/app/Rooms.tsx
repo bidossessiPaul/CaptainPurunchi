@@ -12,6 +12,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
   const [resCheckIn, setResCheckIn] = useState("");
   const [resCheckOut, setResCheckOut] = useState("");
   const [resGuests, setResGuests] = useState("");
+  const [resEmail, setResEmail] = useState("");
   const [resNotes, setResNotes] = useState("");
   const [resSubmitting, setResSubmitting] = useState(false);
   const [resSuccess, setResSuccess] = useState(false);
@@ -27,6 +28,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
     setShowReserveForm(false);
     setResName("");
     setResPhone("");
+    setResEmail("");
     setResCheckIn("");
     setResCheckOut("");
     setResGuests("");
@@ -44,6 +46,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
       body: JSON.stringify({
         customerName: resName,
         customerPhone: resPhone,
+        customerEmail: resEmail,
         roomId: room.id,
         roomName: room.name,
         checkIn: resCheckIn,
@@ -162,7 +165,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
                 <div className="reserve-inline-success">
                   <i className="fa fa-check-circle"></i>
                   <p>Votre demande de r&eacute;servation a &eacute;t&eacute; envoy&eacute;e !</p>
-                  <span>Nous vous contacterons pour confirmer.</span>
+                  <span>{resEmail ? "Un email de confirmation vous a été envoyé." : "Nous vous contacterons pour confirmer."}</span>
                   {whatsapp && (
                     <a
                       href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(
@@ -190,6 +193,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
                     <input type="text" placeholder="Votre nom *" value={resName} onChange={(e) => setResName(e.target.value)} />
                     <input type="tel" placeholder="T&eacute;l&eacute;phone *" value={resPhone} onChange={(e) => setResPhone(e.target.value)} />
                   </div>
+                  <input type="email" placeholder="Email (pour recevoir la confirmation)" value={resEmail} onChange={(e) => setResEmail(e.target.value)} style={{ width: "100%" }} />
                   <div className="reserve-inline-row">
                     <div className="reserve-inline-field">
                       <label>Arriv&eacute;e *</label>

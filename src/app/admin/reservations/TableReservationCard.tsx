@@ -1,4 +1,5 @@
 import type { TableReservation } from "@/app/types/table-reservation";
+import { PAYMENT_LABELS } from "@/lib/constants";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "warning",
@@ -18,10 +19,12 @@ export default function TableReservationCard({
   reservation,
   onChangeStatus,
   onDelete,
+  onEdit,
 }: {
   reservation: TableReservation;
   onChangeStatus: (id: string, status: TableReservation["status"]) => void;
   onDelete: (id: string) => void;
+  onEdit?: (reservation: TableReservation) => void;
 }) {
   const r = reservation;
   const dateStr = new Date(r.date + "T12:00:00").toLocaleDateString("fr-FR", {
@@ -39,6 +42,11 @@ export default function TableReservationCard({
             <a href={`tel:${r.phone}`} className="text-muted fs-13">
               <i className="iconoir-phone me-1"></i>{r.phone}
             </a>
+            {r.email && (
+              <div className="fs-13 text-muted">
+                <i className="iconoir-mail me-1"></i>{r.email}
+              </div>
+            )}
           </div>
           <span className={`badge bg-${STATUS_COLORS[r.status]}`}>
             {STATUS_LABELS[r.status]}
@@ -55,6 +63,11 @@ export default function TableReservationCard({
           {r.message && (
             <div className="fs-13 text-muted">
               <i className="iconoir-message me-1"></i> {r.message}
+            </div>
+          )}
+          {r.paymentMethod && PAYMENT_LABELS[r.paymentMethod] && (
+            <div className="fs-13 text-muted">
+              <i className="iconoir-credit-card me-1"></i> {PAYMENT_LABELS[r.paymentMethod]}
             </div>
           )}
         </div>
@@ -75,6 +88,19 @@ export default function TableReservationCard({
               Annuler
             </button>
           )}
+          {onEdit && (
+            <button className="btn btn-sm btn-outline-secondary" onClick={() => onEdit(r)}>
+              <i className="iconoir-edit-pencil me-1"></i>Modifier
+            </button>
+          )}
+          <a
+            href={`https://wa.me/${r.phone.replace(/[^0-9]/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm btn-outline-success"
+          >
+            <i className="fa-brands fa-whatsapp me-1"></i>WhatsApp
+          </a>
           <button className="btn btn-sm btn-outline-danger ms-auto" onClick={() => onDelete(r.id)}>
             <i className="iconoir-trash"></i>
           </button>

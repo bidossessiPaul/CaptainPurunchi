@@ -1,0 +1,186 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import type { RoomReservation } from "@/app/types/room-reservation";
+import type { Room } from "@/app/types/room";
+import { PAYMENT_METHODS } from "@/lib/constants";
+
+interface Props {
+  reservation: RoomReservation | null;
+  onSave: () => void;
+  onCancel: () => void;
+}
+
+const STATUS_OPTIONS = [
+  { value: "pending", label: "En attente" },
+  { value: "confirmed", label: "Confirmé" },
+  { value: "completed", label: "Terminé" },
+  { value: "cancelled", label: "Annulé" },
+];
+
+export default function RoomReservationForm({ reservation, onSave, onCancel }: Props) {
+  const [customerName, setCustomerName] = useState(reservation?.customerName ?? "");
+  const [customerPhone, setCustomerPhone] = useState(reservation?.customerPhone ?? "");
+  const [customerEmail, setCustomerEmail] = useState(reservation?.customerEmail ?? "");
+  const [roomId, setRoomId] = useState(reservation?.roomId ?? "");
+  const [roomName, setRoomName] = useState(reservation?.roomName ?? "");
+  const [checkIn, setCheckIn] = useState(reservation?.checkIn ?? "");
+  const [checkOut, setCheckOut] = useState(reservation?.checkOut ?? "");
+  const [guests, setGuests] = useState(reservation?.guests ?? "");
+  const [notes, setNotes] = useState(reservation?.notes ?? "");
+  const [status, setStatus] = useState(reservation?.status ?? "pending");
+  const [paymentMethod, setPaymentMethod] = useState(reservation?.paymentMethod ?? "");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [availError, setAvailError] = useState("");
+
+  const isEditing = !!reservation;
+
+  useEffect(() => {
+    fetch("/api/rooms").then((r) => r.json()).then(setRooms).catch(() => {});
+  }, []);
+
+  const handleRoomChange = (id: string) => {
+    setRoomId(id);
+    const room = rooms.find((r) => r.id === id);
+    if (room) setRoomName(room.name);
+  };
+
+  const checkAvailability = async () => {
+    if (!roomId || !checkIn || !checkOut) return true;
+    const params = new URLSearchParams({ roomId, checkIn, checkOut });
+    if (isEditing) params.set("excludeId", reservation.id);
+    const res = await fetch(`/api/room-reservations/check-availability?${params}`);
+    const data = await res.json();
+    if (!data.available) {
+      setAvailError("Cette chambre n'est pas disponible pour ces dates");
+      return false;
+    }
+    setAvailError("");
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setAvailError("");
+
+    if (!customerName || !customerPhone || !roomId || !checkIn || !checkOut) {
+      setError("Nom, téléphone, chambre, arrivée et départ sont obligatoires");
+      return;
+    }
+
+    const available = await checkAvailability();
+    if (!available) return;
+
+    setLoading(true);
+    try {
+      const body = { customerName, customerPhone, customerEmail, roomId, roomName, checkIn, checkOut, guests, notes, status, paymentMethod };
+      const url = isEditing ? `/api/room-reservations/${reservation.id}` : "/api/room-reservations";
+      const res = await fetch(url, {
+        method: isEditing ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Erreur serveur");
+      }
+      onSave();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="row mb-3">
+      <div className="col-lg-8 col-xl-6">
+        <div className="card border">
+          <div className="card-header">
+            <h4 className="card-title">
+              {isEditing ? "Modifier la réservation chambre" : "Nouvelle réservation chambre"}
+            </h4>
+          </div>
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Nom *</label>
+                  <input type="text" className="form-control" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Téléphone *</label>
+                  <input type="tel" className="form-control" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} required />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Email</label>
+                  <input type="email" className="form-control" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Chambre *</label>
+                  <select className="form-select" value={roomId} onChange={(e) => handleRoomChange(e.target.value)} required>
+                    <option value="">Sélectionner une chambre</option>
+                    {rooms.map((r) => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Arrivée *</label>
+                  <input type="date" className="form-control" value={checkIn} onChange={(e) => { setCheckIn(e.target.value); setAvailError(""); }} required />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Départ *</label>
+                  <input type="date" className="form-control" value={checkOut} onChange={(e) => { setCheckOut(e.target.value); setAvailError(""); }} required />
+                </div>
+                {availError && (
+                  <div className="col-12">
+                    <div className="alert alert-warning py-2 mb-0">{availError}</div>
+                  </div>
+                )}
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Voyageurs</label>
+                  <input type="text" className="form-control" value={guests} onChange={(e) => setGuests(e.target.value)} placeholder="ex: 2 personnes" />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Mode de paiement</label>
+                  <select className="form-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                    {PAYMENT_METHODS.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-12">
+                  <label className="form-label fw-semibold">Notes</label>
+                  <textarea className="form-control" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+                </div>
+                {isEditing && (
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">Statut</label>
+                    <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value as RoomReservation["status"])}>
+                      {STATUS_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {error && <div className="alert alert-danger mt-3 mb-0 py-2">{error}</div>}
+
+              <div className="d-flex gap-2 mt-3">
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                  {loading ? "Enregistrement..." : isEditing ? "Enregistrer" : "Créer"}
+                </button>
+                <button type="button" className="btn btn-light" onClick={onCancel}>Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

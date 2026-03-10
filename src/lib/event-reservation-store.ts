@@ -5,11 +5,13 @@ function toEventReservation(r: {
   id: string;
   customerName: string;
   customerPhone: string;
+  customerEmail: string;
   eventId: string;
   eventTitle: string;
   attendees: string;
   notes: string;
   status: string;
+  paymentMethod: string;
   createdAt: Date;
   updatedAt: Date;
 }): EventReservation {

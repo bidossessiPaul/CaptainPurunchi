@@ -8,6 +8,9 @@ import type { EventReservation } from "@/app/types/event-reservation";
 import TableReservationCard from "./TableReservationCard";
 import RoomReservationCard from "./RoomReservationCard";
 import EventReservationCard from "./EventReservationCard";
+import TableReservationForm from "./TableReservationForm";
+import RoomReservationForm from "./RoomReservationForm";
+import EventReservationForm from "./EventReservationForm";
 import ConfirmModal from "../ConfirmModal";
 
 const TYPE_TABS = [
@@ -37,6 +40,13 @@ type UnifiedReservation =
   | { type: "room"; data: RoomReservation; createdAt: string }
   | { type: "event"; data: EventReservation; createdAt: string };
 
+type FormMode =
+  | null
+  | { action: "create"; type: "table" | "room" | "event" }
+  | { action: "edit"; type: "table"; data: TableReservation }
+  | { action: "edit"; type: "room"; data: RoomReservation }
+  | { action: "edit"; type: "event"; data: EventReservation };
+
 const VALID_TYPES: ActiveType[] = ["all", "table", "room", "event"];
 
 export default function ReservationsManager() {
@@ -55,6 +65,7 @@ export default function ReservationsManager() {
 
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+  const [formMode, setFormMode] = useState<FormMode>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -123,6 +134,11 @@ export default function ReservationsManager() {
     await fetchData();
   };
 
+  const handleFormSave = () => {
+    setFormMode(null);
+    fetchData();
+  };
+
   // Build unified list for "all" view
   const allReservations: UnifiedReservation[] =
     activeType === "all"
@@ -157,12 +173,40 @@ export default function ReservationsManager() {
     event: { text: "Événement", cls: "info", icon: "fa-solid fa-people-group" },
   };
 
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
+
+  // Determine which create type to use
+  const createType = activeType === "all" ? null : activeType;
+
   return (
     <>
+      {/* Form */}
+      {formMode && formMode.type === "table" && (
+        <TableReservationForm
+          reservation={formMode.action === "edit" ? formMode.data : null}
+          onSave={handleFormSave}
+          onCancel={() => setFormMode(null)}
+        />
+      )}
+      {formMode && formMode.type === "room" && (
+        <RoomReservationForm
+          reservation={formMode.action === "edit" ? formMode.data : null}
+          onSave={handleFormSave}
+          onCancel={() => setFormMode(null)}
+        />
+      )}
+      {formMode && formMode.type === "event" && (
+        <EventReservationForm
+          reservation={formMode.action === "edit" ? formMode.data : null}
+          onSave={handleFormSave}
+          onCancel={() => setFormMode(null)}
+        />
+      )}
+
       {/* Type tabs */}
       <div className="row mb-3">
         <div className="col">
-          <div className="d-flex gap-2 mb-3 flex-wrap">
+          <div className="d-flex gap-2 mb-3 flex-wrap align-items-center">
             {TYPE_TABS.map((tab) => (
               <button
                 key={tab.key}
@@ -171,12 +215,48 @@ export default function ReservationsManager() {
                   setActiveType(tab.key);
                   setActiveStatus("all");
                   setSelectedDate("");
+                  setFormMode(null);
                 }}
               >
                 <i className={`${tab.icon} me-1`}></i>
                 {tab.label}
               </button>
             ))}
+
+            {/* Create button */}
+            {!formMode && createType && (
+              <button
+                className="btn btn-success ms-auto"
+                onClick={() => setFormMode({ action: "create", type: createType })}
+              >
+                <i className="fa-solid fa-plus me-1"></i>
+                Nouvelle réservation
+              </button>
+            )}
+            {!formMode && activeType === "all" && (
+              <div className="position-relative ms-auto">
+                <button
+                  className="btn btn-success"
+                  onClick={() => setShowCreateMenu((v) => !v)}
+                >
+                  <i className="fa-solid fa-plus me-1"></i>
+                  Nouvelle réservation
+                </button>
+                {showCreateMenu && (
+                  <div className="dropdown-menu show" style={{ position: "absolute", right: 0, top: "100%", marginTop: 4 }}>
+                    <button className="dropdown-item" onClick={() => { setShowCreateMenu(false); setFormMode({ action: "create", type: "table" }); }}>
+                      <i className="fa-solid fa-utensils me-2"></i>Table
+                    </button>
+                    <button className="dropdown-item" onClick={() => { setShowCreateMenu(false); setFormMode({ action: "create", type: "room" }); }}>
+                      <i className="fa-solid fa-bed me-2"></i>Chambre
+                    </button>
+                    <button className="dropdown-item" onClick={() => { setShowCreateMenu(false); setFormMode({ action: "create", type: "event" }); }}>
+                      <i className="fa-solid fa-people-group me-2"></i>Événement
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Date picker for table reservations */}
@@ -267,6 +347,7 @@ export default function ReservationsManager() {
                         reservation={item.data}
                         onChangeStatus={(id, status) => handleChangeStatus(id, status, "table")}
                         onDelete={(id) => setDeleteTarget({ id, type: "table" })}
+                        onEdit={(r) => setFormMode({ action: "edit", type: "table", data: r })}
                       />
                     )}
                     {item.type === "room" && (
@@ -274,6 +355,7 @@ export default function ReservationsManager() {
                         reservation={item.data}
                         onChangeStatus={(id, status) => handleChangeStatus(id, status, "room")}
                         onDelete={(id) => setDeleteTarget({ id, type: "room" })}
+                        onEdit={(r) => setFormMode({ action: "edit", type: "room", data: r })}
                       />
                     )}
                     {item.type === "event" && (
@@ -281,6 +363,7 @@ export default function ReservationsManager() {
                         reservation={item.data}
                         onChangeStatus={(id, status) => handleChangeStatus(id, status, "event")}
                         onDelete={(id) => setDeleteTarget({ id, type: "event" })}
+                        onEdit={(r) => setFormMode({ action: "edit", type: "event", data: r })}
                       />
                     )}
                   </div>
@@ -296,6 +379,7 @@ export default function ReservationsManager() {
                   reservation={r}
                   onChangeStatus={(id, status) => handleChangeStatus(id, status, "table")}
                   onDelete={(id) => setDeleteTarget({ id, type: "table" })}
+                  onEdit={(res) => setFormMode({ action: "edit", type: "table", data: res })}
                 />
               </div>
             ))}
@@ -306,6 +390,7 @@ export default function ReservationsManager() {
                   reservation={r}
                   onChangeStatus={(id, status) => handleChangeStatus(id, status, "room")}
                   onDelete={(id) => setDeleteTarget({ id, type: "room" })}
+                  onEdit={(res) => setFormMode({ action: "edit", type: "room", data: res })}
                 />
               </div>
             ))}
@@ -316,6 +401,7 @@ export default function ReservationsManager() {
                   reservation={r}
                   onChangeStatus={(id, status) => handleChangeStatus(id, status, "event")}
                   onDelete={(id) => setDeleteTarget({ id, type: "event" })}
+                  onEdit={(res) => setFormMode({ action: "edit", type: "event", data: res })}
                 />
               </div>
             ))}

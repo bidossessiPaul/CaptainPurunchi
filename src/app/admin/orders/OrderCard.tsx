@@ -1,11 +1,13 @@
 "use client";
 
 import type { Order } from "@/app/types/order";
+import { PAYMENT_LABELS } from "@/lib/constants";
 
 interface OrderCardProps {
   order: Order;
   onChangeStatus: (id: string, status: Order["status"]) => void;
   onDelete: (id: string) => void;
+  onEdit?: (order: Order) => void;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -15,7 +17,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   cancelled: { label: "Annulé", color: "danger" },
 };
 
-export default function OrderCard({ order, onChangeStatus, onDelete }: OrderCardProps) {
+export default function OrderCard({ order, onChangeStatus, onDelete, onEdit }: OrderCardProps) {
   const status = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
   const createdTime = new Date(order.createdAt).toLocaleTimeString("fr-FR", {
     hour: "2-digit",
@@ -32,6 +34,11 @@ export default function OrderCard({ order, onChangeStatus, onDelete }: OrderCard
             <a href={`tel:${order.customerPhone}`} className="text-muted fs-13">
               <i className="iconoir-phone me-1"></i>{order.customerPhone}
             </a>
+            {order.customerEmail && (
+              <div className="fs-13 text-muted">
+                <i className="iconoir-mail me-1"></i>{order.customerEmail}
+              </div>
+            )}
           </div>
           <span className={`badge bg-${status.color}`}>{status.label}</span>
         </div>
@@ -57,6 +64,12 @@ export default function OrderCard({ order, onChangeStatus, onDelete }: OrderCard
           </p>
         )}
 
+        {order.paymentMethod && PAYMENT_LABELS[order.paymentMethod] && (
+          <p className="text-muted fs-13 mb-2">
+            <i className="iconoir-credit-card me-1"></i>{PAYMENT_LABELS[order.paymentMethod]}
+          </p>
+        )}
+
         <p className="text-muted fs-12 mb-2">
           <i className="iconoir-clock me-1"></i>{createdTime}
         </p>
@@ -70,12 +83,17 @@ export default function OrderCard({ order, onChangeStatus, onDelete }: OrderCard
           )}
           {order.status === "confirmed" && (
             <button className="btn btn-sm btn-success" onClick={() => onChangeStatus(order.id, "completed")}>
-              <i className="iconoir-check-double me-1"></i>Termin&eacute;
+              <i className="iconoir-check-double me-1"></i>Terminé
             </button>
           )}
           {(order.status === "pending" || order.status === "confirmed") && (
             <button className="btn btn-sm btn-outline-danger" onClick={() => onChangeStatus(order.id, "cancelled")}>
               Annuler
+            </button>
+          )}
+          {onEdit && (
+            <button className="btn btn-sm btn-outline-secondary" onClick={() => onEdit(order)}>
+              <i className="iconoir-edit-pencil me-1"></i>Modifier
             </button>
           )}
           <a

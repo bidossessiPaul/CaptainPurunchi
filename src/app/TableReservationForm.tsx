@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function TableReservationForm({ whatsapp }: { whatsapp?: string }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [numberOfPersons, setNumberOfPersons] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -25,7 +26,7 @@ export default function TableReservationForm({ whatsapp }: { whatsapp?: string }
       const res = await fetch("/api/table-reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, numberOfPersons, date, time, message }),
+        body: JSON.stringify({ name, phone, email: email.trim() || undefined, numberOfPersons, date, time, message }),
       });
 
       if (res.ok) {
@@ -33,6 +34,7 @@ export default function TableReservationForm({ whatsapp }: { whatsapp?: string }
         setSuccess(true);
         setName("");
         setPhone("");
+        setEmail("");
         setNumberOfPersons("");
         setDate("");
         setTime("");
@@ -105,6 +107,16 @@ export default function TableReservationForm({ whatsapp }: { whatsapp?: string }
             required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div className="form-box">
+          <input
+            type="email"
+            placeholder="Email (pour recevoir la confirmation)"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
       </div>

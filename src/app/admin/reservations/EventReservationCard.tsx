@@ -1,4 +1,5 @@
 import type { EventReservation } from "@/app/types/event-reservation";
+import { PAYMENT_LABELS } from "@/lib/constants";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "warning",
@@ -18,10 +19,12 @@ export default function EventReservationCard({
   reservation,
   onChangeStatus,
   onDelete,
+  onEdit,
 }: {
   reservation: EventReservation;
   onChangeStatus: (id: string, status: EventReservation["status"]) => void;
   onDelete: (id: string) => void;
+  onEdit?: (reservation: EventReservation) => void;
 }) {
   const r = reservation;
 
@@ -34,6 +37,11 @@ export default function EventReservationCard({
             <a href={`tel:${r.customerPhone}`} className="text-muted fs-13">
               <i className="iconoir-phone me-1"></i>{r.customerPhone}
             </a>
+            {r.customerEmail && (
+              <div className="fs-13 text-muted">
+                <i className="iconoir-mail me-1"></i>{r.customerEmail}
+              </div>
+            )}
           </div>
           <span className={`badge bg-${STATUS_COLORS[r.status]}`}>
             {STATUS_LABELS[r.status]}
@@ -55,6 +63,11 @@ export default function EventReservationCard({
               <i className="iconoir-message me-1"></i> {r.notes}
             </div>
           )}
+          {r.paymentMethod && PAYMENT_LABELS[r.paymentMethod] && (
+            <div className="fs-13 text-muted">
+              <i className="iconoir-credit-card me-1"></i> {PAYMENT_LABELS[r.paymentMethod]}
+            </div>
+          )}
         </div>
 
         <div className="d-flex gap-1 flex-wrap">
@@ -73,6 +86,19 @@ export default function EventReservationCard({
               Annuler
             </button>
           )}
+          {onEdit && (
+            <button className="btn btn-sm btn-outline-secondary" onClick={() => onEdit(r)}>
+              <i className="iconoir-edit-pencil me-1"></i>Modifier
+            </button>
+          )}
+          <a
+            href={`https://wa.me/${r.customerPhone.replace(/[^0-9]/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm btn-outline-success"
+          >
+            <i className="fa-brands fa-whatsapp me-1"></i>WhatsApp
+          </a>
           <button className="btn btn-sm btn-outline-danger ms-auto" onClick={() => onDelete(r.id)}>
             <i className="iconoir-trash"></i>
           </button>

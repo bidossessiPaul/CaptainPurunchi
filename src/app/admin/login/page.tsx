@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,10 +16,13 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
+      const body: Record<string, string> = { password };
+      if (email) body.email = email;
+
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify(body),
       });
 
       if (res.ok) {
@@ -78,6 +82,41 @@ export default function AdminLoginPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "16px" }}>
+            <label
+              htmlFor="email"
+              style={{
+                display: "block",
+                fontSize: "13px",
+                fontWeight: 600,
+                color: "#1a3a5c",
+                marginBottom: "6px",
+              }}
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="votre@email.com"
+              autoComplete="email"
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                border: "2px solid #e9ecef",
+                borderRadius: "10px",
+                fontSize: "15px",
+                outline: "none",
+                transition: "border-color 0.2s",
+                boxSizing: "border-box",
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "#5BC0EB")}
+              onBlur={(e) => (e.target.style.borderColor = "#e9ecef")}
+            />
+          </div>
+
           <div style={{ marginBottom: "20px" }}>
             <label
               htmlFor="password"
@@ -98,6 +137,7 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Entrez le mot de passe"
               required
+              autoComplete="current-password"
               style={{
                 width: "100%",
                 padding: "12px 16px",
