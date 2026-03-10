@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { apiHandler } from "@/lib/api-handler";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export const POST = apiHandler(async (request: Request) => {
   const formData = await request.formData();
@@ -16,17 +15,8 @@ export const POST = apiHandler(async (request: Request) => {
     return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
   }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const src = await uploadToCloudinary(buffer, "events");
 
-  const ext = file.name.split(".").pop() || "jpg";
-  const filename = `event-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-  const dir = path.join(process.cwd(), "public", "images", "events");
-  await mkdir(dir, { recursive: true });
-
-  const filepath = path.join(dir, filename);
-  await writeFile(filepath, buffer);
-
-  return NextResponse.json({ src: `/images/events/${filename}` });
+  return NextResponse.json({ src });
 });

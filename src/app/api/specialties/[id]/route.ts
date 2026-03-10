@@ -3,6 +3,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 
 export const PUT = apiHandler(async (
   request: Request,
@@ -47,12 +48,13 @@ export const DELETE = apiHandler(async (
     }
   }
 
-  // Try to delete the image file
+  // Delete from Cloudinary or local filesystem
+  await deleteFromCloudinary(existing.src);
   try {
     const filePath = path.join(process.cwd(), "public", existing.src);
     await fs.unlink(filePath);
   } catch {
-    // File may not exist or is a seed image
+    // File may not exist locally
   }
 
   return NextResponse.json({ success: true });

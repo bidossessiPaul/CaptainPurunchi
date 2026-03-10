@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 import { apiHandler } from "@/lib/api-handler";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-const UPLOAD_DIR = path.join(process.cwd(), "public", "images", "specialties");
 
 export const POST = apiHandler(async (request: Request) => {
   const formData = await request.formData();
@@ -29,15 +27,8 @@ export const POST = apiHandler(async (request: Request) => {
     );
   }
 
-  const ext = file.name.split(".").pop()?.toLowerCase() || "webp";
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const filePath = path.join(UPLOAD_DIR, filename);
-
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
-
   const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(filePath, buffer);
+  const src = await uploadToCloudinary(buffer, "specialties");
 
-  const src = `/images/specialties/${filename}`;
   return NextResponse.json({ src }, { status: 201 });
 });
