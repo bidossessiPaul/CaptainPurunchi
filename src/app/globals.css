@@ -58,8 +58,8 @@
 
 .hero-content h1 {
   font-family: 'nautilus_pompiliusregular';
-  font-size: 74px;
-  letter-spacing: 2.7px;
+  font-size: 130px;
+  letter-spacing: 3.3px;
   color: #fff;
   padding-top: 100px;
   padding-bottom: 0;
@@ -67,7 +67,7 @@
 
 .hero-content h2 {
   font-family: 'nautilus_pompiliusregular';
-  font-size: 37px;
+  font-size: 45px;
   letter-spacing: 2.7px;
   color: #5BC0EB;
   padding-bottom: 25px;
@@ -206,7 +206,7 @@
 
 @media (max-width: 768px) {
   .hero-content h1 {
-    font-size: 42px;
+    font-size: 78px;
     padding-top: 60px;
   }
 

@@ -138,11 +138,12 @@
     }
 
    .navbar-collapse.collapse.in {  /* NEW */
-        display: block!important; 
-		background: #202020;
+        display: block!important;
+		background: #ffffff !important;
     }
 	.main-menu nav li a{
 		padding: 15px 0px;
+		color: #000000 !important;
 	}
 	.panel-body p strong{
 		font-size: 28px;
@@ -184,8 +185,11 @@
 		top: 35px;
 	}
 	.navbar-nav{
-		background: #202020;
+		background: #ffffff !important;
 		margin: 0px 0px;
+	}
+	.navbar-nav > li > a {
+		color: #000000 !important;
 	}
 	.banner {
 		min-height: 800px !important;

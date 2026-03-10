@@ -159,32 +159,6 @@ body:has(.topbar) .page-wrapper [class*="col-"] {
     margin-left: 0 !important;
   }
 
-  /* Force same light sidebar on mobile as desktop */
-  .startbar {
-    background-color: #eef3f8 !important;
-  }
-
-  .startbar .startbar-menu,
-  .startbar .startbar-collapse {
-    background-color: #eef3f8 !important;
-  }
-
-  .startbar .navbar-nav .nav-item .nav-link {
-    color: var(--admin-text-secondary) !important;
-  }
-
-  .startbar .navbar-nav .nav-item .nav-link .menu-icon {
-    color: var(--admin-primary) !important;
-  }
-
-  .startbar .nav-link.active {
-    color: var(--admin-primary-dark) !important;
-    background: rgba(91, 192, 235, 0.15) !important;
-  }
-
-  .startbar .menu-label span {
-    color: var(--admin-text-muted) !important;
-  }
 }
 
 /* ===================== SIDEBAR ===================== */

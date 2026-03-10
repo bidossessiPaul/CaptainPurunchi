@@ -4,6 +4,7 @@ import { readPendingOrdersCount, readOrdersByDate } from "@/lib/order-store";
 import { readPendingRoomReservationsCount } from "@/lib/room-reservation-store";
 import { readPendingEventReservationsCount } from "@/lib/event-reservation-store";
 import { readTodaysDishes } from "@/lib/daily-dish-store";
+import TrendsChart from "./TrendsChart";
 
 export const dynamic = "force-dynamic";
 
@@ -91,6 +92,13 @@ export default async function AdminDashboard() {
           value={pendingEvents}
           href="/admin/reservations?type=event"
         />
+      </div>
+
+      {/* Graphique tendances */}
+      <div className="row">
+        <div className="col-12">
+          <TrendsChart />
+        </div>
       </div>
 
       {/* Réservations du jour + Commandes du jour */}
