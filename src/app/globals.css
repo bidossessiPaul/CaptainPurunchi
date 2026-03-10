@@ -177,6 +177,10 @@
 }
 
 /* About section scroll reveal */
+.about-main {
+  overflow: hidden;
+}
+
 .about-main .col-lg-6 {
   opacity: 0;
   transition: opacity 0.8s ease, transform 0.8s ease;
