@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import PageProgress from "@/components/PageProgress";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
 const BASE_URL = process.env.SITE_URL || "https://captainpurunchi.com";
@@ -21,9 +22,15 @@ export const metadata: Metadata = {
     "seafood restaurant Cotonou Benin", "beachfront restaurant Benin",
     "best restaurant Cotonou", "where to eat in Cotonou",
   ],
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Captain Purunchi",
   },
   openGraph: {
     siteName: "Captain Purunchi",
@@ -45,6 +52,13 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c8a97e",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 // Schema.org JSON-LD for the entire site
@@ -131,6 +145,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <ServiceWorkerRegister />
         <PageProgress />
         {children}
 
