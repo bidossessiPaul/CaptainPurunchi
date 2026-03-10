@@ -98,7 +98,7 @@ body:has(.topbar) .page-wrapper [class*="col-"] {
   }
 
   body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .menu-label span,
-  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .nav-item .nav-link span,
+  body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .nav-item .nav-link > span,
   body[data-sidebar-size="collapsed"] .startbar:not(:hover) .navbar-nav .nav-item .nav-link .badge,
   body[data-sidebar-size="collapsed"] .startbar:not(:hover) .update-msg {
     display: none;

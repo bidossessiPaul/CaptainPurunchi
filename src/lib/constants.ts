@@ -47,6 +47,17 @@ export const INVOICE_STATUS_LABELS: Record<string, string> = Object.fromEntries(
   INVOICE_STATUSES.map((s) => [s.value, s.label])
 );
 
+// ── Caisse (opérations) ──────────────────────────────
+
+export const CASH_OPERATION_TYPES = [
+  { value: "encaissement", label: "Encaissement" },
+  { value: "retrait", label: "Retrait" },
+] as const;
+
+export const CASH_OPERATION_TYPE_LABELS: Record<string, string> = Object.fromEntries(
+  CASH_OPERATION_TYPES.map((t) => [t.value, t.label])
+);
+
 // ── Stock ──────────────────────────────
 
 export const STOCK_CATEGORIES = [

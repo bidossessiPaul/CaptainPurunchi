@@ -6,17 +6,24 @@ import type { CashRegister } from "@/app/types/cash-register";
 interface Props {
   register: CashRegister | null;
   mode: "open" | "close";
+  prefill?: {
+    especes: number;
+    carte: number;
+    mtnMoney: number;
+    moovMoney: number;
+    virement: number;
+  };
   onSave: () => void;
   onCancel: () => void;
 }
 
-export default function CashRegisterForm({ register, mode, onSave, onCancel }: Props) {
+export default function CashRegisterForm({ register, mode, prefill, onSave, onCancel }: Props) {
   const [openingBalance, setOpeningBalance] = useState(register?.openingBalance?.toString() || "0");
-  const [especes, setEspeces] = useState("0");
-  const [carte, setCarte] = useState("0");
-  const [mtnMoney, setMtnMoney] = useState("0");
-  const [moovMoney, setMoovMoney] = useState("0");
-  const [virement, setVirement] = useState("0");
+  const [especes, setEspeces] = useState(prefill?.especes?.toString() || "0");
+  const [carte, setCarte] = useState(prefill?.carte?.toString() || "0");
+  const [mtnMoney, setMtnMoney] = useState(prefill?.mtnMoney?.toString() || "0");
+  const [moovMoney, setMoovMoney] = useState(prefill?.moovMoney?.toString() || "0");
+  const [virement, setVirement] = useState(prefill?.virement?.toString() || "0");
   const [closingBalance, setClosingBalance] = useState("0");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
@@ -96,6 +103,12 @@ export default function CashRegisterForm({ register, mode, onSave, onCancel }: P
             <>
               <div className="alert alert-info mb-3">
                 <strong>Fond de caisse :</strong> {register?.openingBalance?.toLocaleString("fr-FR")} FCFA
+                {prefill && (
+                  <span className="ms-3">
+                    <i className="fa-solid fa-info-circle me-1"></i>
+                    Les montants ci-dessous sont pré-remplis depuis les opérations de la journée. Vous pouvez les ajuster si nécessaire.
+                  </span>
+                )}
               </div>
               <h6 className="mb-3">Ventilation par mode de paiement</h6>
               <div className="row">
@@ -106,7 +119,6 @@ export default function CashRegisterForm({ register, mode, onSave, onCancel }: P
                     className="form-control"
                     value={especes}
                     onChange={(e) => setEspeces(e.target.value)}
-                    min="0"
                   />
                 </div>
                 <div className="col-md-4 mb-3">
@@ -116,7 +128,6 @@ export default function CashRegisterForm({ register, mode, onSave, onCancel }: P
                     className="form-control"
                     value={carte}
                     onChange={(e) => setCarte(e.target.value)}
-                    min="0"
                   />
                 </div>
                 <div className="col-md-4 mb-3">
@@ -126,7 +137,6 @@ export default function CashRegisterForm({ register, mode, onSave, onCancel }: P
                     className="form-control"
                     value={mtnMoney}
                     onChange={(e) => setMtnMoney(e.target.value)}
-                    min="0"
                   />
                 </div>
                 <div className="col-md-4 mb-3">
@@ -136,7 +146,6 @@ export default function CashRegisterForm({ register, mode, onSave, onCancel }: P
                     className="form-control"
                     value={moovMoney}
                     onChange={(e) => setMoovMoney(e.target.value)}
-                    min="0"
                   />
                 </div>
                 <div className="col-md-4 mb-3">
@@ -146,17 +155,15 @@ export default function CashRegisterForm({ register, mode, onSave, onCancel }: P
                     className="form-control"
                     value={virement}
                     onChange={(e) => setVirement(e.target.value)}
-                    min="0"
                   />
                 </div>
                 <div className="col-md-4 mb-3">
-                  <label className="form-label">Solde de clôture</label>
+                  <label className="form-label">Solde de clôture (comptage réel)</label>
                   <input
                     type="number"
                     className="form-control"
                     value={closingBalance}
                     onChange={(e) => setClosingBalance(e.target.value)}
-                    min="0"
                   />
                 </div>
               </div>

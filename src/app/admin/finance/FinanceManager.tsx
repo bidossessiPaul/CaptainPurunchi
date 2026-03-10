@@ -8,10 +8,12 @@ import type { Revenue } from "@/app/types/revenue";
 import type { Expense } from "@/app/types/expense";
 import type { CashRegister } from "@/app/types/cash-register";
 import type { Invoice } from "@/app/types/invoice";
-import { REVENUE_SOURCE_LABELS, EXPENSE_CATEGORY_LABELS, INVOICE_STATUS_LABELS, PAYMENT_LABELS } from "@/lib/constants";
+import type { CashOperation } from "@/app/types/cash-operation";
+import { REVENUE_SOURCE_LABELS, EXPENSE_CATEGORY_LABELS, INVOICE_STATUS_LABELS, PAYMENT_LABELS, CASH_OPERATION_TYPE_LABELS } from "@/lib/constants";
 import RevenueForm from "./RevenueForm";
 import ExpenseForm from "./ExpenseForm";
 import CashRegisterForm from "./CashRegisterForm";
+import CashOperationForm from "./CashOperationForm";
 import InvoiceForm from "./InvoiceForm";
 import ConfirmModal from "../ConfirmModal";
 import { generateInvoicePDF } from "@/lib/generate-invoice-pdf";
@@ -54,6 +56,8 @@ export default function FinanceManager() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [cashRegister, setCashRegister] = useState<CashRegister | null>(null);
   const [cashHistory, setCashHistory] = useState<CashRegister[]>([]);
+  const [cashOperations, setCashOperations] = useState<CashOperation[]>([]);
+  const [cashOpTotals, setCashOpTotals] = useState<{ especes: number; carte: number; mtnMoney: number; moovMoney: number; virement: number } | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [summary, setSummary] = useState<{
     totalRevenue: number;
@@ -68,6 +72,7 @@ export default function FinanceManager() {
   const [revenueForm, setRevenueForm] = useState<Revenue | null | "new">(null);
   const [expenseForm, setExpenseForm] = useState<Expense | null | "new">(null);
   const [cashForm, setCashForm] = useState<"open" | "close" | null>(null);
+  const [showOpForm, setShowOpForm] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState<Invoice | null | "new">(null);
 
   // Company info (for PDF)
@@ -186,8 +191,29 @@ export default function FinanceManager() {
           fetch(`/api/finance/cash-registers?today=${todayStr()}`).then((r) => r.json()),
           fetch(`/api/finance/cash-registers?dateFrom=${dateFrom}&dateTo=${dateTo}`).then((r) => r.json()),
         ]);
-        setCashRegister(todayReg && !todayReg.error ? todayReg : null);
+        const reg = todayReg && !todayReg.error ? todayReg : null;
+        setCashRegister(reg);
         setCashHistory(Array.isArray(history) ? history : []);
+        // Fetch operations for today's register
+        if (reg) {
+          const ops = await fetch(`/api/finance/cash-operations?cashRegisterId=${reg.id}`).then((r) => r.json());
+          setCashOperations(Array.isArray(ops) ? ops : []);
+          // Calculate totals by payment method
+          const totals = { especes: 0, carte: 0, mtnMoney: 0, moovMoney: 0, virement: 0 };
+          for (const op of (Array.isArray(ops) ? ops : [])) {
+            const sign = op.type === "encaissement" ? 1 : -1;
+            const amt = op.amount * sign;
+            if (op.paymentMethod === "especes") totals.especes += amt;
+            else if (op.paymentMethod === "carte") totals.carte += amt;
+            else if (op.paymentMethod === "mtn_money") totals.mtnMoney += amt;
+            else if (op.paymentMethod === "moov_money") totals.moovMoney += amt;
+            else if (op.paymentMethod === "virement") totals.virement += amt;
+          }
+          setCashOpTotals(totals);
+        } else {
+          setCashOperations([]);
+          setCashOpTotals(null);
+        }
       } else if (tab === "invoices") {
         const res = await fetch("/api/finance/invoices").then((r) => r.json());
         setInvoices(Array.isArray(res) ? res : []);
@@ -641,13 +667,22 @@ export default function FinanceManager() {
   );
 
   // ─── CAISSE ──────────────────────────────────
+  const handleDeleteOp = async (opId: string) => {
+    await fetch(`/api/finance/cash-operations/${opId}`, { method: "DELETE" });
+    fetchData();
+  };
+
+  const cashNetTotal = cashOperations.reduce((sum, op) => sum + (op.type === "encaissement" ? op.amount : -op.amount), 0);
+  const cashRunningBalance = (cashRegister?.openingBalance || 0) + cashNetTotal;
+
   const renderCash = () => (
     <>
       {cashForm ? (
         <CashRegisterForm
           register={cashForm === "close" ? cashRegister : null}
           mode={cashForm}
-          onSave={() => { setCashForm(null); fetchData(); }}
+          prefill={cashForm === "close" && cashOpTotals ? cashOpTotals : undefined}
+          onSave={() => { setCashForm(null); setShowOpForm(false); fetchData(); }}
           onCancel={() => setCashForm(null)}
         />
       ) : (
@@ -663,91 +698,154 @@ export default function FinanceManager() {
                   </button>
                 )}
                 {cashRegister?.status === "open" && (
-                  <button className="btn btn-warning btn-sm" onClick={() => setCashForm("close")}>
-                    <i className="fa-solid fa-lock me-1"></i> Fermer la caisse
-                  </button>
+                  <>
+                    <button className="btn btn-primary btn-sm" onClick={() => setShowOpForm(true)}>
+                      <i className="fa-solid fa-plus me-1"></i> Ajouter une opération
+                    </button>
+                    <button className="btn btn-warning btn-sm" onClick={() => setCashForm("close")}>
+                      <i className="fa-solid fa-lock me-1"></i> Fermer la caisse
+                    </button>
+                  </>
                 )}
               </div>
             </div>
             <div className="card-body">
               {cashRegister ? (
-                <div className="row">
-                  <div className="col-md-3">
-                    <div className="p-3 bg-light rounded text-center">
-                      <small className="text-muted d-block">Statut</small>
-                      <span className={`badge ${cashRegister.status === "open" ? "bg-success" : "bg-secondary"} mt-1`}>
-                        {cashRegister.status === "open" ? "Ouverte" : "Fermée"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="p-3 bg-light rounded text-center">
-                      <small className="text-muted d-block">Fond de caisse</small>
-                      <strong>{fmt(cashRegister.openingBalance)} FCFA</strong>
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="p-3 bg-light rounded text-center">
-                      <small className="text-muted d-block">Ouvert par</small>
-                      <strong>{cashRegister.openedBy}</strong>
-                    </div>
-                  </div>
-                  {cashRegister.status === "closed" && (
+                <>
+                  <div className="row mb-3">
                     <div className="col-md-3">
                       <div className="p-3 bg-light rounded text-center">
-                        <small className="text-muted d-block">Solde clôture</small>
-                        <strong>{fmt(cashRegister.closingBalance)} FCFA</strong>
+                        <small className="text-muted d-block">Statut</small>
+                        <span className={`badge ${cashRegister.status === "open" ? "bg-success" : "bg-secondary"} mt-1`}>
+                          {cashRegister.status === "open" ? "Ouverte" : "Fermée"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="p-3 bg-light rounded text-center">
+                        <small className="text-muted d-block">Fond de caisse</small>
+                        <strong>{fmt(cashRegister.openingBalance)} FCFA</strong>
+                      </div>
+                    </div>
+                    {cashRegister.status === "open" ? (
+                      <div className="col-md-3">
+                        <div className="p-3 bg-primary bg-opacity-10 rounded text-center">
+                          <small className="text-muted d-block">Solde en cours</small>
+                          <strong className="text-primary">{fmt(cashRunningBalance)} FCFA</strong>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="col-md-3">
+                        <div className="p-3 bg-light rounded text-center">
+                          <small className="text-muted d-block">Solde clôture</small>
+                          <strong>{fmt(cashRegister.closingBalance)} FCFA</strong>
+                        </div>
+                      </div>
+                    )}
+                    <div className="col-md-3">
+                      <div className="p-3 bg-light rounded text-center">
+                        <small className="text-muted d-block">Ouvert par</small>
+                        <strong>{cashRegister.openedBy}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment method breakdown when open (from operations) */}
+                  {cashRegister.status === "open" && cashOpTotals && cashOperations.length > 0 && (
+                    <div className="row mb-3">
+                      <div className="col-12">
+                        <h6 className="text-muted mb-2">Récapitulatif par mode de paiement</h6>
+                      </div>
+                      {cashOpTotals.especes !== 0 && (
+                        <div className="col">
+                          <div className="p-2 bg-light rounded text-center">
+                            <small className="text-muted d-block">Espèces</small>
+                            <strong>{fmt(cashOpTotals.especes)}</strong>
+                          </div>
+                        </div>
+                      )}
+                      {cashOpTotals.carte !== 0 && (
+                        <div className="col">
+                          <div className="p-2 bg-light rounded text-center">
+                            <small className="text-muted d-block">Carte</small>
+                            <strong>{fmt(cashOpTotals.carte)}</strong>
+                          </div>
+                        </div>
+                      )}
+                      {cashOpTotals.mtnMoney !== 0 && (
+                        <div className="col">
+                          <div className="p-2 bg-light rounded text-center">
+                            <small className="text-muted d-block">MTN</small>
+                            <strong>{fmt(cashOpTotals.mtnMoney)}</strong>
+                          </div>
+                        </div>
+                      )}
+                      {cashOpTotals.moovMoney !== 0 && (
+                        <div className="col">
+                          <div className="p-2 bg-light rounded text-center">
+                            <small className="text-muted d-block">Moov</small>
+                            <strong>{fmt(cashOpTotals.moovMoney)}</strong>
+                          </div>
+                        </div>
+                      )}
+                      {cashOpTotals.virement !== 0 && (
+                        <div className="col">
+                          <div className="p-2 bg-light rounded text-center">
+                            <small className="text-muted d-block">Virement</small>
+                            <strong>{fmt(cashOpTotals.virement)}</strong>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Closed register details */}
+                  {cashRegister.status === "closed" && (
+                    <div className="row mb-3">
+                      <div className="col-12 mb-2">
+                        <h6 className="text-muted">Détail des encaissements</h6>
+                      </div>
+                      <div className="col-md-2">
+                        <div className="p-2 bg-light rounded text-center">
+                          <small className="text-muted d-block">Espèces</small>
+                          <strong>{fmt(cashRegister.especes)}</strong>
+                        </div>
+                      </div>
+                      <div className="col-md-2">
+                        <div className="p-2 bg-light rounded text-center">
+                          <small className="text-muted d-block">Carte</small>
+                          <strong>{fmt(cashRegister.carte)}</strong>
+                        </div>
+                      </div>
+                      <div className="col-md-2">
+                        <div className="p-2 bg-light rounded text-center">
+                          <small className="text-muted d-block">MTN</small>
+                          <strong>{fmt(cashRegister.mtnMoney)}</strong>
+                        </div>
+                      </div>
+                      <div className="col-md-2">
+                        <div className="p-2 bg-light rounded text-center">
+                          <small className="text-muted d-block">Moov</small>
+                          <strong>{fmt(cashRegister.moovMoney)}</strong>
+                        </div>
+                      </div>
+                      <div className="col-md-2">
+                        <div className="p-2 bg-light rounded text-center">
+                          <small className="text-muted d-block">Virement</small>
+                          <strong>{fmt(cashRegister.virement)}</strong>
+                        </div>
+                      </div>
+                      <div className="col-md-2">
+                        <div className={`p-2 rounded text-center ${cashRegister.difference === 0 ? "bg-success bg-opacity-10" : "bg-danger bg-opacity-10"}`}>
+                          <small className="text-muted d-block">Écart</small>
+                          <strong className={cashRegister.difference === 0 ? "text-success" : "text-danger"}>
+                            {cashRegister.difference > 0 ? "+" : ""}{fmt(cashRegister.difference)}
+                          </strong>
+                        </div>
                       </div>
                     </div>
                   )}
-                  {cashRegister.status === "closed" && (
-                    <>
-                      <div className="col-12 mt-3">
-                        <h6>Détail des encaissements</h6>
-                        <div className="row">
-                          <div className="col-md-2">
-                            <div className="p-2 bg-light rounded text-center">
-                              <small className="text-muted d-block">Espèces</small>
-                              <strong>{fmt(cashRegister.especes)}</strong>
-                            </div>
-                          </div>
-                          <div className="col-md-2">
-                            <div className="p-2 bg-light rounded text-center">
-                              <small className="text-muted d-block">Carte</small>
-                              <strong>{fmt(cashRegister.carte)}</strong>
-                            </div>
-                          </div>
-                          <div className="col-md-2">
-                            <div className="p-2 bg-light rounded text-center">
-                              <small className="text-muted d-block">MTN</small>
-                              <strong>{fmt(cashRegister.mtnMoney)}</strong>
-                            </div>
-                          </div>
-                          <div className="col-md-2">
-                            <div className="p-2 bg-light rounded text-center">
-                              <small className="text-muted d-block">Moov</small>
-                              <strong>{fmt(cashRegister.moovMoney)}</strong>
-                            </div>
-                          </div>
-                          <div className="col-md-2">
-                            <div className="p-2 bg-light rounded text-center">
-                              <small className="text-muted d-block">Virement</small>
-                              <strong>{fmt(cashRegister.virement)}</strong>
-                            </div>
-                          </div>
-                          <div className="col-md-2">
-                            <div className={`p-2 rounded text-center ${cashRegister.difference === 0 ? "bg-success bg-opacity-10" : "bg-danger bg-opacity-10"}`}>
-                              <small className="text-muted d-block">Écart</small>
-                              <strong className={cashRegister.difference === 0 ? "text-success" : "text-danger"}>
-                                {cashRegister.difference > 0 ? "+" : ""}{fmt(cashRegister.difference)}
-                              </strong>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+                </>
               ) : (
                 <div className="text-center py-4">
                   <i className="fa-solid fa-cash-register" style={{ fontSize: "48px", color: "#95a0c5" }}></i>
@@ -757,6 +855,82 @@ export default function FinanceManager() {
               )}
             </div>
           </div>
+
+          {/* Operation form */}
+          {showOpForm && cashRegister?.status === "open" && (
+            <CashOperationForm
+              cashRegisterId={cashRegister.id}
+              onSave={() => { setShowOpForm(false); fetchData(); }}
+              onCancel={() => setShowOpForm(false)}
+            />
+          )}
+
+          {/* Operations list */}
+          {cashRegister && cashOperations.length > 0 && (
+            <div className="card mb-4">
+              <div className="card-header d-flex justify-content-between align-items-center">
+                <h5 className="card-title mb-0">
+                  Opérations du jour
+                  <span className="badge bg-primary ms-2">{cashOperations.length}</span>
+                </h5>
+              </div>
+              <div className="card-body p-0">
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Heure</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Paiement</th>
+                        <th className="text-end">Montant</th>
+                        <th>Par</th>
+                        {cashRegister.status === "open" && <th style={{ width: "50px" }}></th>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cashOperations.map((op) => (
+                        <tr key={op.id}>
+                          <td>{new Date(op.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</td>
+                          <td>
+                            <span className={`badge ${op.type === "encaissement" ? "bg-success" : "bg-warning text-dark"}`}>
+                              {CASH_OPERATION_TYPE_LABELS[op.type] || op.type}
+                            </span>
+                          </td>
+                          <td>{op.description || "-"}</td>
+                          <td>{PAYMENT_LABELS[op.paymentMethod] || op.paymentMethod}</td>
+                          <td className={`text-end fw-bold ${op.type === "encaissement" ? "text-success" : "text-danger"}`}>
+                            {op.type === "encaissement" ? "+" : "-"}{fmt(op.amount)} FCFA
+                          </td>
+                          <td><small className="text-muted">{op.createdBy}</small></td>
+                          {cashRegister.status === "open" && (
+                            <td>
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => handleDeleteOp(op.id)}
+                                title="Supprimer"
+                              >
+                                <i className="fa-solid fa-trash"></i>
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="table-light">
+                        <td colSpan={4} className="fw-bold">Solde net des opérations</td>
+                        <td className={`text-end fw-bold ${cashNetTotal >= 0 ? "text-success" : "text-danger"}`}>
+                          {cashNetTotal >= 0 ? "+" : ""}{fmt(cashNetTotal)} FCFA
+                        </td>
+                        <td colSpan={cashRegister.status === "open" ? 2 : 1}></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* History */}
           {cashHistory.length > 0 && (

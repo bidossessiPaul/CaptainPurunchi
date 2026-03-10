@@ -65,23 +65,28 @@ export default function Sidebar({ onClose }: { onClose: () => void }) {
   }, []);
 
   useEffect(() => {
+    const safeFetch = (url: string) =>
+      fetch(url).then((r) => (r.ok ? r.json() : [])).catch(() => []);
+
     const fetchPending = async () => {
-      try {
-        const [orders, tables, rooms, events, messages, comments, stockSummary] = await Promise.all([
-          fetch("/api/orders?status=pending").then((r) => r.json()),
-          fetch("/api/table-reservations?status=pending").then((r) => r.json()),
-          fetch("/api/room-reservations?status=pending").then((r) => r.json()),
-          fetch("/api/event-reservations?status=pending").then((r) => r.json()),
-          fetch("/api/contact-messages").then((r) => r.json()),
-          fetch("/api/comments").then((r) => r.json()),
-          fetch("/api/stock/summary").then((r) => r.ok ? r.json() : { lowStockCount: 0 }),
-        ]);
-        setPendingOrders(orders.length);
-        setPendingReservations(tables.length + rooms.length + events.length);
-        setUnreadMessages(Array.isArray(messages) ? messages.filter((m: { read: boolean }) => !m.read).length : 0);
-        setPendingComments(Array.isArray(comments) ? comments.filter((c: { approved: boolean }) => !c.approved).length : 0);
-        setLowStockCount(stockSummary.lowStockCount || 0);
-      } catch {}
+      const [orders, tables, rooms, events, messages, comments, stockSummary] = await Promise.all([
+        safeFetch("/api/orders?status=pending"),
+        safeFetch("/api/table-reservations?status=pending"),
+        safeFetch("/api/room-reservations?status=pending"),
+        safeFetch("/api/event-reservations?status=pending"),
+        safeFetch("/api/contact-messages"),
+        safeFetch("/api/comments"),
+        fetch("/api/stock/summary").then((r) => r.ok ? r.json() : { lowStockCount: 0 }).catch(() => ({ lowStockCount: 0 })),
+      ]);
+      setPendingOrders(Array.isArray(orders) ? orders.length : 0);
+      setPendingReservations(
+        (Array.isArray(tables) ? tables.length : 0) +
+        (Array.isArray(rooms) ? rooms.length : 0) +
+        (Array.isArray(events) ? events.length : 0)
+      );
+      setUnreadMessages(Array.isArray(messages) ? messages.filter((m: { read: boolean }) => !m.read).length : 0);
+      setPendingComments(Array.isArray(comments) ? comments.filter((c: { approved: boolean }) => !c.approved).length : 0);
+      setLowStockCount(stockSummary?.lowStockCount || 0);
     };
 
     fetchPending();
