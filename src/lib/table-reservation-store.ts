@@ -114,3 +114,22 @@ export async function updateTableReservation(id: string, data: Partial<{
 export async function deleteTableReservation(id: string): Promise<void> {
   await query('DELETE FROM table_reservations WHERE id = ?', [id]);
 }
+
+// Calendar: Query by date range
+export async function readTableReservationsByDateRange(
+  startDate: string,
+  endDate: string,
+  status?: string
+): Promise<TableReservation[]> {
+  let sql = 'SELECT * FROM table_reservations WHERE date BETWEEN ? AND ?';
+  const params: unknown[] = [startDate, endDate];
+
+  if (status) {
+    sql += ' AND status = ?';
+    params.push(status);
+  }
+
+  sql += ' ORDER BY date ASC, time ASC';
+  const rows = await query(sql, params);
+  return rows.map(toTableReservation);
+}

@@ -1,0 +1,152 @@
+/* Month Calendar Grid */
+.calendarMonthGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #dee2e6;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Weekday header */
+.weekdayHeader {
+  background: #f8f9fa;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* Calendar cell */
+.calendarCell {
+  background: white;
+  min-height: 100px;
+  padding: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.calendarCell:hover {
+  background: #f8f9fa;
+}
+
+/* Other month dates (greyed out) */
+.otherMonth {
+  background: #f8f9fa;
+  color: #adb5bd;
+}
+
+.otherMonth:hover {
+  background: #e9ecef;
+}
+
+/* Today highlight */
+.today {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+}
+
+.today:hover {
+  background: #ffe69c;
+}
+
+/* Date number */
+.dateNumber {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: inherit;
+}
+
+/* Today badge */
+.todayBadge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+/* Event badges container */
+.eventBadges {
+  display: flex;
+  gap: 4px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.eventBadges .badge {
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+/* Density backgrounds */
+.density0 {
+  /* Default white background - no additional styling */
+}
+
+.densityLow {
+  background: #e3f2fd;
+}
+
+.densityLow:hover {
+  background: #bbdefb;
+}
+
+.densityMedium {
+  background: #90caf9;
+}
+
+.densityMedium:hover {
+  background: #64b5f6;
+}
+
+.densityHigh {
+  background: #42a5f5;
+  color: white;
+}
+
+.densityHigh:hover {
+  background: #2196f3;
+}
+
+.densityHigh .dateNumber {
+  color: white;
+  font-weight: 700;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.loadingSpinner {
+  font-size: 32px;
+  margin-bottom: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state */
+.error {
+  text-align: center;
+  padding: 60px 20px;
+  color: #dc3545;
+}

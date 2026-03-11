@@ -135,3 +135,26 @@ export async function updateRoomReservation(id: string, data: Partial<{
 export async function deleteRoomReservation(id: string): Promise<void> {
   await query('DELETE FROM room_reservations WHERE id = ?', [id]);
 }
+
+// Calendar: Query by date range (overlapping logic)
+export async function readRoomReservationsByDateRange(
+  startDate: string,
+  endDate: string,
+  status?: string
+): Promise<RoomReservation[]> {
+  let sql = `
+    SELECT * FROM room_reservations
+    WHERE checkIn < ?
+      AND checkOut > ?
+  `;
+  const params: unknown[] = [endDate, startDate];
+
+  if (status) {
+    sql += ' AND status = ?';
+    params.push(status);
+  }
+
+  sql += ' ORDER BY checkIn ASC';
+  const rows = await query(sql, params);
+  return rows.map(toRoomReservation);
+}

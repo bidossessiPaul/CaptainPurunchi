@@ -17,6 +17,7 @@ export const ROLE_LIST = Object.entries(ROLES).map(([value, label]) => ({ value,
 export type AdminPage =
   | "dashboard"
   | "reservations"
+  | "calendar"
   | "orders"
   | "menu"
   | "daily-menu"
@@ -40,6 +41,7 @@ type Action = "read" | "create" | "update" | "delete";
 const PATH_TO_PAGE: Record<string, AdminPage> = {
   "/admin": "dashboard",
   "/admin/reservations": "reservations",
+  "/admin/calendar": "calendar",
   "/admin/orders": "orders",
   "/admin/menu": "menu",
   "/admin/daily-menu": "daily-menu",
@@ -63,6 +65,7 @@ const API_TO_PAGE: Record<string, AdminPage> = {
   "/api/table-reservations": "reservations",
   "/api/room-reservations": "reservations",
   "/api/event-reservations": "reservations",
+  "/api/calendar": "calendar",
   "/api/orders": "orders",
   "/api/menu": "menu",
   "/api/daily-dishes": "daily-menu",
@@ -87,6 +90,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   super_admin: {
     dashboard: ["read"],
     reservations: ["read", "create", "update", "delete"],
+    calendar: ["read", "create", "update"],
     orders: ["read", "create", "update", "delete"],
     menu: ["read", "create", "update", "delete"],
     "daily-menu": ["read", "create", "update", "delete"],
@@ -107,6 +111,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   director: {
     dashboard: ["read"],
     reservations: ["read", "create", "update", "delete"],
+    calendar: ["read", "create", "update"],
     orders: ["read", "create", "update", "delete"],
     menu: ["read", "create", "update", "delete"],
     "daily-menu": ["read", "create", "update", "delete"],
@@ -127,6 +132,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   manager: {
     dashboard: ["read"],
     reservations: ["read", "create", "update", "delete"],
+    calendar: ["read", "create", "update"],
     orders: ["read", "create", "update", "delete"],
     menu: ["read", "create", "update", "delete"],
     "daily-menu": ["read", "create", "update", "delete"],
@@ -147,6 +153,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   accountant: {
     dashboard: ["read"],
     reservations: ["read"],
+    calendar: ["read"],
     orders: ["read"],
     menu: ["read"],
     "daily-menu": ["read"],
@@ -167,6 +174,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   cashier: {
     dashboard: ["read"],
     reservations: ["read"],
+    calendar: ["read"],
     orders: ["read", "update"],
     menu: ["read"],
     "daily-menu": ["read"],
@@ -187,6 +195,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   waiter: {
     dashboard: ["read"],
     reservations: ["read"],
+    calendar: ["read"],
     orders: ["read", "update"],
     menu: ["read"],
     "daily-menu": ["read"],
@@ -207,6 +216,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   receptionist: {
     dashboard: ["read"],
     reservations: ["read", "create", "update"],
+    calendar: ["read", "create", "update"],
     orders: ["read"],
     menu: ["read"],
     "daily-menu": ["read"],
@@ -227,6 +237,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
   chef: {
     dashboard: ["read"],
     reservations: [],
+    calendar: [],
     orders: ["read", "update"],
     menu: ["read", "create", "update", "delete"],
     "daily-menu": ["read", "create", "update", "delete"],

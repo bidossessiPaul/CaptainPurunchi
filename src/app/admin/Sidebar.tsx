@@ -26,6 +26,7 @@ const menuItems: MenuItem[] = [
   { label: "Navigation", type: "label" },
   { href: "/admin", icon: "fa-solid fa-table-columns", label: "Tableau de bord", page: "dashboard" },
   { href: "/admin/reservations", icon: "fa-solid fa-calendar-days", label: "Réservations", badge: "reservations", page: "reservations" },
+  { href: "/admin/calendar", icon: "fa-solid fa-calendar", label: "Planning Calendrier", page: "calendar" },
   { href: "/admin/menu", icon: "fa-solid fa-cart-shopping", label: "Notre Carte", page: "menu" },
   { href: "/admin/daily-menu", icon: "fa-solid fa-utensils", label: "Menu du Jour", page: "daily-menu" },
   { href: "/admin/orders", icon: "fa-solid fa-bag-shopping", label: "Commandes", badge: "orders", page: "orders" },
