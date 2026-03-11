@@ -4,6 +4,7 @@ import { apiHandler } from "@/lib/api-handler";
 import { getSessionUser } from "@/lib/session";
 import { logActivity } from "@/lib/activity-log-store";
 import { sendCustomerStatusNotification } from "@/lib/mail";
+import { createRevenueFromEventReservation } from "@/lib/revenue-store";
 
 export const PUT = apiHandler(async (
   request,
@@ -65,6 +66,30 @@ export const PUT = apiHandler(async (
   const updated = await query('SELECT * FROM event_reservations WHERE id = ?', [id]);
   const updatedRecord = updated[0];
 
+  // AUTO-CREATE REVENUE when reservation status changes to "confirmed"
+  const me = await getSessionUser();
+  if (
+    body.status === "confirmed" &&
+    existing[0].status !== "confirmed" &&
+    updatedRecord.totalPrice > 0
+  ) {
+    try {
+      // Use eventDate if available, otherwise use current date
+      const revenueDate = updatedRecord.eventDate || new Date().toISOString().split('T')[0];
+      await createRevenueFromEventReservation(
+        id,
+        updatedRecord.totalPrice,
+        updatedRecord.paymentMethod || "especes",
+        revenueDate,
+        me?.id || "system"
+      );
+      console.log(`✅ Revenue auto-created for EventReservation ${id}`);
+    } catch (error) {
+      console.error(`❌ Failed to create revenue for EventReservation ${id}:`, error);
+      // Continue anyway - don't block the reservation update
+    }
+  }
+
   // Send status change email to customer
   if (body.status && body.status !== existing[0].status && updatedRecord.customerEmail) {
     if (body.status === "confirmed" || body.status === "cancelled") {
@@ -82,7 +107,6 @@ export const PUT = apiHandler(async (
   }
 
   // Log activity
-  const me = await getSessionUser();
   if (me) {
     logActivity({
       userId: me.id,

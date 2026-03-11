@@ -17,6 +17,8 @@ import CashOperationForm from "./CashOperationForm";
 import InvoiceForm from "./InvoiceForm";
 import ConfirmModal from "../ConfirmModal";
 import { generateInvoicePDF } from "@/lib/generate-invoice-pdf";
+import BalanceSheet from "./BalanceSheet";
+import ProfitLossReport from "./ProfitLossReport";
 
 const TABS = [
   { key: "dashboard", label: "Dashboard", icon: "fa-solid fa-chart-pie" },
@@ -92,6 +94,7 @@ export default function FinanceManager() {
 
   // Bilan
   const [bilanYear, setBilanYear] = useState(new Date().getFullYear());
+  const [bilanSubTab, setBilanSubTab] = useState<"balance" | "pl" | "monthly">("balance");
   const [bilanData, setBilanData] = useState<{
     year: number;
     months: { month: string; revenue: number; expense: number; net: number }[];
@@ -1114,10 +1117,52 @@ export default function FinanceManager() {
     </>
   );
 
-  // ─── BILAN MENSUEL ──────────────────────────────────
+  // ─── BILAN ──────────────────────────────────
   const MONTH_NAMES = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
   const renderBilan = () => {
+    return (
+      <>
+        {/* Sub-tabs */}
+        <ul className="nav nav-pills mb-4">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${bilanSubTab === "balance" ? "active" : ""}`}
+              onClick={() => setBilanSubTab("balance")}
+            >
+              <i className="fa-solid fa-chart-pie me-1"></i>
+              Vue d'ensemble
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${bilanSubTab === "pl" ? "active" : ""}`}
+              onClick={() => setBilanSubTab("pl")}
+            >
+              <i className="fa-solid fa-file-invoice-dollar me-1"></i>
+              Compte de résultat
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${bilanSubTab === "monthly" ? "active" : ""}`}
+              onClick={() => setBilanSubTab("monthly")}
+            >
+              <i className="fa-solid fa-calendar-days me-1"></i>
+              Évolution annuelle
+            </button>
+          </li>
+        </ul>
+
+        {/* Sub-tab content */}
+        {bilanSubTab === "balance" && <BalanceSheet />}
+        {bilanSubTab === "pl" && <ProfitLossReport />}
+        {bilanSubTab === "monthly" && renderMonthlyBilan()}
+      </>
+    );
+  };
+
+  const renderMonthlyBilan = () => {
     if (!bilanData) return null;
 
     const barData = bilanData.months.map((m, i) => ({

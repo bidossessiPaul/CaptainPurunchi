@@ -12,7 +12,7 @@ export interface Order {
   customerPhone: string;
   customerEmail: string;
   items: OrderItem[];
-  totalAmount: string;
+  totalAmount: number;
   notes: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   paymentMethod: string;

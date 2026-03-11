@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { Expense } from "@/app/types/expense";
 import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from "@/lib/constants";
 
@@ -12,35 +12,82 @@ interface Props {
 
 export default function ExpenseForm({ expense, onSave, onCancel }: Props) {
   const [amount, setAmount] = useState(expense?.amount?.toString() || "");
-  const [category, setCategory] = useState(expense?.category || "fournisseurs");
+  const [category, setCategory] = useState(expense?.category || "Achats fournisseurs");
   const [supplier, setSupplier] = useState(expense?.supplier || "");
   const [description, setDescription] = useState(expense?.description || "");
   const [paymentMethod, setPaymentMethod] = useState(expense?.paymentMethod || "");
   const [date, setDate] = useState(expense?.date || new Date().toISOString().split("T")[0]);
+  const [isRecurring, setIsRecurring] = useState(expense?.isRecurring || false);
+  const [recurringDay, setRecurringDay] = useState(expense?.recurringDay?.toString() || "1");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string>(expense?.receiptUrl || "");
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setReceiptFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
-    const url = expense ? `/api/finance/expenses/${expense.id}` : "/api/finance/expenses";
-    const method = expense ? "PUT" : "POST";
+    try {
+      if (expense) {
+        // Update existing expense (JSON)
+        await fetch(`/api/finance/expenses/${expense.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: Number(amount),
+            category,
+            supplier,
+            description,
+            paymentMethod,
+            date,
+            isRecurring,
+            recurringDay: isRecurring ? Number(recurringDay) : undefined,
+          }),
+        });
+      } else {
+        // Create new expense (FormData for file upload)
+        const formData = new FormData();
+        formData.append("amount", amount);
+        formData.append("category", category);
+        formData.append("supplier", supplier);
+        formData.append("description", description);
+        formData.append("paymentMethod", paymentMethod);
+        formData.append("date", date);
+        formData.append("isRecurring", isRecurring.toString());
+        if (isRecurring) {
+          formData.append("recurringDay", recurringDay);
+        }
+        if (receiptFile) {
+          formData.append("receiptFile", receiptFile);
+        }
 
-    await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: Number(amount),
-        category,
-        supplier,
-        description,
-        paymentMethod,
-        date,
-      }),
-    });
+        await fetch("/api/finance/expenses", {
+          method: "POST",
+          body: formData,
+        });
+      }
 
-    setSaving(false);
-    onSave();
+      setSaving(false);
+      onSave();
+    } catch (error) {
+      console.error("Error saving expense:", error);
+      setSaving(false);
+      alert("Erreur lors de l'enregistrement de la dépense");
+    }
   };
 
   return (
@@ -120,7 +167,78 @@ export default function ExpenseForm({ expense, onSave, onCancel }: Props) {
                 required
               />
             </div>
+            <div className="col-md-12 mb-3">
+              <label className="form-label">Photo de la facture</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="form-control"
+                accept="image/*,.pdf"
+                onChange={handleFileChange}
+                disabled={!!expense}
+              />
+              {expense && expense.receiptUrl && (
+                <small className="text-muted">
+                  Facture déjà enregistrée. Modification non disponible.
+                </small>
+              )}
+              {receiptPreview && (
+                <div className="mt-2">
+                  {receiptFile?.type.startsWith("image/") || expense?.receiptUrl?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                    <img
+                      src={receiptPreview}
+                      alt="Aperçu facture"
+                      style={{ maxWidth: "200px", maxHeight: "200px", objectFit: "contain" }}
+                      className="border rounded"
+                    />
+                  ) : (
+                    <span className="badge bg-secondary">
+                      <i className="fa-solid fa-file-pdf me-1"></i>
+                      {receiptFile?.name || "Facture PDF"}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="col-md-12 mb-3">
+              <div className="form-check">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  id="isRecurring"
+                  checked={isRecurring}
+                  onChange={(e) => setIsRecurring(e.target.checked)}
+                />
+                <label className="form-check-label" htmlFor="isRecurring">
+                  Dépense récurrente (ex: salaire mensuel)
+                </label>
+              </div>
+            </div>
+            {isRecurring && (
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Jour du mois *</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={recurringDay}
+                  onChange={(e) => setRecurringDay(e.target.value)}
+                  min="1"
+                  max="31"
+                  required
+                  placeholder="Ex: 25 pour le 25 de chaque mois"
+                />
+                <small className="text-muted">
+                  Cette dépense sera automatiquement recréée chaque mois à cette date
+                </small>
+              </div>
+            )}
           </div>
+          {!expense && (
+            <div className="alert alert-info">
+              <i className="fa-solid fa-info-circle me-2"></i>
+              La dépense sera en attente d'approbation par un Manager
+            </div>
+          )}
           <div className="d-flex gap-2">
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? "Enregistrement..." : expense ? "Modifier" : "Ajouter"}

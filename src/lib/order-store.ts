@@ -7,7 +7,7 @@ function toOrder(o: {
   customerPhone: string;
   customerEmail: string;
   items: string;
-  totalAmount: string;
+  totalAmount: number;
   notes: string;
   status: string;
   paymentMethod: string;

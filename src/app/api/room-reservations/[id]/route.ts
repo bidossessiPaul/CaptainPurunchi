@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/session";
 import { logActivity } from "@/lib/activity-log-store";
 import { checkRoomAvailability, readRoomReservationById, updateRoomReservation, deleteRoomReservation } from "@/lib/room-reservation-store";
 import { sendCustomerStatusNotification } from "@/lib/mail";
+import { createRevenueFromRoomReservation } from "@/lib/revenue-store";
 
 export const PUT = apiHandler(async (
   request,
@@ -49,6 +50,28 @@ export const PUT = apiHandler(async (
     return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 
+  // AUTO-CREATE REVENUE when reservation status changes to "confirmed"
+  const me = await getSessionUser();
+  if (
+    body.status === "confirmed" &&
+    existing.status !== "confirmed" &&
+    updated.totalPrice > 0
+  ) {
+    try {
+      await createRevenueFromRoomReservation(
+        id,
+        updated.totalPrice,
+        updated.paymentMethod || "especes",
+        updated.checkIn,
+        me?.id || "system"
+      );
+      console.log(`✅ Revenue auto-created for RoomReservation ${id}`);
+    } catch (error) {
+      console.error(`❌ Failed to create revenue for RoomReservation ${id}:`, error);
+      // Continue anyway - don't block the reservation update
+    }
+  }
+
   // Send status change email to customer
   if (body.status && body.status !== existing.status && updated.customerEmail) {
     if (body.status === "confirmed" || body.status === "cancelled") {
@@ -67,7 +90,6 @@ export const PUT = apiHandler(async (
   }
 
   // Log activity
-  const me = await getSessionUser();
   if (me) {
     logActivity({
       userId: me.id,

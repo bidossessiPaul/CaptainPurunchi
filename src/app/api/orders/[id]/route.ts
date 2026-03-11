@@ -4,6 +4,7 @@ import { apiHandler } from "@/lib/api-handler";
 import { getSessionUser } from "@/lib/session";
 import { logActivity } from "@/lib/activity-log-store";
 import { sendCustomerOrderStatusNotification } from "@/lib/mail";
+import { createRevenueFromOrder } from "@/lib/revenue-store";
 
 export const PUT = apiHandler(async (
   request,
@@ -60,6 +61,28 @@ export const PUT = apiHandler(async (
 
   const updated = await query('SELECT * FROM orders WHERE id = ?', [id]);
   const updatedRecord = updated[0];
+
+  // AUTO-CREATE REVENUE when order status changes to "completed"
+  const me = await getSessionUser();
+  if (
+    body.status === "completed" &&
+    existing[0].status !== "completed" &&
+    updatedRecord.totalAmount > 0
+  ) {
+    try {
+      await createRevenueFromOrder(
+        id,
+        updatedRecord.totalAmount,
+        updatedRecord.paymentMethod || "especes",
+        updatedRecord.orderDate,
+        me?.id || "system"
+      );
+      console.log(`✅ Revenue auto-created for Order ${id}`);
+    } catch (error) {
+      console.error(`❌ Failed to create revenue for Order ${id}:`, error);
+      // Continue anyway - don't block the order update
+    }
+  }
 
   // Send status change email to customer
   if (body.status && body.status !== existing[0].status && updatedRecord.customerEmail) {

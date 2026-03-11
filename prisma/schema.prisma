@@ -197,7 +197,7 @@ model Order {
   customerPhone String   @db.VarChar(100)
   customerEmail String   @default("") @db.VarChar(255)
   items         String   @db.Text
-  totalAmount   String   @db.VarChar(100)
+  totalAmount   Int      @default(0)
   notes         String   @default("") @db.VarChar(2000)
   status        String   @default("pending") @db.VarChar(50)
   paymentMethod String   @default("") @db.VarChar(50)
@@ -220,6 +220,7 @@ model TableReservation {
   message         String   @default("") @db.VarChar(2000)
   status          String   @default("pending") @db.VarChar(50)
   paymentMethod   String   @default("") @db.VarChar(50)
+  expectedAmount  Int?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -240,6 +241,7 @@ model RoomReservation {
   notes         String   @default("") @db.VarChar(2000)
   status        String   @default("pending") @db.VarChar(50)
   paymentMethod String   @default("") @db.VarChar(50)
+  totalPrice    Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -258,6 +260,7 @@ model EventReservation {
   notes         String   @default("") @db.VarChar(2000)
   status        String   @default("pending") @db.VarChar(50)
   paymentMethod String   @default("") @db.VarChar(50)
+  totalPrice    Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -328,22 +331,27 @@ model Revenue {
 }
 
 model Expense {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   amount        Int
-  category      String   @db.VarChar(100)
-  supplier      String   @default("") @db.VarChar(255)
-  description   String   @db.VarChar(500)
-  paymentMethod String   @default("") @db.VarChar(50)
-  receipt       String   @default("") @db.VarChar(500)
-  date          String   @db.VarChar(20)
-  status        String   @default("approved") @db.VarChar(50)
-  createdBy     String   @default("") @db.VarChar(255)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  category      String    @db.VarChar(100)
+  supplier      String    @default("") @db.VarChar(255)
+  description   String    @db.VarChar(500)
+  paymentMethod String    @default("") @db.VarChar(50)
+  receiptUrl    String    @default("") @db.VarChar(500)
+  date          String    @db.VarChar(20)
+  status        String    @default("pending") @db.VarChar(50)
+  isRecurring   Boolean   @default(false)
+  recurringDay  Int?
+  approvedBy    String    @default("") @db.VarChar(255)
+  approvedAt    DateTime?
+  createdBy     String    @default("") @db.VarChar(255)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@map("expenses")
   @@index([date])
   @@index([category])
+  @@index([status])
 }
 
 model CashRegister {
