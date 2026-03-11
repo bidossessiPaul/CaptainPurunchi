@@ -1,0 +1,414 @@
+Voici une analyse complète de tout ce qu'il faut implémenter, organisée par module avec toutes les pages, sous-pages et fonctionnalités détaillées.
+
+---
+
+## 💼 MODULE COMPTABILITÉ & FINANCES
+
+**Pages principales**
+- Dashboard Finances (vue synthétique)
+- Revenus
+- Dépenses
+- Bilan & P&L
+- Factures & Devis
+- Export & Rapports
+
+**Fonctionnalités détaillées**
+
+*Revenus*
+- Enregistrement automatique depuis commandes, réservations tables, chambres, événements
+- Saisie manuelle d'une recette exceptionnelle
+- Ventilation par source : Restaurant / Bar / Hébergement / Événements / Autres
+- Revenus par période : jour, semaine, mois, année
+- Comparaison N vs N-1
+- Chiffre d'affaires en temps réel sur le dashboard
+
+*Dépenses*
+- Catégories de dépenses : Achats fournisseurs, Salaires, Charges fixes (loyer, électricité, eau), Entretien & réparations, Marketing, Divers
+- Saisie d'une dépense : montant, catégorie, fournisseur, date, pièce jointe (photo facture)
+- Dépenses récurrentes (salaires mensuels automatiquement recréés)
+- Validation dépense par le Manager avant enregistrement définitif
+
+*Bilan*
+- Calcul automatique : Revenus − Dépenses = Résultat net
+- Bilan journalier, mensuel, annuel
+- Graphique camembert par centre de profit
+- Seuil de rentabilité par activité
+
+*Factures & Devis*
+- Génération facture client (hébergement, événement, groupe)
+- Numérotation automatique (CP-2026-0001)
+- Devis pour privatisation ou groupe restaurant
+- Statuts : Brouillon → Envoyée → Payée → Annulée
+- Envoi par email depuis l'interface
+- Export PDF
+
+*Caisse*
+- Ouverture et clôture de caisse journalière
+- Fond de caisse configurable
+- Réconciliation par mode de paiement : Espèces, Carte, MTN Money, Moov Money, Virement
+- Rapport de caisse automatique à la clôture
+- Historique des caisses par date
+
+*Exports*
+- Export Excel : revenus, dépenses, bilan sur période choisie
+- Export PDF : rapport financier mensuel formaté (logo Captain Purunchi)
+- Export compatible OHADA (plan comptable simplifié)
+
+---
+
+## 📦 MODULE GESTION DES STOCKS
+
+**Pages principales**
+- Dashboard Stocks (alertes en temps réel)
+- Inventaire
+- Mouvements (Entrées / Sorties)
+- Fournisseurs
+- Bons de commande
+- Fiches techniques plats
+
+**Fonctionnalités détaillées**
+
+*Inventaire*
+- Fiche produit : nom, référence, catégorie (Alimentaire, Boissons, Hygiène, Linge, Fournitures), unité (kg, L, pièce, carton), prix d'achat, prix de vente, stock actuel, stock minimum, stock maximum, emplacement (cuisine, bar, réserve, réception)
+- Catégorisation multi-niveau : ex. Boissons → Alcools → Vins blancs
+- Photo du produit
+- QR code ou code-barres par produit (scan mobile)
+- Valeur totale du stock en temps réel
+
+*Mouvements de stock*
+- Entrée : réception livraison fournisseur, quantité reçue, prix facturé, date, bon de livraison joint
+- Sortie : consommation cuisine (liée automatiquement aux commandes via fiche technique), casse/perte, vol, usage interne
+- Transfert entre zones (cuisine → bar)
+- Historique complet des mouvements par produit
+- Inventaire physique périodique : saisie du réel, calcul écart théorique/réel, rapport d'écart
+
+*Alertes*
+- Notification automatique quand stock < seuil minimum
+- Alerte email + notification interne au Manager et Chef Cuisinier
+- Badge rouge sur le dashboard stocks
+- Rapport hebdomadaire des produits à réapprovisionner
+
+*Fournisseurs*
+- Fiche fournisseur : nom société, contact, téléphone, email, adresse, délai de livraison, conditions de paiement
+- Produits associés à chaque fournisseur
+- Historique des commandes par fournisseur
+- Note de performance fournisseur (délais, qualité)
+
+*Bons de commande*
+- Génération automatique suggérée quand stock < seuil (pré-rempli avec fournisseur habituel et quantité à commander)
+- Création manuelle
+- Statuts : Brouillon → Envoyé → Reçu partiellement → Reçu → Annulé
+- Envoi par email au fournisseur directement depuis l'interface
+- À la réception : validation = mise à jour automatique du stock
+
+*Fiches techniques*
+- Fiche par plat du menu : liste des ingrédients + quantité par portion
+- Calcul automatique du coût de revient par plat
+- Food cost % = coût ingrédients / prix de vente × 100
+- Simulation : si je vends X couverts de ce plat, quelle consommation de stock ?
+- Déstockage automatique : quand une commande est validée en cuisine, les ingrédients sont déduits du stock selon la fiche technique
+
+---
+
+## 📅 MODULE CALENDRIER
+
+**Pages principales**
+- Calendrier général (toutes réservations)
+- Vue Jour
+- Vue Semaine
+- Vue Mois
+- Planning Chambres (Gantt)
+- Planning Événements
+
+**Fonctionnalités détaillées**
+
+*Calendrier général*
+- Affichage unifié : tables restaurant + chambres + appartements + événements + privatisations sur un seul calendrier
+- Filtres rapides par type : Restaurant uniquement / Hébergement uniquement / Événements / Tout
+- Code couleur par type : Restaurant (bleu), Hébergement (or), Événements (corail), Privatisation (teal)
+- Clic sur un créneau → modal avec détail complet de la réservation
+- Clic sur une date vide → création rapide d'une réservation
+
+*Vue Jour*
+- Timeline heure par heure de 07h00 à 23h59
+- Créneaux restaurant par service (déjeuner / dîner)
+- Arrivées et départs hébergement du jour
+- Événements du jour avec horaires
+- Personnel prévu (si module RH activé)
+
+*Vue Semaine*
+- Grille 7 jours × créneaux
+- Glisser-déposer pour déplacer une réservation
+- Indicateur de taux d'occupation par jour (barre de remplissage)
+
+*Vue Mois*
+- Calendrier mensuel classique
+- Badge nombre de réservations par jour
+- Couleurs de densité : vert (dispo) → orange (partiel) → rouge (complet)
+- Navigation rapide mois précédent / suivant / aujourd'hui
+
+*Planning Chambres (Gantt)*
+- Axe X = dates, Axe Y = chambres/appartements
+- Barre colorée par réservation avec nom du client
+- Affichage statut chambre : Disponible (vert) / Réservée (bleu) / Occupée (rouge) / En nettoyage (orange) / Hors service (gris)
+- Double-clic sur une barre pour éditer la réservation
+- Détection visuelle des conflits (chevauchement)
+
+*Fonctions transversales calendrier*
+- Synchronisation iCal/Google Calendar (export .ics)
+- Intégration channel manager Booking.com & Agoda (import automatique)
+- Impression du planning journalier (feuille de route du jour)
+- Export PDF du planning semaine ou mois
+- Recherche par nom de client sur le calendrier
+
+---
+
+## 📊 MODULE RAPPORTS & STATISTIQUES AVANCÉES
+
+**Pages principales**
+- Rapport Restaurant
+- Rapport Hébergement
+- Rapport Événements
+- Rapport Financier global
+- Rapport Stocks
+- Rapport Clients (CRM)
+
+**Fonctionnalités détaillées**
+
+*Rapport Restaurant*
+- Nombre de couverts par jour/semaine/mois
+- Ticket moyen par couvert
+- Top 10 des plats les plus commandés (graphique barres)
+- Plats les moins commandés (candidats à retirer du menu)
+- Revenus par service (déjeuner vs dîner)
+- Revenus par catégorie menu (entrées, plats, desserts, boissons)
+- Taux de remplissage de la salle par service
+- Durée moyenne d'un repas par table
+- Performances par serveur (si module équipe activé)
+
+*Rapport Hébergement*
+- Taux d'occupation par chambre et global (%)
+- RevPAR (Revenu par chambre disponible)
+- Durée moyenne de séjour
+- Revenus hébergement par semaine/mois
+- Répartition par type : chambre standard / suite / appartement
+- Source de réservation : site direct vs Booking vs Agoda vs téléphone
+- Nationalités des clients (si renseigné)
+- Taux de no-show et annulations
+- Comparaison taux d'occupation mois par mois (graphique courbe)
+
+*Rapport Événements*
+- Nombre d'événements par mois
+- Revenus événementiels
+- Types d'événements (mariage, anniversaire, séminaire, soirée privée)
+- Taux de remplissage rooftop / salle
+- Conversion devis → événement confirmé
+
+*Rapport Financier global*
+- P&L mensuel et annuel (tableau + graphique)
+- Évolution CA sur 12 mois glissants
+- Répartition revenus par activité (camembert)
+- Comparaison budget prévu vs réalisé
+- Seuil de rentabilité mensuel
+
+*Rapport Stocks*
+- Valeur totale du stock par date
+- Produits les plus consommés
+- Taux de perte / casse par période
+- Food cost moyen par plat et global
+- Fournisseurs les plus actifs
+- Alertes de rupture sur la période
+
+*Rapport Clients*
+- Nombre de nouveaux clients par mois
+- Clients fidèles (3+ visites)
+- Panier moyen par client
+- Clients avec anniversaire dans le mois
+- Segmentation : restaurant only / hébergement only / les deux
+- Avis clients : note moyenne, évolution, taux de réponse
+
+---
+
+## 🔔 MODULE NOTIFICATIONS INTERNES
+
+**Pages principales**
+- Centre de notifications
+- Paramètres des alertes
+- Journal des alertes
+
+**Fonctionnalités détaillées**
+
+*Types de notifications*
+- Nouvelle réservation table reçue (en ligne ou manuelle)
+- Nouvelle réservation hébergement
+- Nouvelle demande d'événement
+- Modification ou annulation d'une réservation
+- Paiement reçu ou en attente
+- Réservation Booking.com ou Agoda synchronisée
+- Stock d'un produit passé sous le seuil minimum
+- Nouveau bon de commande fournisseur à valider
+- Clôture de caisse non effectuée (alerte fin de journée)
+- Nouvelle facture impayée depuis X jours
+- Rapport journalier automatique (envoi à 23h au Manager)
+
+*Canaux de notification*
+- Notification in-app (cloche en haut de l'interface)
+- Email (configurable par rôle : qui reçoit quoi)
+- SMS (optionnel via Twilio / Africa's Talking)
+- WhatsApp Business (optionnel via API)
+
+*Paramètres*
+- Choisir par rôle quelles notifications recevoir
+- Fréquence résumé email : temps réel / toutes les heures / fin de journée
+- Activer/désactiver chaque type d'alerte individuellement
+- Seuils configurables (ex : alerte stock si < 10 unités)
+
+*Journal d'alertes*
+- Historique de toutes les notifications générées
+- Statut : Lue / Non lue / Traitée
+- Filtres par type, date, utilisateur destinataire
+
+---
+
+## 👥 MODULE GESTION D'ÉQUIPE & RH (rappel structuré)
+
+**Pages principales**
+- Comptes utilisateurs
+- Rôles & Permissions
+- Planning du personnel
+- Suivi présences
+- Congés & Absences
+- Journal d'activité
+
+**Fonctionnalités détaillées**
+
+*Comptes utilisateurs*
+- Fiche employé : nom, prénom, photo, email, téléphone, poste, département, date d'embauche, type de contrat, salaire de base
+- Création de compte d'accès : email + mot de passe temporaire + rôle assigné
+- Activation / désactivation du compte (départ d'un employé)
+- Historique des connexions (date, heure, IP)
+
+*Rôles & permissions*
+
+| Rôle | Accès |
+|---|---|
+| Super Admin | Tout sans restriction |
+| Directeur | Tout sauf paramètres techniques |
+| Manager | Tout sauf finances avancées et RH salaires |
+| Comptable | Finances, rapports, lecture stocks |
+| Caissier | Caisse, commandes, lecture réservations |
+| Serveur | Commandes, plan de salle, menu |
+| Réceptionniste | Réservations hébergement, calendrier |
+| Chef Cuisinier | Commandes, stocks cuisine, fiches techniques |
+| Barman | Commandes bar, stocks boissons |
+| Staff Ménage | Statut chambres, checklist nettoyage |
+
+*Planning*
+- Grille hebdomadaire par département
+- Assignation des créneaux par employé (glisser-déposer)
+- Détection conflits : employé déjà planifié sur ce créneau
+- Vue planning par employé sur le mois
+- Impression du planning hebdomadaire
+
+*Présences*
+- Pointage manuel ou par PIN
+- Calcul automatique des heures travaillées
+- Heures supplémentaires automatiquement calculées
+- Rapport mensuel de présence par employé
+
+*Congés & absences*
+- Demande de congé par l'employé depuis son espace
+- Validation ou refus par le Manager
+- Solde de congés en temps réel
+- Types : congé payé, maladie, sans solde, événement familial
+- Blocage automatique sur le planning si congé validé
+
+*Journal d'activité (audit)*
+- Chaque action tracée : qui, quoi, quand
+- Ex : "Marie — a modifié la réservation #142 — 14/03/2026 à 19h23"
+- Filtres par utilisateur, module, date
+- Export du journal en PDF
+
+---
+
+## 🏨 MODULE PMS HÉBERGEMENT (compléments)
+
+**Fonctionnalités manquantes à ajouter**
+- Fiche chambre/appartement : photos, description, équipements, capacité, tarif base
+- Tarification dynamique : grilles par saison (haute/basse), week-end, jours fériés, séjour longue durée
+- Gestion des packages : hébergement + dîner, hébergement + événement
+- Check-in / Check-out : procédure digitale avec signature électronique
+- Clé ou code d'accès : assignation et envoi automatique au client
+- Ménage : checklist de nettoyage par chambre, assignation à une femme de chambre, validation "Chambre prête"
+- Compteur nuits : suivi automatique de la durée de séjour
+- Rapport de nettoyage journalier
+- Lost & Found : objets oubliés avec description et statut (trouvé / rendu / conservé)
+
+---
+
+## 🍽️ MODULE RESTAURANT (compléments)
+
+**Fonctionnalités manquantes à ajouter**
+- Plan de salle interactif : drag & drop des tables, assignation serveur, statut table en temps réel
+- KDS (Kitchen Display System) : écran cuisine affichant les commandes avec minuteur
+- Impression ticket cuisine / bon de commande bar
+- Gestion des tables combinées (fusionner 2 tables pour grand groupe)
+- Transfert de table (déplacer un client en cours de repas)
+- Split addition : partager la note entre plusieurs convives
+- Historique complet par table sur la soirée
+- Temps de rotation des tables (durée moyenne couverts)
+
+---
+
+## 🤝 MODULE CRM & FIDÉLISATION
+
+**Pages principales**
+- Base clients
+- Programme de fidélité
+- Campagnes marketing
+
+**Fonctionnalités**
+- Fiche client unifiée : historique repas + séjours + événements + total dépensé
+- Préférences : allergies, table habituelle, type de chambre préféré
+- Anniversaires avec email automatique + offre
+- Programme de points : 1 point par 1 000 FCFA dépensés
+- Paliers : Bronze / Argent / Or / Capitaine
+- Campagnes SMS ou email ciblées par segment
+- Gestion des avis : collecte post-séjour automatique, modération, publication
+
+---
+
+## 🔧 PARAMÈTRES GÉNÉRAUX DU SYSTÈME
+
+**Fonctionnalités**
+- Informations de l'établissement (nom, adresse, logo, contacts, numéro fiscal)
+- Configuration des taxes (TVA, taxes de séjour)
+- Devises acceptées (FCFA, EUR, USD)
+- Modes de paiement actifs
+- Configuration des emails automatiques (templates personnalisables)
+- Intégrations tierces : Stripe, PayDunya, MTN Money, Moov Money, Booking.com, Agoda
+- Sauvegardes automatiques de la base de données
+- Logs système
+- Mode maintenance
+
+---
+
+## 📋 RÉCAPITULATIF — PAGES TOTALES DU SYSTÈME
+
+| # | Module | Nb de pages/vues |
+|---|---|---|
+| 1 | Dashboard principal | 1 |
+| 2 | Réservations (tables + chambres + événements) | Déjà existant |
+| 3 | Commandes & Menu | Déjà existant |
+| 4 | Contenu site | Déjà existant |
+| 5 | **Comptabilité & Finances** | 6 pages |
+| 6 | **Gestion des Stocks** | 6 pages |
+| 7 | **Calendrier** | 5 vues |
+| 8 | **Rapports & Stats avancées** | 6 pages |
+| 9 | **Notifications** | 3 pages |
+| 10 | **Équipe & RH** | 6 pages |
+| 11 | **PMS Hébergement (compléments)** | 4 pages |
+| 12 | **Restaurant (compléments)** | 3 pages |
+| 13 | **CRM & Fidélisation** | 3 pages |
+| 14 | **Paramètres système** | 1 page |
+| **TOTAL** | | **~50 pages/vues** |

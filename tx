@@ -1,0 +1,11 @@
+#	Module	Pages
+1	Comptabilité & Finances	Revenus, Dépenses, Bilan, Factures, Caisse, Exports
+2	Gestion des Stocks	Inventaire, Mouvements, Fournisseurs, Bons de commande, Fiches techniques
+3	Calendrier	Vue jour/semaine/mois, Planning chambres (Gantt), Planning événements
+4	Rapports & Stats	Restaurant, Hébergement, Événements, Financier, Stocks, Clients
+5	Notifications internes	Centre notifs, Paramètres alertes, Journal
+6	Équipe & RH (compléments)	Planning personnel, Présences, Congés
+7	PMS Hébergement	Tarification, Check-in/out, Ménage
+8	Restaurant	Plan de salle, KDS cuisine, Tickets
+9	CRM & Fidélisation	Base clients, Points, Campagnes
+10	Paramètres système	Config établissement, Taxes, Intégrations
