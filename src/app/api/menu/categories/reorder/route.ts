@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { updateCategory, readCategories } from "@/lib/menu-store";
 
 export const PUT = apiHandler(async (request: Request) => {
   const { orderedIds } = (await request.json()) as { orderedIds: string[] };
@@ -9,15 +9,10 @@ export const PUT = apiHandler(async (request: Request) => {
     return NextResponse.json({ error: "orderedIds array is required" }, { status: 400 });
   }
 
-  await prisma.$transaction(
-    orderedIds.map((id, i) =>
-      prisma.menuCategory.update({ where: { id }, data: { order: i } })
-    )
-  );
+  for (let i = 0; i < orderedIds.length; i++) {
+    await updateCategory(orderedIds[i], { order: i });
+  }
 
-  const cats = await prisma.menuCategory.findMany({
-    orderBy: { order: "asc" },
-    include: { items: { orderBy: { order: "asc" } } },
-  });
+  const cats = await readCategories();
   return NextResponse.json(cats);
 });

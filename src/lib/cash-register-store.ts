@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { CashRegister } from "@/app/types/cash-register";
 
 function toCashRegister(c: {
@@ -33,28 +33,38 @@ export async function readCashRegisters(filters?: {
   dateTo?: string;
   status?: string;
 }): Promise<CashRegister[]> {
-  const where: Record<string, unknown> = {};
-  if (filters?.status) where.status = filters.status;
-  if (filters?.dateFrom || filters?.dateTo) {
-    where.date = {};
-    if (filters.dateFrom) (where.date as Record<string, string>).gte = filters.dateFrom;
-    if (filters.dateTo) (where.date as Record<string, string>).lte = filters.dateTo;
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (filters?.status) {
+    conditions.push('status = ?');
+    params.push(filters.status);
   }
-  const rows = await prisma.cashRegister.findMany({ where, orderBy: { date: "desc" } });
+  if (filters?.dateFrom) {
+    conditions.push('date >= ?');
+    params.push(filters.dateFrom);
+  }
+  if (filters?.dateTo) {
+    conditions.push('date <= ?');
+    params.push(filters.dateTo);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const rows = await query(`SELECT * FROM cash_registers ${whereClause} ORDER BY date DESC`, params);
   return rows.map(toCashRegister);
 }
 
 export async function readCashRegisterById(id: string): Promise<CashRegister | null> {
-  const c = await prisma.cashRegister.findUnique({ where: { id } });
-  return c ? toCashRegister(c) : null;
+  const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);
+  return rows[0] ? toCashRegister(rows[0]) : null;
 }
 
 export async function readTodayCashRegister(date: string): Promise<CashRegister | null> {
-  const c = await prisma.cashRegister.findFirst({
-    where: { date },
-    orderBy: { createdAt: "desc" },
-  });
-  return c ? toCashRegister(c) : null;
+  const rows = await query(
+    'SELECT * FROM cash_registers WHERE date = ? ORDER BY createdAt DESC LIMIT 1',
+    [date]
+  );
+  return rows[0] ? toCashRegister(rows[0]) : null;
 }
 
 export async function openCashRegister(data: {
@@ -63,8 +73,9 @@ export async function openCashRegister(data: {
   openingBalance: number;
   notes?: string;
 }): Promise<CashRegister> {
-  const c = await prisma.cashRegister.create({ data });
-  return toCashRegister(c);
+  const result = await query('INSERT INTO cash_registers SET ?', [data]);
+  const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [(result as { insertId: string }).insertId]);
+  return toCashRegister(rows[0]);
 }
 
 export async function closeCashRegister(
@@ -81,21 +92,23 @@ export async function closeCashRegister(
   }
 ): Promise<CashRegister> {
   const totalPayments = data.especes + data.carte + data.mtnMoney + data.moovMoney + data.virement;
-  const reg = await prisma.cashRegister.findUnique({ where: { id } });
-  const opening = reg?.openingBalance ?? 0;
+  const regRows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);
+  const opening = regRows[0]?.openingBalance ?? 0;
   const expectedBalance = opening + totalPayments;
   const difference = data.closingBalance - expectedBalance;
 
-  const c = await prisma.cashRegister.update({
-    where: { id },
-    data: {
+  await query('UPDATE cash_registers SET ? WHERE id = ?', [
+    {
       ...data,
       difference,
       status: "closed",
       closedAt: new Date(),
     },
-  });
-  return toCashRegister(c);
+    id
+  ]);
+
+  const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);
+  return toCashRegister(rows[0]);
 }
 
 export async function updateCashRegister(
@@ -105,6 +118,7 @@ export async function updateCashRegister(
     openingBalance: number;
   }>
 ): Promise<CashRegister> {
-  const c = await prisma.cashRegister.update({ where: { id }, data });
-  return toCashRegister(c);
+  await query('UPDATE cash_registers SET ? WHERE id = ?', [data, id]);
+  const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);
+  return toCashRegister(rows[0]);
 }

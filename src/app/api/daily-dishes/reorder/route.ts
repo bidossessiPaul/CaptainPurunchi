@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { updateDailyDish } from "@/lib/daily-dish-store";
 
 export const PUT = apiHandler(async (request) => {
   const { orderedIds } = (await request.json()) as { orderedIds: string[] };
@@ -10,10 +10,7 @@ export const PUT = apiHandler(async (request) => {
   }
 
   for (let i = 0; i < orderedIds.length; i++) {
-    await prisma.dailyDish.update({
-      where: { id: orderedIds[i] },
-      data: { order: i },
-    });
+    await updateDailyDish(orderedIds[i], { order: i });
   }
 
   return NextResponse.json({ success: true });

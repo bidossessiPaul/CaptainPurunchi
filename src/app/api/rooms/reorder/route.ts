@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { updateRoom, readRooms } from "@/lib/room-store";
 
 export const PUT = apiHandler(async (request: Request) => {
   const { orderedIds } = (await request.json()) as { orderedIds: string[] };
@@ -9,17 +9,10 @@ export const PUT = apiHandler(async (request: Request) => {
     return NextResponse.json({ error: "orderedIds array is required" }, { status: 400 });
   }
 
-  await prisma.$transaction(
-    orderedIds.map((id, i) =>
-      prisma.room.update({ where: { id }, data: { order: i } })
-    )
-  );
+  for (let i = 0; i < orderedIds.length; i++) {
+    await updateRoom(orderedIds[i], { order: i });
+  }
 
-  const rooms = await prisma.room.findMany({ orderBy: { order: "asc" } });
-  const parsed = rooms.map((r) => ({
-    ...r,
-    features: JSON.parse(r.features),
-    gallery: JSON.parse(r.gallery),
-  }));
-  return NextResponse.json(parsed);
+  const rooms = await readRooms();
+  return NextResponse.json(rooms);
 });

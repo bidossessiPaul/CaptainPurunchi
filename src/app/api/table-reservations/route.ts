@@ -1,30 +1,21 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
 import { sendCustomerReservationConfirmation } from "@/lib/mail";
 import { notifyTeamNewReservation } from "@/lib/notification-helpers";
+import { readTableReservationsByFilters, createTableReservation } from "@/lib/table-reservation-store";
 
 export const GET = apiHandler(async (request) => {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
   const status = searchParams.get("status");
 
-  const where: Record<string, unknown> = {};
-  if (date) where.date = date;
-  if (status) where.status = status;
+  const filters: { date?: string; status?: string } = {};
+  if (date) filters.date = date;
+  if (status) filters.status = status;
 
-  const rows = await prisma.tableReservation.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
+  const rows = await readTableReservationsByFilters(filters);
 
-  return NextResponse.json(
-    rows.map((r) => ({
-      ...r,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    }))
-  );
+  return NextResponse.json(rows);
 });
 
 export const POST = apiHandler(async (request) => {
@@ -38,17 +29,15 @@ export const POST = apiHandler(async (request) => {
     );
   }
 
-  const reservation = await prisma.tableReservation.create({
-    data: {
-      name,
-      phone,
-      email: email || "",
-      numberOfPersons,
-      date,
-      time,
-      message: message || "",
-      paymentMethod: paymentMethod || "",
-    },
+  const reservation = await createTableReservation({
+    name,
+    phone,
+    email: email || "",
+    numberOfPersons,
+    date,
+    time,
+    message: message || "",
+    paymentMethod: paymentMethod || "",
   });
 
   // Send customer confirmation email (non-blocking)
@@ -68,12 +57,5 @@ export const POST = apiHandler(async (request) => {
   // Notify team (non-blocking)
   notifyTeamNewReservation("table", name, `${numberOfPersons} pers. à ${time}`, date).catch(() => {});
 
-  return NextResponse.json(
-    {
-      ...reservation,
-      createdAt: reservation.createdAt.toISOString(),
-      updatedAt: reservation.updatedAt.toISOString(),
-    },
-    { status: 201 }
-  );
+  return NextResponse.json(reservation, { status: 201 });
 });

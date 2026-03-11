@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readSpecialties, countSpecialties, createSpecialty } from "@/lib/specialty-store";
 
 export const GET = apiHandler(async () => {
-  const items = await prisma.specialty.findMany({ orderBy: { order: "asc" } });
+  const items = await readSpecialties();
   return NextResponse.json(items);
 });
 
@@ -18,16 +18,14 @@ export const POST = apiHandler(async (request: Request) => {
     );
   }
 
-  const count = await prisma.specialty.count();
+  const count = await countSpecialties();
 
-  const item = await prisma.specialty.create({
-    data: {
-      title,
-      description,
-      src,
-      order: count,
-      active: true,
-    },
+  const item = await createSpecialty({
+    title,
+    description,
+    src,
+    order: count,
+    active: true,
   });
 
   return NextResponse.json(item, { status: 201 });

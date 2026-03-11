@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -21,43 +21,31 @@ export async function GET(request: Request) {
 
   // Fetch all 4 datasets in parallel
   const [tables, orders, rooms, events] = await Promise.all([
-    prisma.tableReservation.findMany({
-      where: { date: { gte: startDate, lte: endDate } },
-      select: { date: true },
-    }),
-    prisma.order.findMany({
-      where: { orderDate: { gte: startDate, lte: endDate } },
-      select: { orderDate: true },
-    }),
-    prisma.roomReservation.findMany({
-      where: { checkIn: { gte: startDate, lte: endDate } },
-      select: { checkIn: true },
-    }),
-    prisma.eventReservation.findMany({
-      where: { createdAt: { gte: new Date(startDate), lte: new Date(endDate + "T23:59:59Z") } },
-      select: { createdAt: true },
-    }),
+    query('SELECT date FROM table_reservations WHERE date >= ? AND date <= ?', [startDate, endDate]),
+    query('SELECT orderDate FROM orders WHERE orderDate >= ? AND orderDate <= ?', [startDate, endDate]),
+    query('SELECT checkIn FROM room_reservations WHERE checkIn >= ? AND checkIn <= ?', [startDate, endDate]),
+    query('SELECT createdAt FROM event_reservations WHERE createdAt >= ? AND createdAt <= ?', [new Date(startDate), new Date(endDate + "T23:59:59Z")]),
   ]);
 
   // Count per day
   const tableCounts: Record<string, number> = {};
-  for (const r of tables) {
+  for (const r of tables as { date: string }[]) {
     tableCounts[r.date] = (tableCounts[r.date] || 0) + 1;
   }
 
   const orderCounts: Record<string, number> = {};
-  for (const o of orders) {
+  for (const o of orders as { orderDate: string }[]) {
     orderCounts[o.orderDate] = (orderCounts[o.orderDate] || 0) + 1;
   }
 
   const roomCounts: Record<string, number> = {};
-  for (const r of rooms) {
+  for (const r of rooms as { checkIn: string }[]) {
     roomCounts[r.checkIn] = (roomCounts[r.checkIn] || 0) + 1;
   }
 
   const eventCounts: Record<string, number> = {};
-  for (const e of events) {
-    const d = e.createdAt.toISOString().split("T")[0];
+  for (const e of events as { createdAt: string }[]) {
+    const d = e.createdAt.split("T")[0];
     eventCounts[d] = (eventCounts[d] || 0) + 1;
   }
 

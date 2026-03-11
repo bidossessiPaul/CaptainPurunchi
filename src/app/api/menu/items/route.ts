@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readItems, countItemsInCategory, createItem } from "@/lib/menu-store";
 
 export const GET = apiHandler(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const categoryId = searchParams.get("categoryId");
 
-  const where = categoryId ? { categoryId } : {};
-  const items = await prisma.menuItem.findMany({
-    where,
-    orderBy: { order: "asc" },
-  });
+  const items = await readItems(categoryId || undefined);
   return NextResponse.json(items);
 });
 
@@ -25,17 +21,15 @@ export const POST = apiHandler(async (request: Request) => {
     );
   }
 
-  const count = await prisma.menuItem.count({ where: { categoryId } });
+  const count = await countItemsInCategory(categoryId);
 
-  const item = await prisma.menuItem.create({
-    data: {
-      categoryId,
-      name,
-      description: description || "",
-      price,
-      order: count,
-      active: true,
-    },
+  const item = await createItem({
+    categoryId,
+    name,
+    description: description || "",
+    price,
+    order: count,
+    active: true,
   });
 
   return NextResponse.json(item, { status: 201 });

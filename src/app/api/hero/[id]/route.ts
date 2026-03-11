@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { readSlideById, updateSlide, deleteSlide, readSlides } from "@/lib/hero-store";
 
 export const PUT = apiHandler(async (
   request,
@@ -12,7 +12,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.heroSlide.findUnique({ where: { id } });
+  const existing = await readSlideById(id);
   if (!existing) {
     return NextResponse.json({ error: "Slide not found" }, { status: 404 });
   }
@@ -23,7 +23,7 @@ export const PUT = apiHandler(async (
   if (body.caption !== undefined) data.caption = body.caption || null;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.heroSlide.update({ where: { id }, data });
+  const updated = await updateSlide(id, data);
   return NextResponse.json(updated);
 });
 
@@ -33,18 +33,18 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.heroSlide.findUnique({ where: { id } });
+  const existing = await readSlideById(id);
   if (!existing) {
     return NextResponse.json({ error: "Slide not found" }, { status: 404 });
   }
 
-  await prisma.heroSlide.delete({ where: { id } });
+  await deleteSlide(id);
 
   // Re-index remaining slides
-  const remaining = await prisma.heroSlide.findMany({ orderBy: { order: "asc" } });
+  const remaining = await readSlides();
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.heroSlide.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateSlide(remaining[i].id, { order: i });
     }
   }
 

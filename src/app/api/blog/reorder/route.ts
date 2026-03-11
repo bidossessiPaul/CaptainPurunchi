@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { updateBlogPost } from "@/lib/blog-store";
 
 export const PUT = apiHandler(async (request: Request) => {
   const { orderedIds } = await request.json();
@@ -10,10 +10,7 @@ export const PUT = apiHandler(async (request: Request) => {
   }
 
   for (let i = 0; i < orderedIds.length; i++) {
-    await prisma.blogPost.update({
-      where: { id: orderedIds[i] },
-      data: { order: i },
-    });
+    await updateBlogPost(orderedIds[i], { order: i });
   }
 
   return NextResponse.json({ success: true });

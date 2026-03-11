@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
 import { getSessionUser } from "@/lib/session";
 import { logActivity } from "@/lib/activity-log-store";
 import { sendCustomerStatusNotification } from "@/lib/mail";
+import { readTableReservationById, updateTableReservation, deleteTableReservation } from "@/lib/table-reservation-store";
 
 export const PUT = apiHandler(async (
   request,
@@ -12,7 +12,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.tableReservation.findUnique({ where: { id } });
+  const existing = await readTableReservationById(id);
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -28,7 +28,10 @@ export const PUT = apiHandler(async (
   if (body.status !== undefined) data.status = body.status;
   if (body.paymentMethod !== undefined) data.paymentMethod = body.paymentMethod;
 
-  const updated = await prisma.tableReservation.update({ where: { id }, data });
+  const updated = await updateTableReservation(id, data);
+  if (!updated) {
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
+  }
 
   // Send status change email to customer
   if (body.status && body.status !== existing.status && updated.email) {
@@ -62,11 +65,7 @@ export const PUT = apiHandler(async (
     }).catch(() => {});
   }
 
-  return NextResponse.json({
-    ...updated,
-    createdAt: updated.createdAt.toISOString(),
-    updatedAt: updated.updatedAt.toISOString(),
-  });
+  return NextResponse.json(updated);
 });
 
 export const DELETE = apiHandler(async (
@@ -75,12 +74,12 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.tableReservation.findUnique({ where: { id } });
+  const existing = await readTableReservationById(id);
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await prisma.tableReservation.delete({ where: { id } });
+  await deleteTableReservation(id);
 
   const me = await getSessionUser();
   if (me) {

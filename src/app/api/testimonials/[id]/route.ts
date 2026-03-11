@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { readTestimonials } from "@/lib/testimonial-store";
+import { readTestimonials, updateTestimonial, deleteTestimonial } from "@/lib/testimonial-store";
 import { apiHandler } from "@/lib/api-handler";
 
 export const PUT = apiHandler(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -14,19 +13,19 @@ export const PUT = apiHandler(async (request: Request, { params }: { params: Pro
   if (body.avatar !== undefined) data.avatar = body.avatar || null;
   if (body.stars !== undefined) data.stars = body.stars;
   if (body.active !== undefined) data.active = body.active;
-  await prisma.testimonial.update({ where: { id }, data });
+  await updateTestimonial(id, data);
   const items = await readTestimonials();
   return NextResponse.json(items);
 });
 
 export const DELETE = apiHandler(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-  await prisma.testimonial.delete({ where: { id } });
+  await deleteTestimonial(id);
   // Re-index order
-  const remaining = await prisma.testimonial.findMany({ orderBy: { order: "asc" } });
+  const remaining = await readTestimonials();
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.testimonial.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateTestimonial(remaining[i].id, { order: i });
     }
   }
   const items = await readTestimonials();

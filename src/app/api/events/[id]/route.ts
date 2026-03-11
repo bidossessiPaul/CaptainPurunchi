@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readEventById, updateEvent, deleteEvent, readEvents } from "@/lib/event-store";
 
 export const PUT = apiHandler(async (
   request: Request,
@@ -9,7 +9,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.event.findUnique({ where: { id } });
+  const existing = await readEventById(id);
   if (!existing) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
@@ -26,16 +26,12 @@ export const PUT = apiHandler(async (
   if (body.location !== undefined) data.location = body.location;
   if (body.price !== undefined) data.price = body.price;
   if (body.thumb !== undefined) data.thumb = body.thumb;
-  if (body.gallery !== undefined) data.gallery = JSON.stringify(body.gallery);
-  if (body.includes !== undefined) data.includes = JSON.stringify(body.includes);
+  if (body.gallery !== undefined) data.gallery = body.gallery;
+  if (body.includes !== undefined) data.includes = body.includes;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.event.update({ where: { id }, data });
-  return NextResponse.json({
-    ...updated,
-    gallery: JSON.parse(updated.gallery),
-    includes: JSON.parse(updated.includes),
-  });
+  const updated = await updateEvent(id, data);
+  return NextResponse.json(updated);
 });
 
 export const DELETE = apiHandler(async (
@@ -44,18 +40,18 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.event.findUnique({ where: { id } });
+  const existing = await readEventById(id);
   if (!existing) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
-  await prisma.event.delete({ where: { id } });
+  await deleteEvent(id);
 
   // Re-index remaining events
-  const remaining = await prisma.event.findMany({ orderBy: { order: "asc" } });
+  const remaining = await readEvents();
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.event.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateEvent(remaining[i].id, { order: i });
     }
   }
 

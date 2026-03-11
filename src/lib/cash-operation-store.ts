@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { CashOperation } from "@/app/types/cash-operation";
 
 function toOp(c: {
@@ -15,10 +15,10 @@ function toOp(c: {
 }
 
 export async function readOperationsByCashRegister(cashRegisterId: string): Promise<CashOperation[]> {
-  const rows = await prisma.cashOperation.findMany({
-    where: { cashRegisterId },
-    orderBy: { createdAt: "desc" },
-  });
+  const rows = await query(
+    'SELECT * FROM cash_operations WHERE cashRegisterId = ? ORDER BY createdAt DESC',
+    [cashRegisterId]
+  );
   return rows.map(toOp);
 }
 
@@ -30,12 +30,13 @@ export async function createCashOperation(data: {
   description: string;
   createdBy: string;
 }): Promise<CashOperation> {
-  const op = await prisma.cashOperation.create({ data });
-  return toOp(op);
+  const result = await query('INSERT INTO cash_operations SET ?', [data]);
+  const ops = await query('SELECT * FROM cash_operations WHERE id = ?', [(result as { insertId: string }).insertId]);
+  return toOp(ops[0]);
 }
 
 export async function deleteCashOperation(id: string): Promise<void> {
-  await prisma.cashOperation.delete({ where: { id } });
+  await query('DELETE FROM cash_operations WHERE id = ?', [id]);
 }
 
 export async function sumOperationsByPaymentMethod(cashRegisterId: string): Promise<{
@@ -47,11 +48,11 @@ export async function sumOperationsByPaymentMethod(cashRegisterId: string): Prom
   totalEncaissements: number;
   totalRetraits: number;
 }> {
-  const ops = await prisma.cashOperation.findMany({ where: { cashRegisterId } });
+  const ops = await query('SELECT * FROM cash_operations WHERE cashRegisterId = ?', [cashRegisterId]);
 
   const result = { especes: 0, carte: 0, mtnMoney: 0, moovMoney: 0, virement: 0, totalEncaissements: 0, totalRetraits: 0 };
 
-  for (const op of ops) {
+  for (const op of ops as CashOperation[]) {
     const sign = op.type === "encaissement" ? 1 : -1;
     const amount = op.amount * sign;
 

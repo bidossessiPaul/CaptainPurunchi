@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import { apiHandler } from "@/lib/api-handler";
 import { getSessionUser } from "@/lib/session";
 import { logActivity } from "@/lib/activity-log-store";
@@ -12,35 +12,70 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.eventReservation.findUnique({ where: { id } });
-  if (!existing) {
+  const existing = await query('SELECT * FROM event_reservations WHERE id = ?', [id]);
+  if (existing.length === 0) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const data: Record<string, unknown> = {};
-  if (body.customerName !== undefined) data.customerName = body.customerName;
-  if (body.customerPhone !== undefined) data.customerPhone = body.customerPhone;
-  if (body.customerEmail !== undefined) data.customerEmail = body.customerEmail;
-  if (body.eventId !== undefined) data.eventId = body.eventId;
-  if (body.eventTitle !== undefined) data.eventTitle = body.eventTitle;
-  if (body.attendees !== undefined) data.attendees = body.attendees;
-  if (body.notes !== undefined) data.notes = body.notes;
-  if (body.status !== undefined) data.status = body.status;
-  if (body.paymentMethod !== undefined) data.paymentMethod = body.paymentMethod;
+  const fields: string[] = [];
+  const values: unknown[] = [];
 
-  const updated = await prisma.eventReservation.update({ where: { id }, data });
+  if (body.customerName !== undefined) {
+    fields.push('customerName = ?');
+    values.push(body.customerName);
+  }
+  if (body.customerPhone !== undefined) {
+    fields.push('customerPhone = ?');
+    values.push(body.customerPhone);
+  }
+  if (body.customerEmail !== undefined) {
+    fields.push('customerEmail = ?');
+    values.push(body.customerEmail);
+  }
+  if (body.eventId !== undefined) {
+    fields.push('eventId = ?');
+    values.push(body.eventId);
+  }
+  if (body.eventTitle !== undefined) {
+    fields.push('eventTitle = ?');
+    values.push(body.eventTitle);
+  }
+  if (body.attendees !== undefined) {
+    fields.push('attendees = ?');
+    values.push(body.attendees);
+  }
+  if (body.notes !== undefined) {
+    fields.push('notes = ?');
+    values.push(body.notes);
+  }
+  if (body.status !== undefined) {
+    fields.push('status = ?');
+    values.push(body.status);
+  }
+  if (body.paymentMethod !== undefined) {
+    fields.push('paymentMethod = ?');
+    values.push(body.paymentMethod);
+  }
+
+  if (fields.length > 0) {
+    values.push(id);
+    await query(`UPDATE event_reservations SET ${fields.join(', ')} WHERE id = ?`, values);
+  }
+
+  const updated = await query('SELECT * FROM event_reservations WHERE id = ?', [id]);
+  const updatedRecord = updated[0];
 
   // Send status change email to customer
-  if (body.status && body.status !== existing.status && updated.customerEmail) {
+  if (body.status && body.status !== existing[0].status && updatedRecord.customerEmail) {
     if (body.status === "confirmed" || body.status === "cancelled") {
       sendCustomerStatusNotification({
-        to: updated.customerEmail,
-        customerName: updated.customerName,
+        to: updatedRecord.customerEmail,
+        customerName: updatedRecord.customerName,
         type: "event",
         status: body.status,
         details: [
-          { label: "Événement", value: updated.eventTitle },
-          { label: "Participants", value: updated.attendees },
+          { label: "Événement", value: updatedRecord.eventTitle },
+          { label: "Participants", value: updatedRecord.attendees },
         ],
       }).catch(() => {});
     }
@@ -55,17 +90,13 @@ export const PUT = apiHandler(async (
       action: "update",
       target: "event-reservation",
       targetId: id,
-      details: body.status && body.status !== existing.status
-        ? `Statut: ${existing.status} → ${body.status}`
-        : `Réservation événement modifiée (${updated.customerName})`,
+      details: body.status && body.status !== existing[0].status
+        ? `Statut: ${existing[0].status} → ${body.status}`
+        : `Réservation événement modifiée (${updatedRecord.customerName})`,
     }).catch(() => {});
   }
 
-  return NextResponse.json({
-    ...updated,
-    createdAt: updated.createdAt.toISOString(),
-    updatedAt: updated.updatedAt.toISOString(),
-  });
+  return NextResponse.json(updatedRecord);
 });
 
 export const DELETE = apiHandler(async (
@@ -74,12 +105,12 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.eventReservation.findUnique({ where: { id } });
-  if (!existing) {
+  const existing = await query('SELECT * FROM event_reservations WHERE id = ?', [id]);
+  if (existing.length === 0) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await prisma.eventReservation.delete({ where: { id } });
+  await query('DELETE FROM event_reservations WHERE id = ?', [id]);
 
   const me = await getSessionUser();
   if (me) {
@@ -89,7 +120,7 @@ export const DELETE = apiHandler(async (
       action: "delete",
       target: "event-reservation",
       targetId: id,
-      details: `Réservation supprimée (${existing.customerName} — ${existing.eventTitle})`,
+      details: `Réservation supprimée (${existing[0].customerName} — ${existing[0].eventTitle})`,
     }).catch(() => {});
   }
 

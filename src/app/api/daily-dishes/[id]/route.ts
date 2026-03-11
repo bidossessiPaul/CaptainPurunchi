@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { readDishById, updateDailyDish, deleteDailyDish, readDishesForDate } from "@/lib/daily-dish-store";
 
 export const PUT = apiHandler(async (
   request,
@@ -12,7 +12,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.dailyDish.findUnique({ where: { id } });
+  const existing = await readDishById(id);
   if (!existing) {
     return NextResponse.json({ error: "Dish not found" }, { status: 404 });
   }
@@ -26,7 +26,7 @@ export const PUT = apiHandler(async (
   if (body.availableDate !== undefined) data.availableDate = body.availableDate;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.dailyDish.update({ where: { id }, data });
+  const updated = await updateDailyDish(id, data);
   return NextResponse.json(updated);
 });
 
@@ -36,20 +36,17 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.dailyDish.findUnique({ where: { id } });
+  const existing = await readDishById(id);
   if (!existing) {
     return NextResponse.json({ error: "Dish not found" }, { status: 404 });
   }
 
-  await prisma.dailyDish.delete({ where: { id } });
+  await deleteDailyDish(id);
 
-  const remaining = await prisma.dailyDish.findMany({
-    where: { availableDate: existing.availableDate },
-    orderBy: { order: "asc" },
-  });
+  const remaining = await readDishesForDate(existing.availableDate);
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.dailyDish.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateDailyDish(remaining[i].id, { order: i });
     }
   }
 

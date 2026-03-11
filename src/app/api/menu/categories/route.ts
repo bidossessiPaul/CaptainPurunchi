@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readCategories, countCategories, createCategory } from "@/lib/menu-store";
 
 export const GET = apiHandler(async () => {
-  const cats = await prisma.menuCategory.findMany({
-    orderBy: { order: "asc" },
-    include: { items: { orderBy: { order: "asc" } } },
-  });
+  const cats = await readCategories();
   return NextResponse.json(cats);
 });
 
@@ -21,11 +18,13 @@ export const POST = apiHandler(async (request: Request) => {
     );
   }
 
-  const count = await prisma.menuCategory.count();
+  const count = await countCategories();
 
-  const cat = await prisma.menuCategory.create({
-    data: { name, icon, order: count, active: true },
-    include: { items: true },
+  const cat = await createCategory({
+    name,
+    icon,
+    order: count,
+    active: true
   });
 
   return NextResponse.json(cat, { status: 201 });

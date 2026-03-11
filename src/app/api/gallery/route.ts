@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readGalleryImages, countGalleryImages, createGalleryImage } from "@/lib/gallery-store";
 
 export const GET = apiHandler(async () => {
-  const images = await prisma.galleryImage.findMany({ orderBy: { order: "asc" } });
+  const images = await readGalleryImages();
   return NextResponse.json(images);
 });
 
@@ -15,16 +15,14 @@ export const POST = apiHandler(async (request: Request) => {
     return NextResponse.json({ error: "src is required" }, { status: 400 });
   }
 
-  const count = await prisma.galleryImage.count();
+  const count = await countGalleryImages();
 
-  const image = await prisma.galleryImage.create({
-    data: {
-      src,
-      alt: alt || "",
-      type: type === "video" ? "video" : "image",
-      order: count,
-      active: true,
-    },
+  const image = await createGalleryImage({
+    src,
+    alt: alt || "",
+    type: type === "video" ? "video" : "image",
+    order: count,
+    active: true,
   });
 
   return NextResponse.json(image, { status: 201 });

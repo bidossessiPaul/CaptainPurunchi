@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
+import { readGalleryImageById, updateGalleryImage, deleteGalleryImage, readGalleryImages } from "@/lib/gallery-store";
 
 export const PUT = apiHandler(async (
   request: Request,
@@ -12,7 +12,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.galleryImage.findUnique({ where: { id } });
+  const existing = await readGalleryImageById(id);
   if (!existing) {
     return NextResponse.json({ error: "Image not found" }, { status: 404 });
   }
@@ -21,7 +21,7 @@ export const PUT = apiHandler(async (
   if (body.alt !== undefined) data.alt = body.alt;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.galleryImage.update({ where: { id }, data });
+  const updated = await updateGalleryImage(id, data);
   return NextResponse.json(updated);
 });
 
@@ -31,18 +31,18 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.galleryImage.findUnique({ where: { id } });
+  const existing = await readGalleryImageById(id);
   if (!existing) {
     return NextResponse.json({ error: "Image not found" }, { status: 404 });
   }
 
-  await prisma.galleryImage.delete({ where: { id } });
+  await deleteGalleryImage(id);
 
   // Re-index remaining images
-  const remaining = await prisma.galleryImage.findMany({ orderBy: { order: "asc" } });
+  const remaining = await readGalleryImages();
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.galleryImage.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateGalleryImage(remaining[i].id, { order: i });
     }
   }
 

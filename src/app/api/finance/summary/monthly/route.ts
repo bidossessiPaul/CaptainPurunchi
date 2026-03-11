@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { apiHandler } from "@/lib/api-handler";
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 
 export const GET = apiHandler(async (request) => {
   const { searchParams } = new URL(request.url);
@@ -11,14 +11,8 @@ export const GET = apiHandler(async (request) => {
   const dateTo = `${yearStr}-12-31`;
 
   const [revenues, expenses] = await Promise.all([
-    prisma.revenue.findMany({
-      where: { date: { gte: dateFrom, lte: dateTo } },
-      select: { amount: true, date: true },
-    }),
-    prisma.expense.findMany({
-      where: { date: { gte: dateFrom, lte: dateTo }, status: "approved" },
-      select: { amount: true, date: true },
-    }),
+    query('SELECT amount, date FROM revenues WHERE date >= ? AND date <= ?', [dateFrom, dateTo]),
+    query('SELECT amount, date FROM expenses WHERE date >= ? AND date <= ? AND status = ?', [dateFrom, dateTo, "approved"]),
   ]);
 
   // Aggregate by month
@@ -26,10 +20,10 @@ export const GET = apiHandler(async (request) => {
 
   for (let m = 1; m <= 12; m++) {
     const prefix = `${yearStr}-${String(m).padStart(2, "0")}`;
-    const rev = revenues
+    const rev = (revenues as { amount: number; date: string }[])
       .filter((r) => r.date.startsWith(prefix))
       .reduce((s, r) => s + r.amount, 0);
-    const exp = expenses
+    const exp = (expenses as { amount: number; date: string }[])
       .filter((e) => e.date.startsWith(prefix))
       .reduce((s, e) => s + e.amount, 0);
 

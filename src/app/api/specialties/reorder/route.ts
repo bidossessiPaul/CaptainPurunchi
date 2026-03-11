@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { updateSpecialty, readSpecialties } from "@/lib/specialty-store";
 
 export const PUT = apiHandler(async (request: Request) => {
   const { orderedIds } = (await request.json()) as { orderedIds: string[] };
@@ -9,12 +9,10 @@ export const PUT = apiHandler(async (request: Request) => {
     return NextResponse.json({ error: "orderedIds array is required" }, { status: 400 });
   }
 
-  await prisma.$transaction(
-    orderedIds.map((id, i) =>
-      prisma.specialty.update({ where: { id }, data: { order: i } })
-    )
-  );
+  for (let i = 0; i < orderedIds.length; i++) {
+    await updateSpecialty(orderedIds[i], { order: i });
+  }
 
-  const items = await prisma.specialty.findMany({ orderBy: { order: "asc" } });
+  const items = await readSpecialties();
   return NextResponse.json(items);
 });

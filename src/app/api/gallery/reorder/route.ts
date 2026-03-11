@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { updateGalleryImage } from "@/lib/gallery-store";
 
 export const PUT = apiHandler(async (request: Request) => {
   const { orderedIds } = (await request.json()) as { orderedIds: string[] };
@@ -10,10 +10,7 @@ export const PUT = apiHandler(async (request: Request) => {
   }
 
   for (let i = 0; i < orderedIds.length; i++) {
-    await prisma.galleryImage.update({
-      where: { id: orderedIds[i] },
-      data: { order: i },
-    });
+    await updateGalleryImage(orderedIds[i], { order: i });
   }
 
   return NextResponse.json({ success: true });

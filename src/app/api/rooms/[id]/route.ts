@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readRoomById, updateRoom, deleteRoom, readRooms } from "@/lib/room-store";
 
 export const PUT = apiHandler(async (
   request: Request,
@@ -9,7 +9,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.room.findUnique({ where: { id } });
+  const existing = await readRoomById(id);
   if (!existing) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
@@ -20,17 +20,13 @@ export const PUT = apiHandler(async (
   if (body.price !== undefined) data.price = body.price;
   if (body.thumb !== undefined) data.thumb = body.thumb;
   if (body.capacity !== undefined) data.capacity = body.capacity;
-  if (body.features !== undefined) data.features = JSON.stringify(body.features);
+  if (body.features !== undefined) data.features = body.features;
   if (body.description !== undefined) data.description = body.description;
-  if (body.gallery !== undefined) data.gallery = JSON.stringify(body.gallery);
+  if (body.gallery !== undefined) data.gallery = body.gallery;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.room.update({ where: { id }, data });
-  return NextResponse.json({
-    ...updated,
-    features: JSON.parse(updated.features),
-    gallery: JSON.parse(updated.gallery),
-  });
+  const updated = await updateRoom(id, data);
+  return NextResponse.json(updated);
 });
 
 export const DELETE = apiHandler(async (
@@ -39,18 +35,18 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.room.findUnique({ where: { id } });
+  const existing = await readRoomById(id);
   if (!existing) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
 
-  await prisma.room.delete({ where: { id } });
+  await deleteRoom(id);
 
   // Re-index remaining rooms
-  const remaining = await prisma.room.findMany({ orderBy: { order: "asc" } });
+  const remaining = await readRooms();
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.room.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateRoom(remaining[i].id, { order: i });
     }
   }
 

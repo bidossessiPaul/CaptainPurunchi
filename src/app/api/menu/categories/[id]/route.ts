@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readCategoryById, updateCategory, deleteCategory, readCategories } from "@/lib/menu-store";
 
 export const PUT = apiHandler(async (
   request: Request,
@@ -9,7 +9,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.menuCategory.findUnique({ where: { id } });
+  const existing = await readCategoryById(id);
   if (!existing) {
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
@@ -19,11 +19,7 @@ export const PUT = apiHandler(async (
   if (body.icon !== undefined) data.icon = body.icon;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.menuCategory.update({
-    where: { id },
-    data,
-    include: { items: { orderBy: { order: "asc" } } },
-  });
+  const updated = await updateCategory(id, data);
   return NextResponse.json(updated);
 });
 
@@ -33,19 +29,18 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.menuCategory.findUnique({ where: { id } });
+  const existing = await readCategoryById(id);
   if (!existing) {
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
 
-  // Cascade delete handled by onDelete: Cascade
-  await prisma.menuCategory.delete({ where: { id } });
+  await deleteCategory(id);
 
   // Re-index remaining categories
-  const remaining = await prisma.menuCategory.findMany({ orderBy: { order: "asc" } });
+  const remaining = await readCategories();
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.menuCategory.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateCategory(remaining[i].id, { order: i });
     }
   }
 

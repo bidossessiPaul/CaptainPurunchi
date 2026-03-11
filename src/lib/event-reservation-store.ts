@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { EventReservation } from "@/app/types/event-reservation";
 
 function toEventReservation(r: {
@@ -24,12 +24,11 @@ function toEventReservation(r: {
 }
 
 export async function readAllEventReservations(): Promise<EventReservation[]> {
-  const rows = await prisma.eventReservation.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const rows = await query('SELECT * FROM event_reservations ORDER BY createdAt DESC');
   return rows.map(toEventReservation);
 }
 
 export async function readPendingEventReservationsCount(): Promise<number> {
-  return prisma.eventReservation.count({ where: { status: "pending" } });
+  const rows = await query('SELECT COUNT(*) as count FROM event_reservations WHERE status = ?', ['pending']);
+  return (rows[0] as { count: number }).count;
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import { apiHandler } from "@/lib/api-handler";
 import { getSessionUser } from "@/lib/session";
 import { logActivity } from "@/lib/activity-log-store";
@@ -12,31 +12,63 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.order.findUnique({ where: { id } });
-  if (!existing) {
+  const existing = await query('SELECT * FROM orders WHERE id = ?', [id]);
+  if (existing.length === 0) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  const data: Record<string, unknown> = {};
-  if (body.customerName !== undefined) data.customerName = body.customerName;
-  if (body.customerPhone !== undefined) data.customerPhone = body.customerPhone;
-  if (body.customerEmail !== undefined) data.customerEmail = body.customerEmail;
-  if (body.items !== undefined) data.items = JSON.stringify(body.items);
-  if (body.totalAmount !== undefined) data.totalAmount = body.totalAmount;
-  if (body.notes !== undefined) data.notes = body.notes;
-  if (body.status !== undefined) data.status = body.status;
-  if (body.paymentMethod !== undefined) data.paymentMethod = body.paymentMethod;
+  const fields: string[] = [];
+  const values: unknown[] = [];
 
-  const updated = await prisma.order.update({ where: { id }, data });
+  if (body.customerName !== undefined) {
+    fields.push('customerName = ?');
+    values.push(body.customerName);
+  }
+  if (body.customerPhone !== undefined) {
+    fields.push('customerPhone = ?');
+    values.push(body.customerPhone);
+  }
+  if (body.customerEmail !== undefined) {
+    fields.push('customerEmail = ?');
+    values.push(body.customerEmail);
+  }
+  if (body.items !== undefined) {
+    fields.push('items = ?');
+    values.push(JSON.stringify(body.items));
+  }
+  if (body.totalAmount !== undefined) {
+    fields.push('totalAmount = ?');
+    values.push(body.totalAmount);
+  }
+  if (body.notes !== undefined) {
+    fields.push('notes = ?');
+    values.push(body.notes);
+  }
+  if (body.status !== undefined) {
+    fields.push('status = ?');
+    values.push(body.status);
+  }
+  if (body.paymentMethod !== undefined) {
+    fields.push('paymentMethod = ?');
+    values.push(body.paymentMethod);
+  }
+
+  if (fields.length > 0) {
+    values.push(id);
+    await query(`UPDATE orders SET ${fields.join(', ')} WHERE id = ?`, values);
+  }
+
+  const updated = await query('SELECT * FROM orders WHERE id = ?', [id]);
+  const updatedRecord = updated[0];
 
   // Send status change email to customer
-  if (body.status && body.status !== existing.status && updated.customerEmail) {
+  if (body.status && body.status !== existing[0].status && updatedRecord.customerEmail) {
     if (body.status === "confirmed" || body.status === "cancelled") {
       sendCustomerOrderStatusNotification({
-        to: updated.customerEmail,
-        customerName: updated.customerName,
+        to: updatedRecord.customerEmail,
+        customerName: updatedRecord.customerName,
         status: body.status,
-        totalAmount: updated.totalAmount,
+        totalAmount: updatedRecord.totalAmount,
       }).catch(() => {});
     }
   }
@@ -50,13 +82,13 @@ export const PUT = apiHandler(async (
       action: "update",
       target: "order",
       targetId: id,
-      details: body.status && body.status !== existing.status
-        ? `Statut: ${existing.status} → ${body.status}`
-        : `Commande modifiée (${updated.customerName})`,
+      details: body.status && body.status !== existing[0].status
+        ? `Statut: ${existing[0].status} → ${body.status}`
+        : `Commande modifiée (${updatedRecord.customerName})`,
     }).catch(() => {});
   }
 
-  return NextResponse.json({ ...updated, items: JSON.parse(updated.items) });
+  return NextResponse.json({ ...updatedRecord, items: JSON.parse(updatedRecord.items) });
 });
 
 export const DELETE = apiHandler(async (
@@ -65,12 +97,12 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.order.findUnique({ where: { id } });
-  if (!existing) {
+  const existing = await query('SELECT * FROM orders WHERE id = ?', [id]);
+  if (existing.length === 0) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  await prisma.order.delete({ where: { id } });
+  await query('DELETE FROM orders WHERE id = ?', [id]);
 
   const me = await getSessionUser();
   if (me) {
@@ -80,7 +112,7 @@ export const DELETE = apiHandler(async (
       action: "delete",
       target: "order",
       targetId: id,
-      details: `Commande supprimée (${existing.customerName})`,
+      details: `Commande supprimée (${existing[0].customerName})`,
     }).catch(() => {});
   }
 

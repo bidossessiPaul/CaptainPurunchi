@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { Revenue } from "@/app/types/revenue";
 
 function toRevenue(r: {
@@ -25,20 +25,30 @@ export async function readRevenues(filters?: {
   dateTo?: string;
   source?: string;
 }): Promise<Revenue[]> {
-  const where: Record<string, unknown> = {};
-  if (filters?.source) where.source = filters.source;
-  if (filters?.dateFrom || filters?.dateTo) {
-    where.date = {};
-    if (filters.dateFrom) (where.date as Record<string, string>).gte = filters.dateFrom;
-    if (filters.dateTo) (where.date as Record<string, string>).lte = filters.dateTo;
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (filters?.source) {
+    conditions.push('source = ?');
+    params.push(filters.source);
   }
-  const rows = await prisma.revenue.findMany({ where, orderBy: { date: "desc" } });
+  if (filters?.dateFrom) {
+    conditions.push('date >= ?');
+    params.push(filters.dateFrom);
+  }
+  if (filters?.dateTo) {
+    conditions.push('date <= ?');
+    params.push(filters.dateTo);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const rows = await query(`SELECT * FROM revenues ${whereClause} ORDER BY date DESC`, params);
   return rows.map(toRevenue);
 }
 
 export async function readRevenueById(id: string): Promise<Revenue | null> {
-  const r = await prisma.revenue.findUnique({ where: { id } });
-  return r ? toRevenue(r) : null;
+  const rows = await query('SELECT * FROM revenues WHERE id = ?', [id]);
+  return rows[0] ? toRevenue(rows[0]) : null;
 }
 
 export async function createRevenue(data: {
@@ -50,8 +60,9 @@ export async function createRevenue(data: {
   date: string;
   createdBy?: string;
 }): Promise<Revenue> {
-  const r = await prisma.revenue.create({ data });
-  return toRevenue(r);
+  const result = await query('INSERT INTO revenues SET ?', [data]);
+  const rows = await query('SELECT * FROM revenues WHERE id = ?', [(result as { insertId: string }).insertId]);
+  return toRevenue(rows[0]);
 }
 
 export async function updateRevenue(
@@ -65,27 +76,27 @@ export async function updateRevenue(
     date: string;
   }>
 ): Promise<Revenue> {
-  const r = await prisma.revenue.update({ where: { id }, data });
-  return toRevenue(r);
+  await query('UPDATE revenues SET ? WHERE id = ?', [data, id]);
+  const rows = await query('SELECT * FROM revenues WHERE id = ?', [id]);
+  return toRevenue(rows[0]);
 }
 
 export async function deleteRevenue(id: string): Promise<void> {
-  await prisma.revenue.delete({ where: { id } });
+  await query('DELETE FROM revenues WHERE id = ?', [id]);
 }
 
 export async function sumRevenueByPeriod(dateFrom: string, dateTo: string) {
-  const result = await prisma.revenue.aggregate({
-    _sum: { amount: true },
-    where: { date: { gte: dateFrom, lte: dateTo } },
-  });
-  return result._sum.amount ?? 0;
+  const rows = await query(
+    'SELECT SUM(amount) as total FROM revenues WHERE date >= ? AND date <= ?',
+    [dateFrom, dateTo]
+  );
+  return (rows[0] as { total: number | null }).total ?? 0;
 }
 
 export async function revenueBySource(dateFrom: string, dateTo: string) {
-  const rows = await prisma.revenue.groupBy({
-    by: ["source"],
-    _sum: { amount: true },
-    where: { date: { gte: dateFrom, lte: dateTo } },
-  });
-  return rows.map((r) => ({ source: r.source, total: r._sum.amount ?? 0 }));
+  const rows = await query(
+    'SELECT source, SUM(amount) as total FROM revenues WHERE date >= ? AND date <= ? GROUP BY source',
+    [dateFrom, dateTo]
+  );
+  return rows.map((r: { source: string; total: number }) => ({ source: r.source, total: r.total ?? 0 }));
 }

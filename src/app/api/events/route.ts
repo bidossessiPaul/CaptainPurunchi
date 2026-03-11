@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readEvents, countEvents, createEvent } from "@/lib/event-store";
 
 export const GET = apiHandler(async () => {
-  const events = await prisma.event.findMany({ orderBy: { order: "asc" } });
-  const parsed = events.map((e) => ({
-    ...e,
-    gallery: JSON.parse(e.gallery),
-    includes: JSON.parse(e.includes),
-  }));
-  return NextResponse.json(parsed);
+  const events = await readEvents();
+  return NextResponse.json(events);
 });
 
 export const POST = apiHandler(async (request: Request) => {
@@ -20,31 +15,25 @@ export const POST = apiHandler(async (request: Request) => {
     return NextResponse.json({ error: "title and tag are required" }, { status: 400 });
   }
 
-  const count = await prisma.event.count();
+  const count = await countEvents();
 
-  const event = await prisma.event.create({
-    data: {
-      featured: Boolean(featured),
-      tag,
-      title,
-      shortDesc: shortDesc || "",
-      description: description || "",
-      day: day || "",
-      month: month || "",
-      time: time || "",
-      location: location || "",
-      price: price || "",
-      thumb: thumb || "",
-      gallery: JSON.stringify(gallery || []),
-      includes: JSON.stringify(includes || []),
-      order: count,
-      active: true,
-    },
+  const event = await createEvent({
+    featured: Boolean(featured),
+    tag,
+    title,
+    shortDesc: shortDesc || "",
+    description: description || "",
+    day: day || "",
+    month: month || "",
+    time: time || "",
+    location: location || "",
+    price: price || "",
+    thumb: thumb || "",
+    gallery: gallery || [],
+    includes: includes || [],
+    order: count,
+    active: true,
   });
 
-  return NextResponse.json({
-    ...event,
-    gallery: JSON.parse(event.gallery),
-    includes: JSON.parse(event.includes),
-  }, { status: 201 });
+  return NextResponse.json(event, { status: 201 });
 });

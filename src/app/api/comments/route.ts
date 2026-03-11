@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readAllComments, createComment, readBlogPostById } from "@/lib/blog-store";
 
 // GET all comments (admin)
 export const GET = apiHandler(async () => {
-  const comments = await prisma.blogComment.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { post: { select: { title: true } } },
-  });
+  const comments = await readAllComments();
   return NextResponse.json(comments);
 });
 
@@ -23,19 +20,17 @@ export const POST = apiHandler(async (request: Request) => {
     );
   }
 
-  const post = await prisma.blogPost.findUnique({ where: { id: postId } });
+  const post = await readBlogPostById(postId);
   if (!post) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
-  const comment = await prisma.blogComment.create({
-    data: {
-      postId,
-      name: name.trim(),
-      email: email?.trim() || "",
-      text: text.trim(),
-      approved: false,
-    },
+  const comment = await createComment({
+    postId,
+    name: name.trim(),
+    email: email?.trim() || "",
+    comment: text.trim(),
+    approved: false,
   });
 
   return NextResponse.json(comment, { status: 201 });

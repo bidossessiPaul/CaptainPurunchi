@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readCommentById, updateComment, deleteComment } from "@/lib/blog-store";
 
 // PUT - approve/reject comment (admin)
 export const PUT = apiHandler(async (
@@ -10,7 +10,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.blogComment.findUnique({ where: { id } });
+  const existing = await readCommentById(id);
   if (!existing) {
     return NextResponse.json({ error: "Comment not found" }, { status: 404 });
   }
@@ -18,7 +18,7 @@ export const PUT = apiHandler(async (
   const data: Record<string, unknown> = {};
   if (body.approved !== undefined) data.approved = Boolean(body.approved);
 
-  const updated = await prisma.blogComment.update({ where: { id }, data });
+  const updated = await updateComment(id, data);
   return NextResponse.json(updated);
 });
 
@@ -29,11 +29,11 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.blogComment.findUnique({ where: { id } });
+  const existing = await readCommentById(id);
   if (!existing) {
     return NextResponse.json({ error: "Comment not found" }, { status: 404 });
   }
 
-  await prisma.blogComment.delete({ where: { id } });
+  await deleteComment(id);
   return NextResponse.json({ success: true });
 });

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { Order } from "@/app/types/order";
 
 function toOrder(o: {
@@ -25,18 +25,16 @@ function toOrder(o: {
 }
 
 export async function readAllOrders(): Promise<Order[]> {
-  const orders = await prisma.order.findMany({ orderBy: { createdAt: "desc" } });
+  const orders = await query('SELECT * FROM orders ORDER BY createdAt DESC');
   return orders.map(toOrder);
 }
 
 export async function readOrdersByDate(date: string): Promise<Order[]> {
-  const orders = await prisma.order.findMany({
-    where: { orderDate: date },
-    orderBy: { createdAt: "desc" },
-  });
+  const orders = await query('SELECT * FROM orders WHERE orderDate = ? ORDER BY createdAt DESC', [date]);
   return orders.map(toOrder);
 }
 
 export async function readPendingOrdersCount(): Promise<number> {
-  return prisma.order.count({ where: { status: "pending" } });
+  const rows = await query('SELECT COUNT(*) as count FROM orders WHERE status = ?', ['pending']);
+  return (rows[0] as { count: number }).count;
 }

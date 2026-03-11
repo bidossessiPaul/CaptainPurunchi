@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readBlogPostById, updateBlogPost, deleteBlogPost, readBlogPosts } from "@/lib/blog-store";
 
 export const PUT = apiHandler(async (
   request: Request,
@@ -9,7 +9,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.blogPost.findUnique({ where: { id } });
+  const existing = await readBlogPostById(id);
   if (!existing) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
@@ -24,7 +24,7 @@ export const PUT = apiHandler(async (
   if (body.thumb !== undefined) data.thumb = body.thumb;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.blogPost.update({ where: { id }, data });
+  const updated = await updateBlogPost(id, data);
   return NextResponse.json(updated);
 });
 
@@ -34,17 +34,17 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.blogPost.findUnique({ where: { id } });
+  const existing = await readBlogPostById(id);
   if (!existing) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
-  await prisma.blogPost.delete({ where: { id } });
+  await deleteBlogPost(id);
 
-  const remaining = await prisma.blogPost.findMany({ orderBy: { order: "asc" } });
+  const remaining = await readBlogPosts();
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.blogPost.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateBlogPost(remaining[i].id, { order: i });
     }
   }
 

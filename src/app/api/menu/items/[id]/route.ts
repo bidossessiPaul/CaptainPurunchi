@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
+import { readItemById, updateItem, deleteItem, readItems } from "@/lib/menu-store";
 
 export const PUT = apiHandler(async (
   request: Request,
@@ -9,7 +9,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.menuItem.findUnique({ where: { id } });
+  const existing = await readItemById(id);
   if (!existing) {
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
@@ -20,7 +20,7 @@ export const PUT = apiHandler(async (
   if (body.price !== undefined) data.price = body.price;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
-  const updated = await prisma.menuItem.update({ where: { id }, data });
+  const updated = await updateItem(id, data);
   return NextResponse.json(updated);
 });
 
@@ -30,21 +30,18 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.menuItem.findUnique({ where: { id } });
+  const existing = await readItemById(id);
   if (!existing) {
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
-  await prisma.menuItem.delete({ where: { id } });
+  await deleteItem(id);
 
   // Re-index remaining items in this category
-  const remaining = await prisma.menuItem.findMany({
-    where: { categoryId: existing.categoryId },
-    orderBy: { order: "asc" },
-  });
+  const remaining = await readItems(existing.categoryId);
   for (let i = 0; i < remaining.length; i++) {
     if (remaining[i].order !== i) {
-      await prisma.menuItem.update({ where: { id: remaining[i].id }, data: { order: i } });
+      await updateItem(remaining[i].id, { order: i });
     }
   }
 

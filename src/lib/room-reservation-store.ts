@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { RoomReservation } from "@/app/types/room-reservation";
 
 function toRoomReservation(r: {
@@ -26,14 +26,13 @@ function toRoomReservation(r: {
 }
 
 export async function readAllRoomReservations(): Promise<RoomReservation[]> {
-  const rows = await prisma.roomReservation.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  const rows = await query('SELECT * FROM room_reservations ORDER BY createdAt DESC');
   return rows.map(toRoomReservation);
 }
 
 export async function readPendingRoomReservationsCount(): Promise<number> {
-  return prisma.roomReservation.count({ where: { status: "pending" } });
+  const rows = await query('SELECT COUNT(*) as count FROM room_reservations WHERE status = ?', ['pending']);
+  return (rows[0] as { count: number }).count;
 }
 
 /**
@@ -46,16 +45,93 @@ export async function checkRoomAvailability(
   checkOut: string,
   excludeId?: string
 ): Promise<boolean> {
-  const where: Record<string, unknown> = {
-    roomId,
-    status: { not: "cancelled" },
-    checkIn: { lt: checkOut },
-    checkOut: { gt: checkIn },
-  };
+  let sql = `
+    SELECT * FROM room_reservations
+    WHERE roomId = ?
+      AND status != 'cancelled'
+      AND checkIn < ?
+      AND checkOut > ?
+  `;
+  const params: unknown[] = [roomId, checkOut, checkIn];
+
   if (excludeId) {
-    where.id = { not: excludeId };
+    sql += ' AND id != ?';
+    params.push(excludeId);
   }
 
-  const overlapping = await prisma.roomReservation.findFirst({ where });
-  return overlapping === null;
+  sql += ' LIMIT 1';
+
+  const overlapping = await query(sql, params);
+  return overlapping.length === 0;
+}
+
+export async function readRoomReservationById(id: string): Promise<RoomReservation | null> {
+  const rows = await query('SELECT * FROM room_reservations WHERE id = ?', [id]);
+  if (rows.length === 0) return null;
+  return toRoomReservation(rows[0]);
+}
+
+export async function readRoomReservationsByStatus(status?: string): Promise<RoomReservation[]> {
+  if (status) {
+    const rows = await query('SELECT * FROM room_reservations WHERE status = ? ORDER BY createdAt DESC', [status]);
+    return rows.map(toRoomReservation);
+  }
+  return readAllRoomReservations();
+}
+
+export async function createRoomReservation(data: {
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  roomId: string;
+  roomName: string;
+  checkIn: string;
+  checkOut: string;
+  guests: string;
+  notes: string;
+  paymentMethod: string;
+}): Promise<RoomReservation> {
+  const id = crypto.randomUUID();
+  await query(
+    'INSERT INTO room_reservations (id, customerName, customerPhone, customerEmail, roomId, roomName, checkIn, checkOut, guests, notes, paymentMethod, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, data.customerName, data.customerPhone, data.customerEmail, data.roomId, data.roomName, data.checkIn, data.checkOut, data.guests, data.notes, data.paymentMethod, 'pending']
+  );
+  const created = await readRoomReservationById(id);
+  if (!created) throw new Error('Failed to create room reservation');
+  return created;
+}
+
+export async function updateRoomReservation(id: string, data: Partial<{
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  roomId: string;
+  roomName: string;
+  checkIn: string;
+  checkOut: string;
+  guests: string;
+  notes: string;
+  status: string;
+  paymentMethod: string;
+}>): Promise<RoomReservation | null> {
+  const fields: string[] = [];
+  const values: unknown[] = [];
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined) {
+      fields.push(`${key} = ?`);
+      values.push(value);
+    }
+  });
+
+  if (fields.length > 0) {
+    values.push(id);
+    await query(`UPDATE room_reservations SET ${fields.join(', ')} WHERE id = ?`, values);
+  }
+
+  return readRoomReservationById(id);
+}
+
+export async function deleteRoomReservation(id: string): Promise<void> {
+  await query('DELETE FROM room_reservations WHERE id = ?', [id]);
 }

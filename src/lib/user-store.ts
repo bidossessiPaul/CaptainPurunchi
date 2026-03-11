@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export interface UserPublic {
@@ -18,7 +18,7 @@ function toPublic(u: {
   email: string;
   role: string;
   avatar: string | null;
-  active: boolean;
+  active: number;
   lastLogin: Date | null;
   createdAt: Date;
 }): UserPublic {
@@ -28,24 +28,25 @@ function toPublic(u: {
     email: u.email,
     role: u.role,
     avatar: u.avatar,
-    active: u.active,
+    active: u.active === 1,
     lastLogin: u.lastLogin?.toISOString() ?? null,
     createdAt: u.createdAt.toISOString(),
   };
 }
 
 export async function readAllUsers(): Promise<UserPublic[]> {
-  const rows = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+  const rows = await query('SELECT * FROM users ORDER BY createdAt DESC');
   return rows.map(toPublic);
 }
 
 export async function readUserById(id: string): Promise<UserPublic | null> {
-  const u = await prisma.user.findUnique({ where: { id } });
-  return u ? toPublic(u) : null;
+  const rows = await query('SELECT * FROM users WHERE id = ?', [id]);
+  return rows[0] ? toPublic(rows[0]) : null;
 }
 
 export async function readUserByEmail(email: string) {
-  return prisma.user.findUnique({ where: { email } });
+  const rows = await query('SELECT * FROM users WHERE email = ?', [email]);
+  return rows[0] || null;
 }
 
 export async function createUser(data: {
@@ -55,10 +56,14 @@ export async function createUser(data: {
   role: string;
 }): Promise<UserPublic> {
   const hash = await bcrypt.hash(data.password, 10);
-  const u = await prisma.user.create({
-    data: { name: data.name, email: data.email, password: hash, role: data.role },
-  });
-  return toPublic(u);
+  const result = await query('INSERT INTO users SET ?', [{
+    name: data.name,
+    email: data.email,
+    password: hash,
+    role: data.role
+  }]);
+  const rows = await query('SELECT * FROM users WHERE id = ?', [(result as { insertId: string }).insertId]);
+  return toPublic(rows[0]);
 }
 
 export async function updateUser(
@@ -69,23 +74,29 @@ export async function updateUser(
   if (data.name !== undefined) update.name = data.name;
   if (data.email !== undefined) update.email = data.email;
   if (data.role !== undefined) update.role = data.role;
-  if (data.active !== undefined) update.active = data.active;
+  if (data.active !== undefined) update.active = data.active ? 1 : 0;
   if (data.avatar !== undefined) update.avatar = data.avatar;
   if (data.password) update.password = await bcrypt.hash(data.password, 10);
 
-  const u = await prisma.user.update({ where: { id }, data: update });
-  return toPublic(u);
+  await query('UPDATE users SET ? WHERE id = ?', [update, id]);
+  const rows = await query('SELECT * FROM users WHERE id = ?', [id]);
+  return toPublic(rows[0]);
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  await prisma.user.delete({ where: { id } });
+  await query('DELETE FROM users WHERE id = ?', [id]);
 }
 
 export async function verifyUserPassword(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.active) return null;
+  const rows = await query('SELECT * FROM users WHERE email = ?', [email]);
+  const user = rows[0] as { id: string; name: string; email: string; role: string; avatar: string | null; active: number; password: string } | undefined;
+
+  if (!user || user.active !== 1) return null;
+
   const match = await bcrypt.compare(password, user.password);
   if (!match) return null;
-  await prisma.user.update({ where: { id: user.id }, data: { lastLogin: new Date() } });
+
+  await query('UPDATE users SET lastLogin = ? WHERE id = ?', [new Date(), user.id]);
+
   return { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar };
 }

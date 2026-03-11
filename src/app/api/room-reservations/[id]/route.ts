@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { apiHandler } from "@/lib/api-handler";
 import { getSessionUser } from "@/lib/session";
 import { logActivity } from "@/lib/activity-log-store";
-import { checkRoomAvailability } from "@/lib/room-reservation-store";
+import { checkRoomAvailability, readRoomReservationById, updateRoomReservation, deleteRoomReservation } from "@/lib/room-reservation-store";
 import { sendCustomerStatusNotification } from "@/lib/mail";
 
 export const PUT = apiHandler(async (
@@ -13,7 +12,7 @@ export const PUT = apiHandler(async (
   const { id } = await params;
   const body = await request.json();
 
-  const existing = await prisma.roomReservation.findUnique({ where: { id } });
+  const existing = await readRoomReservationById(id);
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -45,7 +44,10 @@ export const PUT = apiHandler(async (
   if (body.status !== undefined) data.status = body.status;
   if (body.paymentMethod !== undefined) data.paymentMethod = body.paymentMethod;
 
-  const updated = await prisma.roomReservation.update({ where: { id }, data });
+  const updated = await updateRoomReservation(id, data);
+  if (!updated) {
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
+  }
 
   // Send status change email to customer
   if (body.status && body.status !== existing.status && updated.customerEmail) {
@@ -79,11 +81,7 @@ export const PUT = apiHandler(async (
     }).catch(() => {});
   }
 
-  return NextResponse.json({
-    ...updated,
-    createdAt: updated.createdAt.toISOString(),
-    updatedAt: updated.updatedAt.toISOString(),
-  });
+  return NextResponse.json(updated);
 });
 
 export const DELETE = apiHandler(async (
@@ -92,12 +90,12 @@ export const DELETE = apiHandler(async (
 ) => {
   const { id } = await params;
 
-  const existing = await prisma.roomReservation.findUnique({ where: { id } });
+  const existing = await readRoomReservationById(id);
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await prisma.roomReservation.delete({ where: { id } });
+  await deleteRoomReservation(id);
 
   const me = await getSessionUser();
   if (me) {

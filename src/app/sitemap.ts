@@ -1,7 +1,12 @@
 import type { MetadataRoute } from "next";
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 
 const BASE_URL = process.env.SITE_URL || "https://captainpurunchi.com";
+
+interface BlogPost {
+  slug: string;
+  createdAt: Date;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
@@ -16,10 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Dynamic blog post pages
-  const blogPosts = await prisma.blogPost.findMany({
-    where: { active: true, slug: { not: null } },
-    select: { slug: true, createdAt: true },
-  });
+  const blogPosts: BlogPost[] = await query(
+    'SELECT slug, createdAt FROM blog_posts WHERE active = 1 AND slug IS NOT NULL'
+  );
 
   const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import { apiHandler } from "@/lib/api-handler";
 import { sendCustomerOrderConfirmation } from "@/lib/mail";
 import { notifyTeamNewOrder } from "@/lib/notification-helpers";
@@ -9,17 +9,24 @@ export const GET = apiHandler(async (request) => {
   const date = searchParams.get("date");
   const status = searchParams.get("status");
 
-  const where: Record<string, string> = {};
-  if (date) where.orderDate = date;
-  if (status) where.status = status;
+  let sql = 'SELECT * FROM orders WHERE 1=1';
+  const params: unknown[] = [];
 
-  const orders = await prisma.order.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
+  if (date) {
+    sql += ' AND orderDate = ?';
+    params.push(date);
+  }
+  if (status) {
+    sql += ' AND status = ?';
+    params.push(status);
+  }
+
+  sql += ' ORDER BY createdAt DESC';
+
+  const orders = await query(sql, params);
 
   return NextResponse.json(
-    orders.map((o) => ({ ...o, items: JSON.parse(o.items) }))
+    orders.map((o: { items: string }) => ({ ...o, items: JSON.parse(o.items) }))
   );
 });
 
@@ -34,19 +41,14 @@ export const POST = apiHandler(async (request) => {
     );
   }
 
-  const order = await prisma.order.create({
-    data: {
-      customerName,
-      customerPhone,
-      customerEmail: customerEmail || "",
-      items: JSON.stringify(items),
-      totalAmount: totalAmount || "",
-      notes: notes || "",
-      status: "pending",
-      paymentMethod: paymentMethod || "",
-      orderDate: orderDate || new Date().toISOString().split("T")[0],
-    },
-  });
+  const id = crypto.randomUUID();
+  await query(
+    'INSERT INTO orders (id, customerName, customerPhone, customerEmail, items, totalAmount, notes, status, paymentMethod, orderDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, customerName, customerPhone, customerEmail || "", JSON.stringify(items), totalAmount || "", notes || "", 'pending', paymentMethod || "", orderDate || new Date().toISOString().split("T")[0]]
+  );
+
+  const rows = await query('SELECT * FROM orders WHERE id = ?', [id]);
+  const order = rows[0];
 
   // Send customer confirmation email (non-blocking)
   if (customerEmail) {

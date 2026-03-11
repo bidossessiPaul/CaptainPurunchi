@@ -1,9 +1,15 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import { canAccess } from "@/lib/permissions";
 import {
   sendNewReservationNotification,
   sendNewOrderNotification,
 } from "@/lib/mail";
+
+interface User {
+  email: string;
+  name: string;
+  role: string;
+}
 
 /**
  * Notify team members who have access to "reservations" page
@@ -14,10 +20,9 @@ export async function notifyTeamNewReservation(
   details: string,
   date: string
 ): Promise<void> {
-  const users = await prisma.user.findMany({
-    where: { active: true },
-    select: { email: true, name: true, role: true },
-  });
+  const users: User[] = await query(
+    'SELECT email, name, role FROM users WHERE active = 1'
+  );
 
   const notifiable = users.filter((u) => canAccess(u.role, "reservations"));
 
@@ -43,10 +48,9 @@ export async function notifyTeamNewOrder(
   itemCount: number,
   totalAmount: string
 ): Promise<void> {
-  const users = await prisma.user.findMany({
-    where: { active: true },
-    select: { email: true, name: true, role: true },
-  });
+  const users: User[] = await query(
+    'SELECT email, name, role FROM users WHERE active = 1'
+  );
 
   const notifiable = users.filter((u) => canAccess(u.role, "orders"));
 

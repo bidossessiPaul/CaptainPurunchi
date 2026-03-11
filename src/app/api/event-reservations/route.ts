@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import { apiHandler } from "@/lib/api-handler";
 import { sendCustomerReservationConfirmation } from "@/lib/mail";
 import { notifyTeamNewReservation } from "@/lib/notification-helpers";
@@ -8,21 +8,19 @@ export const GET = apiHandler(async (request) => {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
 
-  const where: Record<string, unknown> = {};
-  if (status) where.status = status;
+  let sql = 'SELECT * FROM event_reservations';
+  const params: unknown[] = [];
 
-  const rows = await prisma.eventReservation.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
+  if (status) {
+    sql += ' WHERE status = ?';
+    params.push(status);
+  }
 
-  return NextResponse.json(
-    rows.map((r) => ({
-      ...r,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    }))
-  );
+  sql += ' ORDER BY createdAt DESC';
+
+  const rows = await query(sql, params);
+
+  return NextResponse.json(rows);
 });
 
 export const POST = apiHandler(async (request) => {
@@ -36,18 +34,14 @@ export const POST = apiHandler(async (request) => {
     );
   }
 
-  const reservation = await prisma.eventReservation.create({
-    data: {
-      customerName,
-      customerPhone,
-      customerEmail: customerEmail || "",
-      eventId,
-      eventTitle,
-      attendees: attendees || "",
-      notes: notes || "",
-      paymentMethod: paymentMethod || "",
-    },
-  });
+  const id = crypto.randomUUID();
+  await query(
+    'INSERT INTO event_reservations (id, customerName, customerPhone, customerEmail, eventId, eventTitle, attendees, notes, paymentMethod, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, customerName, customerPhone, customerEmail || "", eventId, eventTitle, attendees || "", notes || "", paymentMethod || "", 'pending']
+  );
+
+  const rows = await query('SELECT * FROM event_reservations WHERE id = ?', [id]);
+  const reservation = rows[0];
 
   // Send customer confirmation email (non-blocking)
   if (customerEmail) {
@@ -65,12 +59,5 @@ export const POST = apiHandler(async (request) => {
   // Notify team (non-blocking)
   notifyTeamNewReservation("event", customerName, `${eventTitle} — ${attendees || "?"} pers.`, eventTitle).catch(() => {});
 
-  return NextResponse.json(
-    {
-      ...reservation,
-      createdAt: reservation.createdAt.toISOString(),
-      updatedAt: reservation.updatedAt.toISOString(),
-    },
-    { status: 201 }
-  );
+  return NextResponse.json(reservation, { status: 201 });
 });

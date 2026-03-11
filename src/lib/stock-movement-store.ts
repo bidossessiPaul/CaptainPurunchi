@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { StockMovement } from "@/app/types/stock-movement";
 
 function toStockMovement(r: {
@@ -26,15 +26,28 @@ export async function readStockMovements(filters?: {
   dateFrom?: string;
   dateTo?: string;
 }): Promise<StockMovement[]> {
-  const where: Record<string, unknown> = {};
-  if (filters?.stockItemId) where.stockItemId = filters.stockItemId;
-  if (filters?.type) where.type = filters.type;
-  if (filters?.dateFrom || filters?.dateTo) {
-    where.date = {};
-    if (filters.dateFrom) (where.date as Record<string, string>).gte = filters.dateFrom;
-    if (filters.dateTo) (where.date as Record<string, string>).lte = filters.dateTo;
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (filters?.stockItemId) {
+    conditions.push('stockItemId = ?');
+    params.push(filters.stockItemId);
   }
-  const rows = await prisma.stockMovement.findMany({ where, orderBy: { createdAt: "desc" } });
+  if (filters?.type) {
+    conditions.push('type = ?');
+    params.push(filters.type);
+  }
+  if (filters?.dateFrom) {
+    conditions.push('date >= ?');
+    params.push(filters.dateFrom);
+  }
+  if (filters?.dateTo) {
+    conditions.push('date <= ?');
+    params.push(filters.dateTo);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const rows = await query(`SELECT * FROM stock_movements ${whereClause} ORDER BY createdAt DESC`, params);
   return rows.map(toStockMovement);
 }
 
@@ -50,41 +63,35 @@ export async function createStockMovement(data: {
 }): Promise<StockMovement> {
   const totalCost = Math.round((data.unitPrice || 0) * Math.abs(data.quantity));
 
-  const movement = await prisma.stockMovement.create({
-    data: {
-      stockItemId: data.stockItemId,
-      stockItemName: data.stockItemName,
-      type: data.type,
-      quantity: data.quantity,
-      unitPrice: data.unitPrice || 0,
-      totalCost,
-      reason: data.reason || "",
-      date: data.date,
-      createdBy: data.createdBy || "",
-    },
-  });
+  const result = await query('INSERT INTO stock_movements SET ?', [{
+    stockItemId: data.stockItemId,
+    stockItemName: data.stockItemName,
+    type: data.type,
+    quantity: data.quantity,
+    unitPrice: data.unitPrice || 0,
+    totalCost,
+    reason: data.reason || "",
+    date: data.date,
+    createdBy: data.createdBy || "",
+  }]);
 
   // Update currentStock on the StockItem
   if (data.type === "adjustment") {
     // Adjustment sets the stock to the given quantity
-    await prisma.stockItem.update({
-      where: { id: data.stockItemId },
-      data: { currentStock: data.quantity },
-    });
+    await query('UPDATE stock_items SET currentStock = ? WHERE id = ?', [data.quantity, data.stockItemId]);
   } else {
     // entry = +quantity, exit/waste = -quantity
     const delta = data.type === "entry" ? Math.abs(data.quantity) : -Math.abs(data.quantity);
-    await prisma.stockItem.update({
-      where: { id: data.stockItemId },
-      data: { currentStock: { increment: delta } },
-    });
+    await query('UPDATE stock_items SET currentStock = currentStock + ? WHERE id = ?', [delta, data.stockItemId]);
   }
 
-  return toStockMovement(movement);
+  const rows = await query('SELECT * FROM stock_movements WHERE id = ?', [(result as { insertId: string }).insertId]);
+  return toStockMovement(rows[0]);
 }
 
 export async function deleteStockMovement(id: string): Promise<void> {
-  const movement = await prisma.stockMovement.findUnique({ where: { id } });
+  const movementRows = await query('SELECT * FROM stock_movements WHERE id = ?', [id]);
+  const movement = movementRows[0] as StockMovement | undefined;
   if (!movement) return;
 
   // Reverse the stock change
@@ -92,15 +99,13 @@ export async function deleteStockMovement(id: string): Promise<void> {
     // Can't reliably reverse an adjustment — just delete the record
   } else {
     const delta = movement.type === "entry" ? -Math.abs(movement.quantity) : Math.abs(movement.quantity);
-    await prisma.stockItem.update({
-      where: { id: movement.stockItemId },
-      data: { currentStock: { increment: delta } },
-    });
+    await query('UPDATE stock_items SET currentStock = currentStock + ? WHERE id = ?', [delta, movement.stockItemId]);
   }
 
-  await prisma.stockMovement.delete({ where: { id } });
+  await query('DELETE FROM stock_movements WHERE id = ?', [id]);
 }
 
 export async function countMovementsToday(date: string): Promise<number> {
-  return prisma.stockMovement.count({ where: { date } });
+  const rows = await query('SELECT COUNT(*) as count FROM stock_movements WHERE date = ?', [date]);
+  return (rows[0] as { count: number }).count;
 }

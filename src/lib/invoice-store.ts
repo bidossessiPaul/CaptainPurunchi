@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { query } from "@/lib/db";
 import type { Invoice } from "@/app/types/invoice";
 
 function toInvoice(i: {
@@ -29,13 +29,14 @@ function toInvoice(i: {
 async function generateInvoiceNumber(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = `CP-${year}-`;
-  const last = await prisma.invoice.findFirst({
-    where: { invoiceNumber: { startsWith: prefix } },
-    orderBy: { invoiceNumber: "desc" },
-  });
+  const rows = await query(
+    'SELECT invoiceNumber FROM invoices WHERE invoiceNumber LIKE ? ORDER BY invoiceNumber DESC LIMIT 1',
+    [`${prefix}%`]
+  );
+
   let next = 1;
-  if (last) {
-    const num = parseInt(last.invoiceNumber.replace(prefix, ""), 10);
+  if (rows[0]) {
+    const num = parseInt((rows[0] as { invoiceNumber: string }).invoiceNumber.replace(prefix, ""), 10);
     if (!isNaN(num)) next = num + 1;
   }
   return `${prefix}${String(next).padStart(4, "0")}`;
@@ -46,20 +47,30 @@ export async function readInvoices(filters?: {
   dateFrom?: string;
   dateTo?: string;
 }): Promise<Invoice[]> {
-  const where: Record<string, unknown> = {};
-  if (filters?.status) where.status = filters.status;
-  if (filters?.dateFrom || filters?.dateTo) {
-    where.createdAt = {};
-    if (filters.dateFrom) (where.createdAt as Record<string, Date>).gte = new Date(filters.dateFrom);
-    if (filters.dateTo) (where.createdAt as Record<string, Date>).lte = new Date(filters.dateTo + "T23:59:59");
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (filters?.status) {
+    conditions.push('status = ?');
+    params.push(filters.status);
   }
-  const rows = await prisma.invoice.findMany({ where, orderBy: { createdAt: "desc" } });
+  if (filters?.dateFrom) {
+    conditions.push('createdAt >= ?');
+    params.push(new Date(filters.dateFrom));
+  }
+  if (filters?.dateTo) {
+    conditions.push('createdAt <= ?');
+    params.push(new Date(filters.dateTo + "T23:59:59"));
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const rows = await query(`SELECT * FROM invoices ${whereClause} ORDER BY createdAt DESC`, params);
   return rows.map(toInvoice);
 }
 
 export async function readInvoiceById(id: string): Promise<Invoice | null> {
-  const i = await prisma.invoice.findUnique({ where: { id } });
-  return i ? toInvoice(i) : null;
+  const rows = await query('SELECT * FROM invoices WHERE id = ?', [id]);
+  return rows[0] ? toInvoice(rows[0]) : null;
 }
 
 export async function createInvoice(data: {
@@ -75,10 +86,9 @@ export async function createInvoice(data: {
   createdBy?: string;
 }): Promise<Invoice> {
   const invoiceNumber = await generateInvoiceNumber();
-  const i = await prisma.invoice.create({
-    data: { ...data, invoiceNumber },
-  });
-  return toInvoice(i);
+  const result = await query('INSERT INTO invoices SET ?', [{ ...data, invoiceNumber }]);
+  const rows = await query('SELECT * FROM invoices WHERE id = ?', [(result as { insertId: string }).insertId]);
+  return toInvoice(rows[0]);
 }
 
 export async function updateInvoice(
@@ -97,23 +107,22 @@ export async function updateInvoice(
     notes: string;
   }>
 ): Promise<Invoice> {
-  const i = await prisma.invoice.update({ where: { id }, data });
-  return toInvoice(i);
+  await query('UPDATE invoices SET ? WHERE id = ?', [data, id]);
+  const rows = await query('SELECT * FROM invoices WHERE id = ?', [id]);
+  return toInvoice(rows[0]);
 }
 
 export async function deleteInvoice(id: string): Promise<void> {
-  await prisma.invoice.delete({ where: { id } });
+  await query('DELETE FROM invoices WHERE id = ?', [id]);
 }
 
 export async function sumInvoicesByStatus() {
-  const rows = await prisma.invoice.groupBy({
-    by: ["status"],
-    _sum: { total: true },
-    _count: true,
-  });
-  return rows.map((r) => ({
+  const rows = await query(
+    'SELECT status, SUM(total) as total, COUNT(*) as count FROM invoices GROUP BY status'
+  );
+  return rows.map((r: { status: string; total: number | null; count: number }) => ({
     status: r.status,
-    total: r._sum.total ?? 0,
-    count: r._count,
+    total: r.total ?? 0,
+    count: r.count,
   }));
 }

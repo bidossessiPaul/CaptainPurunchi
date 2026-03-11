@@ -114,7 +114,7 @@ model BlogPost {
   title     String        @db.VarChar(255)
   slug      String?       @unique @db.VarChar(255)
   excerpt   String        @default("") @db.VarChar(500)
-  content   String        @default("") @db.LongText
+  content   String        @default("") @db.VarChar(5000)
   date      String        @db.VarChar(100)
   author    String        @db.VarChar(255)
   thumb     String        @db.VarChar(500)
@@ -198,7 +198,7 @@ model Order {
   customerEmail String   @default("") @db.VarChar(255)
   items         String   @db.Text
   totalAmount   String   @db.VarChar(100)
-  notes         String   @default("") @db.Text
+  notes         String   @default("") @db.VarChar(2000)
   status        String   @default("pending") @db.VarChar(50)
   paymentMethod String   @default("") @db.VarChar(50)
   orderDate     String   @db.VarChar(20)
@@ -217,7 +217,7 @@ model TableReservation {
   numberOfPersons String   @db.VarChar(50)
   date            String   @db.VarChar(20)
   time            String   @db.VarChar(20)
-  message         String   @default("") @db.Text
+  message         String   @default("") @db.VarChar(2000)
   status          String   @default("pending") @db.VarChar(50)
   paymentMethod   String   @default("") @db.VarChar(50)
   createdAt       DateTime @default(now())
@@ -237,7 +237,7 @@ model RoomReservation {
   checkIn       String   @db.VarChar(20)
   checkOut      String   @db.VarChar(20)
   guests        String   @db.VarChar(50)
-  notes         String   @default("") @db.Text
+  notes         String   @default("") @db.VarChar(2000)
   status        String   @default("pending") @db.VarChar(50)
   paymentMethod String   @default("") @db.VarChar(50)
   createdAt     DateTime @default(now())
@@ -255,7 +255,7 @@ model EventReservation {
   eventId       String   @db.VarChar(255)
   eventTitle    String   @db.VarChar(255)
   attendees     String   @db.VarChar(50)
-  notes         String   @default("") @db.Text
+  notes         String   @default("") @db.VarChar(2000)
   status        String   @default("pending") @db.VarChar(50)
   paymentMethod String   @default("") @db.VarChar(50)
   createdAt     DateTime @default(now())
@@ -302,7 +302,7 @@ model ActivityLog {
   action    String   @db.VarChar(100)
   target    String   @db.VarChar(100)
   targetId  String?  @db.VarChar(255)
-  details   String   @default("") @db.Text
+  details   String   @default("") @db.VarChar(2000)
   createdAt DateTime @default(now())
 
   @@map("activity_logs")
@@ -359,7 +359,7 @@ model CashRegister {
   virement       Int       @default(0)
   closingBalance Int       @default(0)
   difference     Int       @default(0)
-  notes          String    @default("") @db.Text
+  notes          String    @default("") @db.VarChar(2000)
   status         String    @default("open") @db.VarChar(20)
   closedAt       DateTime?
   createdAt      DateTime  @default(now())
@@ -383,7 +383,7 @@ model Invoice {
   status        String   @default("draft") @db.VarChar(50)
   dueDate       String   @default("") @db.VarChar(20)
   paidDate      String   @default("") @db.VarChar(20)
-  notes         String   @default("") @db.Text
+  notes         String   @default("") @db.VarChar(2000)
   createdBy     String   @default("") @db.VarChar(255)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
