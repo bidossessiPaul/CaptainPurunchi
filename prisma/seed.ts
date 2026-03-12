@@ -470,6 +470,7 @@ async function main() {
       await prisma.blogPost.create({
         data: {
           title: p.title,
+          content: "",
           date: p.date,
           author: p.author,
           thumb: p.thumb,
