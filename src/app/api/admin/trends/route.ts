@@ -44,8 +44,9 @@ export async function GET(request: Request) {
   }
 
   const eventCounts: Record<string, number> = {};
-  for (const e of events as { createdAt: string }[]) {
-    const d = e.createdAt.split("T")[0];
+  for (const e of events as { createdAt: Date | string }[]) {
+    const dateStr = e.createdAt instanceof Date ? e.createdAt.toISOString() : e.createdAt;
+    const d = dateStr.split("T")[0];
     eventCounts[d] = (eventCounts[d] || 0) + 1;
   }
 

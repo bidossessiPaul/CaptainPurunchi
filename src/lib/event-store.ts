@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { Event } from "@/app/types/event";
 
 function toEvent(r: {
@@ -36,7 +36,7 @@ export async function readEvents(): Promise<Event[]> {
 }
 
 export async function readActiveEvents(): Promise<Event[]> {
-  const items = await query('SELECT * FROM events WHERE active = 1 ORDER BY `order` ASC');
+  const items = await cachedQuery('SELECT * FROM events WHERE active = 1 ORDER BY `order` ASC');
   return items.map(toEvent);
 }
 

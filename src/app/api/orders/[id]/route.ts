@@ -97,11 +97,11 @@ export const PUT = apiHandler(async (
   }
 
   // Log activity
-  const me = await getSessionUser();
-  if (me) {
+  const meForLog = me || await getSessionUser();
+  if (meForLog) {
     logActivity({
-      userId: me.id,
-      userName: me.name,
+      userId: meForLog.id,
+      userName: meForLog.name,
       action: "update",
       target: "order",
       targetId: id,

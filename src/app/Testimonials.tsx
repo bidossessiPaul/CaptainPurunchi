@@ -24,7 +24,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
   return (
     <div id="testimonials" className="testimonials-section">
       <div className="container">
-        <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+        <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
           <h2 className="block-title text-center">Ce que disent nos clients</h2>
           <p className="testimonials-subtitle text-center">
             Des exp&eacute;riences authentiques partag&eacute;es par ceux qui nous font confiance.

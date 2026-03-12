@@ -33,6 +33,11 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
 
+  // Skip caching for API routes
+  if (request.url.includes("/api/")) {
+    return;
+  }
+
   // Network-first for pages (HTML)
   if (request.headers.get("accept")?.includes("text/html")) {
     event.respondWith(

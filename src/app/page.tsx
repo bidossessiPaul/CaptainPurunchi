@@ -7,15 +7,7 @@ import Rooms from "./Rooms";
 import ScrollReveal from "./ScrollReveal";
 import Specialties from "./Specialties";
 import Testimonials from "./Testimonials";
-import { readActiveSlides } from "@/lib/hero-store";
-import { readActiveSpecialties } from "@/lib/specialty-store";
-import { readActiveGalleryImages } from "@/lib/gallery-store";
-import { readActiveRooms } from "@/lib/room-store";
-import { readActiveEvents } from "@/lib/event-store";
-import { readActiveBlogPosts } from "@/lib/blog-store";
-import { readActiveTestimonials } from "@/lib/testimonial-store";
-import { readContactInfo } from "@/lib/contact-store";
-import { readTodaysDishes } from "@/lib/daily-dish-store";
+import { getHomepageData } from "@/lib/homepage-data";
 import MenuDuJour from "./MenuDuJour";
 import TableReservationForm from "./TableReservationForm";
 import Navbar from "@/components/Navbar";
@@ -46,15 +38,22 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const heroSlides = await readActiveSlides();
-  const specialties = await readActiveSpecialties();
-  const galleryImages = await readActiveGalleryImages();
-  const rooms = await readActiveRooms();
-  const events = await readActiveEvents();
-  const blogPosts = await readActiveBlogPosts();
-  const testimonials = await readActiveTestimonials();
-  const contact = await readContactInfo();
-  const todaysDishes = await readTodaysDishes();
+  // Single DB connection + 60s cache (9 queries → 1 connection)
+  const {
+    heroSlides,
+    specialties,
+    galleryImages,
+    rooms,
+    events,
+    blogPosts: blogPostsRaw,
+    testimonials,
+    contact: contactRaw,
+    todaysDishes,
+  } = await getHomepageData();
+
+  // Normalize contact (handle null case)
+  const contact = contactRaw || { phone: "", email: "", address: "", whatsapp: "", facebook: "", instagram: "" };
+  const blogPosts = blogPostsRaw || [];
   const sameAs = [contact.facebook, contact.instagram].filter(Boolean);
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
@@ -95,7 +94,7 @@ export default async function Home() {
         <div className="container">
           <div className="row">
             <div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-              <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+              <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
                 <h2 className="block-title">&Agrave; propos</h2>
                 <h3>BIENVENUE CHEZ CAPTAIN PURUNCHI</h3>
                 <p>
@@ -130,7 +129,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-              <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+              <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
                 <div className="about-images text-center">
                   <img
                     src="/images%20captain/about.svg"
@@ -151,7 +150,7 @@ export default async function Home() {
       {/* Pourquoi nous choisir */}
       <div id="why-us" className="why-us-section">
         <div className="container">
-          <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+          <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
             <h2 className="block-title color-white text-center">Pourquoi nous choisir</h2>
             <p className="title-caption text-center">
               Une exp&eacute;rience unique qui fait revenir nos clients encore et encore.
@@ -204,7 +203,7 @@ export default async function Home() {
           <div className="row">
             <div className="form-reservations-box">
               <div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+                <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
                   <h2 className="block-title text-center">R&eacute;servation</h2>
                 </div>
                 <p className="reservation-desc">Remplissez le formulaire et nous vous confirmerons votre r&eacute;servation.</p>

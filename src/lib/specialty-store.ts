@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { Specialty } from "@/app/types/specialty";
 
 function toSpecialty(s: {
@@ -23,7 +23,7 @@ export async function readSpecialties(): Promise<Specialty[]> {
 }
 
 export async function readActiveSpecialties(): Promise<Specialty[]> {
-  const items = await query('SELECT * FROM specialties WHERE active = 1 ORDER BY `order` ASC');
+  const items = await cachedQuery('SELECT * FROM specialties WHERE active = 1 ORDER BY `order` ASC');
   return items.map(toSpecialty);
 }
 

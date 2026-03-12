@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { BlogPost, BlogComment } from "@/app/types/blog";
 
 function slugify(text: string): string {
@@ -37,7 +37,7 @@ export async function readBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function readActiveBlogPosts(): Promise<BlogPost[]> {
-  const items = await query('SELECT * FROM blog_posts WHERE active = 1 ORDER BY `order` ASC');
+  const items = await cachedQuery('SELECT * FROM blog_posts WHERE active = 1 ORDER BY `order` ASC');
   return items.map(toBlogPost);
 }
 

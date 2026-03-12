@@ -14,6 +14,7 @@ function toRoomReservation(r: {
   notes: string;
   status: string;
   paymentMethod: string;
+  totalPrice: number;
   createdAt: Date;
   updatedAt: Date;
 }): RoomReservation {

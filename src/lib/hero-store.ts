@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { HeroSlide } from "@/app/types/hero";
 
 function toHeroSlide(s: { id: string; src: string; title: string | null; subtitle: string | null; caption: string | null; order: number; active: number; createdAt: Date }): HeroSlide {
@@ -15,7 +15,7 @@ export async function readSlides(): Promise<HeroSlide[]> {
 }
 
 export async function readActiveSlides(): Promise<HeroSlide[]> {
-  const slides = await query('SELECT * FROM hero_slides WHERE active = 1 ORDER BY `order` ASC');
+  const slides = await cachedQuery('SELECT * FROM hero_slides WHERE active = 1 ORDER BY `order` ASC');
   return slides.map(toHeroSlide);
 }
 

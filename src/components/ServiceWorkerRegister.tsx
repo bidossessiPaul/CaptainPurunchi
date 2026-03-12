@@ -12,9 +12,10 @@ export default function ServiceWorkerRegister() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js");
-    }
+    // Temporarily disabled to fix API caching issues
+    // if ("serviceWorker" in navigator) {
+    //   navigator.serviceWorker.register("/sw.js");
+    // }
 
     const handler = (e: Event) => {
       e.preventDefault();

@@ -67,7 +67,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
     <div id="rooms" className="rooms-section">
       <div className="container">
         {!hideTitle && (
-          <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+          <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
             <h2 className="block-title text-center">Nos Chambres</h2>
             <p className="rooms-subtitle text-center">
               Prolongez votre exp&eacute;rience et s&eacute;journez dans nos chambres confortables.

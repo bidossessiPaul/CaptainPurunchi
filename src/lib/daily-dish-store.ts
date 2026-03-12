@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { DailyDish } from "@/app/types/daily-dish";
 
 function toDailyDish(d: {
@@ -35,7 +35,11 @@ export async function readDishesForDate(date: string): Promise<DailyDish[]> {
 
 export async function readTodaysDishes(): Promise<DailyDish[]> {
   const today = new Date().toISOString().split("T")[0];
-  return readDishesForDate(today);
+  const dishes = await cachedQuery(
+    'SELECT * FROM daily_dishes WHERE availableDate = ? AND active = 1 ORDER BY `order` ASC',
+    [today]
+  );
+  return dishes.map(toDailyDish);
 }
 
 export async function readDishById(id: string): Promise<DailyDish | null> {

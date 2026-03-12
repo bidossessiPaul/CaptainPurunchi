@@ -72,7 +72,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   return (
     <div id="gallery" className="gallery-section">
       <div className="container">
-        <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+        <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
           <h2 className="block-title text-center">Notre Galerie</h2>
           <p className="gallery-subtitle text-center">
             D&eacute;couvrez l&apos;univers Captain Purunchi en images

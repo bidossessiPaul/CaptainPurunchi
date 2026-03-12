@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { Testimonial } from "@/app/types/testimonial";
 
 function toTestimonial(r: {
@@ -26,7 +26,7 @@ export async function readTestimonials(): Promise<Testimonial[]> {
 }
 
 export async function readActiveTestimonials(): Promise<Testimonial[]> {
-  const items = await query('SELECT * FROM testimonials WHERE active = 1 ORDER BY `order` ASC');
+  const items = await cachedQuery('SELECT * FROM testimonials WHERE active = 1 ORDER BY `order` ASC');
   return items.map(toTestimonial);
 }
 

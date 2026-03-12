@@ -1,10 +1,10 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { ContactInfo, ContactMessage } from "@/app/types/contact";
 
 const SINGLETON_ID = "singleton";
 
 export async function readContactInfo(): Promise<ContactInfo> {
-  const rows = await query('SELECT * FROM contact_info WHERE id = ?', [SINGLETON_ID]);
+  const rows = await cachedQuery('SELECT * FROM contact_info WHERE id = ?', [SINGLETON_ID]);
   let info = rows[0];
 
   if (!info) {

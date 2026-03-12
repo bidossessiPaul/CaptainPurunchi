@@ -35,7 +35,7 @@ export type AdminPage =
   | "finance"
   | "stock";
 
-type Action = "read" | "create" | "update" | "delete";
+type Action = "read" | "create" | "update" | "delete" | "approve";
 
 // Map URL paths to page keys
 const PATH_TO_PAGE: Record<string, AdminPage> = {
@@ -105,7 +105,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     contact: ["read", "create", "update", "delete"],
     team: ["read", "create", "update", "delete"],
     activity: ["read"],
-    finance: ["read", "create", "update", "delete"],
+    finance: ["read", "create", "update", "delete", "approve"],
     stock: ["read", "create", "update", "delete"],
   },
   director: {
@@ -126,7 +126,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     contact: ["read", "create", "update", "delete"],
     team: ["read", "create", "update"],
     activity: ["read"],
-    finance: ["read", "create", "update", "delete"],
+    finance: ["read", "create", "update", "delete", "approve"],
     stock: ["read", "create", "update", "delete"],
   },
   manager: {
@@ -147,7 +147,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     contact: ["read", "update"],
     team: [],
     activity: ["read"],
-    finance: ["read", "create", "update"],
+    finance: ["read", "create", "update", "approve"],
     stock: ["read", "create", "update", "delete"],
   },
   accountant: {

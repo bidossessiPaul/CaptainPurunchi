@@ -11,6 +11,7 @@ export interface RoomReservation {
   notes: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   paymentMethod: string;
+  totalPrice: number;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { Room } from "@/app/types/room";
 
 function toRoom(r: {
@@ -30,7 +30,7 @@ export async function readRooms(): Promise<Room[]> {
 }
 
 export async function readActiveRooms(): Promise<Room[]> {
-  const items = await query('SELECT * FROM rooms WHERE active = 1 ORDER BY `order` ASC');
+  const items = await cachedQuery('SELECT * FROM rooms WHERE active = 1 ORDER BY `order` ASC');
   return items.map(toRoom);
 }
 

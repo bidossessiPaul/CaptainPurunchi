@@ -21,6 +21,7 @@ function toExpense(e: {
 }): Expense {
   return {
     ...e,
+    status: e.status as Expense["status"],
     recurringDay: e.recurringDay ?? undefined,
     approvedAt: e.approvedAt ? e.approvedAt.toISOString() : undefined,
     createdAt: e.createdAt.toISOString(),

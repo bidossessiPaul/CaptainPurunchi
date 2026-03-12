@@ -61,7 +61,7 @@ export default function Events({ events, whatsapp, hideTitle }: { events: Event[
     <div id="events" className="events-section">
       <div className="container">
         {!hideTitle && (
-          <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+          <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
             <h2 className="block-title color-white text-center">
               &Eacute;v&eacute;nements &amp; Actualit&eacute;s
             </h2>

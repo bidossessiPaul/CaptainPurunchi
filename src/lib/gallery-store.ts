@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query, cachedQuery } from "@/lib/db";
 import type { GalleryImage } from "@/app/types/gallery";
 
 function toGalleryImage(g: {
@@ -24,7 +24,7 @@ export async function readGalleryImages(): Promise<GalleryImage[]> {
 }
 
 export async function readActiveGalleryImages(): Promise<GalleryImage[]> {
-  const items = await query('SELECT * FROM gallery_images WHERE active = 1 ORDER BY `order` ASC');
+  const items = await cachedQuery('SELECT * FROM gallery_images WHERE active = 1 ORDER BY `order` ASC');
   return items.map(toGalleryImage);
 }
 

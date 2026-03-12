@@ -19,14 +19,10 @@ export async function logActivity(data: {
   targetId?: string;
   details?: string;
 }): Promise<void> {
-  await query('INSERT INTO activity_logs SET ?', [{
-    userId: data.userId,
-    userName: data.userName,
-    action: data.action,
-    target: data.target,
-    targetId: data.targetId ?? null,
-    details: data.details ?? "",
-  }]);
+  await query(
+    'INSERT INTO activity_logs (userId, userName, action, target, targetId, details) VALUES (?, ?, ?, ?, ?, ?)',
+    [data.userId, data.userName, data.action, data.target, data.targetId ?? null, data.details ?? ""]
+  );
 }
 
 export async function readActivityLogs(filters?: {

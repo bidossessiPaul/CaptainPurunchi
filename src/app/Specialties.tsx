@@ -18,7 +18,7 @@ export default function Specialties({ items }: { items: Specialty[] }) {
     <section className="specialties-section">
       <div className="specialties-overlay" />
       <div className="container" style={{ position: "relative", zIndex: 2 }}>
-        <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s">
+        <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
           <h2 className="block-title color-white text-center">
             Nos Sp&eacute;cialit&eacute;s
           </h2>
