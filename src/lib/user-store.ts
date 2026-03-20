@@ -60,7 +60,8 @@ export async function createUser(data: {
     name: data.name,
     email: data.email,
     password: hash,
-    role: data.role
+    role: data.role,
+    updatedAt: new Date(),
   }]);
   const rows = await query('SELECT * FROM users WHERE id = ?', [(result as { insertId: string }).insertId]);
   return toPublic(rows[0]);
@@ -78,6 +79,7 @@ export async function updateUser(
   if (data.avatar !== undefined) update.avatar = data.avatar;
   if (data.password) update.password = await bcrypt.hash(data.password, 10);
 
+  update.updatedAt = new Date();
   await query('UPDATE users SET ? WHERE id = ?', [update, id]);
   const rows = await query('SELECT * FROM users WHERE id = ?', [id]);
   return toPublic(rows[0]);

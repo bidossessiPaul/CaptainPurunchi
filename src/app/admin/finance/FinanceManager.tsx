@@ -6,17 +6,10 @@ import {
 } from "recharts";
 import type { Revenue } from "@/app/types/revenue";
 import type { Expense } from "@/app/types/expense";
-import type { CashRegister } from "@/app/types/cash-register";
-import type { Invoice } from "@/app/types/invoice";
-import type { CashOperation } from "@/app/types/cash-operation";
-import { REVENUE_SOURCE_LABELS, EXPENSE_CATEGORY_LABELS, INVOICE_STATUS_LABELS, PAYMENT_LABELS, CASH_OPERATION_TYPE_LABELS } from "@/lib/constants";
+import { REVENUE_SOURCE_LABELS, EXPENSE_CATEGORY_LABELS, PAYMENT_LABELS } from "@/lib/constants";
 import RevenueForm from "./RevenueForm";
 import ExpenseForm from "./ExpenseForm";
-import CashRegisterForm from "./CashRegisterForm";
-import CashOperationForm from "./CashOperationForm";
-import InvoiceForm from "./InvoiceForm";
 import ConfirmModal from "../ConfirmModal";
-import { generateInvoicePDF } from "@/lib/generate-invoice-pdf";
 import BalanceSheet from "./BalanceSheet";
 import ProfitLossReport from "./ProfitLossReport";
 
@@ -24,8 +17,6 @@ const TABS = [
   { key: "dashboard", label: "Dashboard", icon: "fa-solid fa-chart-pie" },
   { key: "revenues", label: "Revenus", icon: "fa-solid fa-arrow-trend-up" },
   { key: "expenses", label: "Dépenses", icon: "fa-solid fa-arrow-trend-down" },
-  { key: "cash", label: "Caisse", icon: "fa-solid fa-cash-register" },
-  { key: "invoices", label: "Factures", icon: "fa-solid fa-file-invoice" },
   { key: "bilan", label: "Bilan", icon: "fa-solid fa-scale-balanced" },
 ] as const;
 
@@ -56,11 +47,6 @@ export default function FinanceManager() {
   // Data
   const [revenues, setRevenues] = useState<Revenue[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [cashRegister, setCashRegister] = useState<CashRegister | null>(null);
-  const [cashHistory, setCashHistory] = useState<CashRegister[]>([]);
-  const [cashOperations, setCashOperations] = useState<CashOperation[]>([]);
-  const [cashOpTotals, setCashOpTotals] = useState<{ especes: number; carte: number; mtnMoney: number; moovMoney: number; virement: number } | null>(null);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [summary, setSummary] = useState<{
     totalRevenue: number;
     totalExpense: number;
@@ -73,24 +59,6 @@ export default function FinanceManager() {
   // Forms
   const [revenueForm, setRevenueForm] = useState<Revenue | null | "new">(null);
   const [expenseForm, setExpenseForm] = useState<Expense | null | "new">(null);
-  const [cashForm, setCashForm] = useState<"open" | "close" | null>(null);
-  const [showOpForm, setShowOpForm] = useState(false);
-  const [invoiceForm, setInvoiceForm] = useState<Invoice | null | "new">(null);
-
-  // Company info (for PDF)
-  const [companyInfo, setCompanyInfo] = useState<{ phone: string; email: string; address: string }>({
-    phone: "", email: "", address: "",
-  });
-
-  useEffect(() => {
-    fetch("/api/contact").then((r) => r.json()).then((data) => {
-      if (data && !data.error) setCompanyInfo({ phone: data.phone || "", email: data.email || "", address: data.address || "" });
-    }).catch(() => {});
-  }, []);
-
-  const handleDownloadPDF = async (invoice: Invoice) => {
-    await generateInvoicePDF(invoice, companyInfo);
-  };
 
   // Bilan
   const [bilanYear, setBilanYear] = useState(new Date().getFullYear());
@@ -150,76 +118,24 @@ export default function FinanceManager() {
     );
   };
 
-  const exportInvoicesCSV = () => {
-    downloadCSV(
-      `factures.csv`,
-      ["N° Facture", "Client", "Email", "Téléphone", "Sous-total", "Taxe", "Total (FCFA)", "Statut", "Échéance", "Date création"],
-      invoices.map((inv) => [
-        inv.invoiceNumber,
-        `"${inv.customerName}"`,
-        inv.customerEmail,
-        inv.customerPhone,
-        String(inv.subtotal),
-        String(inv.tax),
-        String(inv.total),
-        INVOICE_STATUS_LABELS[inv.status] || inv.status,
-        inv.dueDate,
-        new Date(inv.createdAt).toLocaleDateString("fr-FR"),
-      ])
-    );
-  };
-
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       if (tab === "dashboard") {
-        const [revRes, expRes, sumRes, cashRes] = await Promise.all([
+        const [revRes, expRes, sumRes] = await Promise.all([
           fetch(`/api/finance/revenue?dateFrom=${dateFrom}&dateTo=${dateTo}`).then((r) => r.json()),
           fetch(`/api/finance/expenses?dateFrom=${dateFrom}&dateTo=${dateTo}`).then((r) => r.json()),
           fetch(`/api/finance/summary?dateFrom=${dateFrom}&dateTo=${dateTo}`).then((r) => r.json()),
-          fetch(`/api/finance/cash-registers?today=${todayStr()}`).then((r) => r.json()),
         ]);
         setRevenues(Array.isArray(revRes) ? revRes : []);
         setExpenses(Array.isArray(expRes) ? expRes : []);
         if (sumRes && !sumRes.error) setSummary(sumRes);
-        setCashRegister(cashRes && !cashRes.error ? cashRes : null);
       } else if (tab === "revenues") {
         const res = await fetch(`/api/finance/revenue?dateFrom=${dateFrom}&dateTo=${dateTo}`).then((r) => r.json());
         setRevenues(Array.isArray(res) ? res : []);
       } else if (tab === "expenses") {
         const res = await fetch(`/api/finance/expenses?dateFrom=${dateFrom}&dateTo=${dateTo}`).then((r) => r.json());
         setExpenses(Array.isArray(res) ? res : []);
-      } else if (tab === "cash") {
-        const [todayReg, history] = await Promise.all([
-          fetch(`/api/finance/cash-registers?today=${todayStr()}`).then((r) => r.json()),
-          fetch(`/api/finance/cash-registers?dateFrom=${dateFrom}&dateTo=${dateTo}`).then((r) => r.json()),
-        ]);
-        const reg = todayReg && !todayReg.error ? todayReg : null;
-        setCashRegister(reg);
-        setCashHistory(Array.isArray(history) ? history : []);
-        // Fetch operations for today's register
-        if (reg) {
-          const ops = await fetch(`/api/finance/cash-operations?cashRegisterId=${reg.id}`).then((r) => r.json());
-          setCashOperations(Array.isArray(ops) ? ops : []);
-          // Calculate totals by payment method
-          const totals = { especes: 0, carte: 0, mtnMoney: 0, moovMoney: 0, virement: 0 };
-          for (const op of (Array.isArray(ops) ? ops : [])) {
-            const sign = op.type === "encaissement" ? 1 : -1;
-            const amt = op.amount * sign;
-            if (op.paymentMethod === "especes") totals.especes += amt;
-            else if (op.paymentMethod === "carte") totals.carte += amt;
-            else if (op.paymentMethod === "mtn_money") totals.mtnMoney += amt;
-            else if (op.paymentMethod === "moov_money") totals.moovMoney += amt;
-            else if (op.paymentMethod === "virement") totals.virement += amt;
-          }
-          setCashOpTotals(totals);
-        } else {
-          setCashOperations([]);
-          setCashOpTotals(null);
-        }
-      } else if (tab === "invoices") {
-        const res = await fetch("/api/finance/invoices").then((r) => r.json());
-        setInvoices(Array.isArray(res) ? res : []);
       } else if (tab === "bilan") {
         const res = await fetch(`/api/finance/summary/monthly?year=${bilanYear}`).then((r) => r.json());
         if (res && !res.error) setBilanData(res);
@@ -240,38 +156,9 @@ export default function FinanceManager() {
     const urlMap: Record<string, string> = {
       revenue: `/api/finance/revenue/${id}`,
       expense: `/api/finance/expenses/${id}`,
-      invoice: `/api/finance/invoices/${id}`,
     };
 
     await fetch(urlMap[type], { method: "DELETE" });
-    fetchData();
-  };
-
-  const handleInvoiceStatus = async (invoice: Invoice, status: string) => {
-    await fetch(`/api/finance/invoices/${invoice.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    fetchData();
-  };
-
-  // Alert message
-  const [alertMsg, setAlertMsg] = useState<{ text: string; type: "success" | "danger" } | null>(null);
-
-  const handleSendInvoiceEmail = async (invoice: Invoice) => {
-    const res = await fetch(`/api/finance/invoices/${invoice.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: invoice.status === "draft" ? "sent" : invoice.status, resendEmail: true }),
-    });
-    if (res.ok) {
-      setAlertMsg({ text: `Facture ${invoice.invoiceNumber} envoyée par email à ${invoice.customerEmail}`, type: "success" });
-      setTimeout(() => setAlertMsg(null), 5000);
-    } else {
-      setAlertMsg({ text: "Erreur lors de l'envoi de l'email", type: "danger" });
-      setTimeout(() => setAlertMsg(null), 5000);
-    }
     fetchData();
   };
 
@@ -343,29 +230,6 @@ export default function FinanceManager() {
               </div>
             </div>
           </div>
-          <div className="col-md-3">
-            <div className="card">
-              <div className="card-body">
-                <div className="d-flex align-items-center">
-                  <div className="flex-grow-1">
-                    <p className="text-muted mb-1">Caisse</p>
-                    <h4 className="mb-0">
-                      {cashRegister ? (
-                        <span className={cashRegister.status === "open" ? "text-success" : "text-muted"}>
-                          {cashRegister.status === "open" ? "Ouverte" : "Fermée"}
-                        </span>
-                      ) : (
-                        <span className="text-muted">Non ouverte</span>
-                      )}
-                    </h4>
-                  </div>
-                  <div className="text-warning" style={{ fontSize: "28px" }}>
-                    <i className="fa-solid fa-cash-register"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Quick actions */}
@@ -383,27 +247,6 @@ export default function FinanceManager() {
                 onClick={() => { setTab("expenses"); setExpenseForm("new"); }}
               >
                 <i className="fa-solid fa-plus me-1"></i> Ajouter une dépense
-              </button>
-              {!cashRegister ? (
-                <button
-                  className="btn btn-warning"
-                  onClick={() => { setTab("cash"); setCashForm("open"); }}
-                >
-                  <i className="fa-solid fa-lock-open me-1"></i> Ouvrir la caisse
-                </button>
-              ) : cashRegister.status === "open" ? (
-                <button
-                  className="btn btn-outline-warning"
-                  onClick={() => { setTab("cash"); setCashForm("close"); }}
-                >
-                  <i className="fa-solid fa-lock me-1"></i> Fermer la caisse
-                </button>
-              ) : null}
-              <button
-                className="btn btn-primary"
-                onClick={() => { setTab("invoices"); setInvoiceForm("new"); }}
-              >
-                <i className="fa-solid fa-file-invoice me-1"></i> Créer une facture
               </button>
             </div>
           </div>
@@ -669,454 +512,6 @@ export default function FinanceManager() {
     </>
   );
 
-  // ─── CAISSE ──────────────────────────────────
-  const handleDeleteOp = async (opId: string) => {
-    await fetch(`/api/finance/cash-operations/${opId}`, { method: "DELETE" });
-    fetchData();
-  };
-
-  const cashNetTotal = cashOperations.reduce((sum, op) => sum + (op.type === "encaissement" ? op.amount : -op.amount), 0);
-  const cashRunningBalance = (cashRegister?.openingBalance || 0) + cashNetTotal;
-
-  const renderCash = () => (
-    <>
-      {cashForm ? (
-        <CashRegisterForm
-          register={cashForm === "close" ? cashRegister : null}
-          mode={cashForm}
-          prefill={cashForm === "close" && cashOpTotals ? cashOpTotals : undefined}
-          onSave={() => { setCashForm(null); setShowOpForm(false); fetchData(); }}
-          onCancel={() => setCashForm(null)}
-        />
-      ) : (
-        <>
-          {/* Today's register */}
-          <div className="card mb-4">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h5 className="card-title mb-0">Caisse du jour — {todayStr()}</h5>
-              <div className="d-flex gap-2">
-                {!cashRegister && (
-                  <button className="btn btn-success btn-sm" onClick={() => setCashForm("open")}>
-                    <i className="fa-solid fa-lock-open me-1"></i> Ouvrir la caisse
-                  </button>
-                )}
-                {cashRegister?.status === "open" && (
-                  <>
-                    <button className="btn btn-primary btn-sm" onClick={() => setShowOpForm(true)}>
-                      <i className="fa-solid fa-plus me-1"></i> Ajouter une opération
-                    </button>
-                    <button className="btn btn-warning btn-sm" onClick={() => setCashForm("close")}>
-                      <i className="fa-solid fa-lock me-1"></i> Fermer la caisse
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="card-body">
-              {cashRegister ? (
-                <>
-                  <div className="row mb-3">
-                    <div className="col-md-3">
-                      <div className="p-3 bg-light rounded text-center">
-                        <small className="text-muted d-block">Statut</small>
-                        <span className={`badge ${cashRegister.status === "open" ? "bg-success" : "bg-secondary"} mt-1`}>
-                          {cashRegister.status === "open" ? "Ouverte" : "Fermée"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="col-md-3">
-                      <div className="p-3 bg-light rounded text-center">
-                        <small className="text-muted d-block">Fond de caisse</small>
-                        <strong>{fmt(cashRegister.openingBalance)} FCFA</strong>
-                      </div>
-                    </div>
-                    {cashRegister.status === "open" ? (
-                      <div className="col-md-3">
-                        <div className="p-3 bg-primary bg-opacity-10 rounded text-center">
-                          <small className="text-muted d-block">Solde en cours</small>
-                          <strong className="text-primary">{fmt(cashRunningBalance)} FCFA</strong>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="col-md-3">
-                        <div className="p-3 bg-light rounded text-center">
-                          <small className="text-muted d-block">Solde clôture</small>
-                          <strong>{fmt(cashRegister.closingBalance)} FCFA</strong>
-                        </div>
-                      </div>
-                    )}
-                    <div className="col-md-3">
-                      <div className="p-3 bg-light rounded text-center">
-                        <small className="text-muted d-block">Ouvert par</small>
-                        <strong>{cashRegister.openedBy}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payment method breakdown when open (from operations) */}
-                  {cashRegister.status === "open" && cashOpTotals && cashOperations.length > 0 && (
-                    <div className="row mb-3">
-                      <div className="col-12">
-                        <h6 className="text-muted mb-2">Récapitulatif par mode de paiement</h6>
-                      </div>
-                      {cashOpTotals.especes !== 0 && (
-                        <div className="col">
-                          <div className="p-2 bg-light rounded text-center">
-                            <small className="text-muted d-block">Espèces</small>
-                            <strong>{fmt(cashOpTotals.especes)}</strong>
-                          </div>
-                        </div>
-                      )}
-                      {cashOpTotals.carte !== 0 && (
-                        <div className="col">
-                          <div className="p-2 bg-light rounded text-center">
-                            <small className="text-muted d-block">Carte</small>
-                            <strong>{fmt(cashOpTotals.carte)}</strong>
-                          </div>
-                        </div>
-                      )}
-                      {cashOpTotals.mtnMoney !== 0 && (
-                        <div className="col">
-                          <div className="p-2 bg-light rounded text-center">
-                            <small className="text-muted d-block">MTN</small>
-                            <strong>{fmt(cashOpTotals.mtnMoney)}</strong>
-                          </div>
-                        </div>
-                      )}
-                      {cashOpTotals.moovMoney !== 0 && (
-                        <div className="col">
-                          <div className="p-2 bg-light rounded text-center">
-                            <small className="text-muted d-block">Moov</small>
-                            <strong>{fmt(cashOpTotals.moovMoney)}</strong>
-                          </div>
-                        </div>
-                      )}
-                      {cashOpTotals.virement !== 0 && (
-                        <div className="col">
-                          <div className="p-2 bg-light rounded text-center">
-                            <small className="text-muted d-block">Virement</small>
-                            <strong>{fmt(cashOpTotals.virement)}</strong>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Closed register details */}
-                  {cashRegister.status === "closed" && (
-                    <div className="row mb-3">
-                      <div className="col-12 mb-2">
-                        <h6 className="text-muted">Détail des encaissements</h6>
-                      </div>
-                      <div className="col-md-2">
-                        <div className="p-2 bg-light rounded text-center">
-                          <small className="text-muted d-block">Espèces</small>
-                          <strong>{fmt(cashRegister.especes)}</strong>
-                        </div>
-                      </div>
-                      <div className="col-md-2">
-                        <div className="p-2 bg-light rounded text-center">
-                          <small className="text-muted d-block">Carte</small>
-                          <strong>{fmt(cashRegister.carte)}</strong>
-                        </div>
-                      </div>
-                      <div className="col-md-2">
-                        <div className="p-2 bg-light rounded text-center">
-                          <small className="text-muted d-block">MTN</small>
-                          <strong>{fmt(cashRegister.mtnMoney)}</strong>
-                        </div>
-                      </div>
-                      <div className="col-md-2">
-                        <div className="p-2 bg-light rounded text-center">
-                          <small className="text-muted d-block">Moov</small>
-                          <strong>{fmt(cashRegister.moovMoney)}</strong>
-                        </div>
-                      </div>
-                      <div className="col-md-2">
-                        <div className="p-2 bg-light rounded text-center">
-                          <small className="text-muted d-block">Virement</small>
-                          <strong>{fmt(cashRegister.virement)}</strong>
-                        </div>
-                      </div>
-                      <div className="col-md-2">
-                        <div className={`p-2 rounded text-center ${cashRegister.difference === 0 ? "bg-success bg-opacity-10" : "bg-danger bg-opacity-10"}`}>
-                          <small className="text-muted d-block">Écart</small>
-                          <strong className={cashRegister.difference === 0 ? "text-success" : "text-danger"}>
-                            {cashRegister.difference > 0 ? "+" : ""}{fmt(cashRegister.difference)}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <i className="fa-solid fa-cash-register" style={{ fontSize: "48px", color: "#95a0c5" }}></i>
-                  <h5 className="mt-3">Caisse non ouverte</h5>
-                  <p className="text-muted">La caisse n&apos;a pas encore été ouverte aujourd&apos;hui.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Operation form */}
-          {showOpForm && cashRegister?.status === "open" && (
-            <CashOperationForm
-              cashRegisterId={cashRegister.id}
-              onSave={() => { setShowOpForm(false); fetchData(); }}
-              onCancel={() => setShowOpForm(false)}
-            />
-          )}
-
-          {/* Operations list */}
-          {cashRegister && cashOperations.length > 0 && (
-            <div className="card mb-4">
-              <div className="card-header d-flex justify-content-between align-items-center">
-                <h5 className="card-title mb-0">
-                  Opérations du jour
-                  <span className="badge bg-primary ms-2">{cashOperations.length}</span>
-                </h5>
-              </div>
-              <div className="card-body p-0">
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Heure</th>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>Paiement</th>
-                        <th className="text-end">Montant</th>
-                        <th>Par</th>
-                        {cashRegister.status === "open" && <th style={{ width: "50px" }}></th>}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cashOperations.map((op) => (
-                        <tr key={op.id}>
-                          <td>{new Date(op.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</td>
-                          <td>
-                            <span className={`badge ${op.type === "encaissement" ? "bg-success" : "bg-warning text-dark"}`}>
-                              {CASH_OPERATION_TYPE_LABELS[op.type] || op.type}
-                            </span>
-                          </td>
-                          <td>{op.description || "-"}</td>
-                          <td>{PAYMENT_LABELS[op.paymentMethod] || op.paymentMethod}</td>
-                          <td className={`text-end fw-bold ${op.type === "encaissement" ? "text-success" : "text-danger"}`}>
-                            {op.type === "encaissement" ? "+" : "-"}{fmt(op.amount)} FCFA
-                          </td>
-                          <td><small className="text-muted">{op.createdBy}</small></td>
-                          {cashRegister.status === "open" && (
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDeleteOp(op.id)}
-                                title="Supprimer"
-                              >
-                                <i className="fa-solid fa-trash"></i>
-                              </button>
-                            </td>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="table-light">
-                        <td colSpan={4} className="fw-bold">Solde net des opérations</td>
-                        <td className={`text-end fw-bold ${cashNetTotal >= 0 ? "text-success" : "text-danger"}`}>
-                          {cashNetTotal >= 0 ? "+" : ""}{fmt(cashNetTotal)} FCFA
-                        </td>
-                        <td colSpan={cashRegister.status === "open" ? 2 : 1}></td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* History */}
-          {cashHistory.length > 0 && (
-            <div className="card">
-              <div className="card-header">
-                <h5 className="card-title mb-0">Historique des caisses</h5>
-              </div>
-              <div className="card-body p-0">
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Date</th>
-                        <th>Ouvert par</th>
-                        <th>Fond</th>
-                        <th>Clôture</th>
-                        <th>Écart</th>
-                        <th>Statut</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cashHistory.map((c) => (
-                        <tr key={c.id}>
-                          <td>{c.date}</td>
-                          <td>{c.openedBy}</td>
-                          <td>{fmt(c.openingBalance)} FCFA</td>
-                          <td>{c.status === "closed" ? `${fmt(c.closingBalance)} FCFA` : "-"}</td>
-                          <td>
-                            {c.status === "closed" ? (
-                              <span className={c.difference === 0 ? "text-success" : "text-danger"}>
-                                {c.difference > 0 ? "+" : ""}{fmt(c.difference)} FCFA
-                              </span>
-                            ) : "-"}
-                          </td>
-                          <td>
-                            <span className={`badge ${c.status === "open" ? "bg-success" : "bg-secondary"}`}>
-                              {c.status === "open" ? "Ouverte" : "Fermée"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
-
-  // ─── FACTURES ──────────────────────────────────
-  const statusBadge = (status: string) => {
-    const map: Record<string, string> = {
-      draft: "bg-secondary",
-      sent: "bg-info",
-      paid: "bg-success",
-      cancelled: "bg-danger",
-    };
-    return (
-      <span className={`badge ${map[status] || "bg-secondary"}`}>
-        {INVOICE_STATUS_LABELS[status] || status}
-      </span>
-    );
-  };
-
-  const renderInvoices = () => (
-    <>
-      {invoiceForm ? (
-        <InvoiceForm
-          invoice={invoiceForm === "new" ? null : invoiceForm}
-          onSave={() => { setInvoiceForm(null); fetchData(); }}
-          onCancel={() => setInvoiceForm(null)}
-        />
-      ) : (
-        <>
-          <div className="d-flex justify-content-end gap-2 mb-3">
-            {invoices.length > 0 && (
-              <button className="btn btn-outline-secondary" onClick={exportInvoicesCSV}>
-                <i className="fa-solid fa-file-csv me-1"></i> Exporter CSV
-              </button>
-            )}
-            <button className="btn btn-success" onClick={() => setInvoiceForm("new")}>
-              <i className="fa-solid fa-plus me-1"></i> Nouvelle facture
-            </button>
-          </div>
-          {invoices.length === 0 ? (
-            <div className="card">
-              <div className="card-body text-center py-5">
-                <i className="fa-solid fa-file-invoice" style={{ fontSize: "48px", color: "#95a0c5" }}></i>
-                <h5 className="mt-3">Aucune facture</h5>
-                <p className="text-muted">Aucune facture créée.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="card">
-              <div className="card-body p-0">
-                <div className="table-responsive">
-                  <table className="table table-hover mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>N° Facture</th>
-                        <th>Client</th>
-                        <th>Date</th>
-                        <th>Échéance</th>
-                        <th className="text-end">Total</th>
-                        <th>Statut</th>
-                        <th style={{ width: "160px" }}></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.map((inv) => (
-                        <tr key={inv.id}>
-                          <td className="fw-bold">{inv.invoiceNumber}</td>
-                          <td>
-                            {inv.customerName}
-                            {inv.customerEmail && <small className="text-muted d-block">{inv.customerEmail}</small>}
-                          </td>
-                          <td>{new Date(inv.createdAt).toLocaleDateString("fr-FR")}</td>
-                          <td>{inv.dueDate || "-"}</td>
-                          <td className="text-end fw-bold">{fmt(inv.total)} FCFA</td>
-                          <td>{statusBadge(inv.status)}</td>
-                          <td>
-                            <div className="d-flex gap-1">
-                              <button
-                                className="btn btn-sm btn-outline-secondary"
-                                onClick={() => handleDownloadPDF(inv)}
-                                title="Télécharger PDF"
-                              >
-                                <i className="fa-solid fa-file-pdf"></i>
-                              </button>
-                              {inv.customerEmail && inv.status !== "cancelled" && (
-                                <button
-                                  className="btn btn-sm btn-outline-info"
-                                  onClick={() => handleSendInvoiceEmail(inv)}
-                                  title="Envoyer par email"
-                                >
-                                  <i className="fa-solid fa-envelope"></i>
-                                </button>
-                              )}
-                              {inv.status === "draft" && (
-                                <button
-                                  className="btn btn-sm btn-outline-primary"
-                                  onClick={() => setInvoiceForm(inv)}
-                                  title="Modifier"
-                                >
-                                  <i className="fa-solid fa-pen"></i>
-                                </button>
-                              )}
-                              {(inv.status === "sent" || inv.status === "draft") && (
-                                <button
-                                  className="btn btn-sm btn-outline-success"
-                                  onClick={() => handleInvoiceStatus(inv, "paid")}
-                                  title="Marquer payée"
-                                >
-                                  <i className="fa-solid fa-check"></i>
-                                </button>
-                              )}
-                              {(inv.status === "draft" || inv.status === "cancelled") && (
-                                <button
-                                  className="btn btn-sm btn-outline-danger"
-                                  onClick={() => setDeleteTarget({ type: "invoice", id: inv.id, label: inv.invoiceNumber })}
-                                  title="Supprimer"
-                                >
-                                  <i className="fa-solid fa-trash"></i>
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
-
   // ─── BILAN ──────────────────────────────────
   const MONTH_NAMES = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
@@ -1323,15 +718,6 @@ export default function FinanceManager() {
 
   return (
     <>
-      {/* Alert notification */}
-      {alertMsg && (
-        <div className={`alert alert-${alertMsg.type} alert-dismissible fade show`} role="alert">
-          <i className={`fa-solid ${alertMsg.type === "success" ? "fa-check-circle" : "fa-exclamation-circle"} me-2`}></i>
-          {alertMsg.text}
-          <button type="button" className="btn-close" onClick={() => setAlertMsg(null)}></button>
-        </div>
-      )}
-
       {/* Period filter + tabs */}
       <div className="row mb-3">
         <div className="col">
@@ -1396,8 +782,6 @@ export default function FinanceManager() {
           {tab === "dashboard" && renderDashboard()}
           {tab === "revenues" && renderRevenues()}
           {tab === "expenses" && renderExpenses()}
-          {tab === "cash" && renderCash()}
-          {tab === "invoices" && renderInvoices()}
           {tab === "bilan" && renderBilan()}
         </>
       )}

@@ -81,8 +81,8 @@ export async function createExpense(data: {
   const result = await query(
     `INSERT INTO expenses (
       id, amount, category, supplier, description, paymentMethod, receiptUrl,
-      date, status, isRecurring, recurringDay, createdBy
-    ) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      date, status, isRecurring, recurringDay, createdBy, updatedAt
+    ) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.amount,
       data.category,
@@ -95,6 +95,7 @@ export async function createExpense(data: {
       data.isRecurring || false,
       data.recurringDay || null,
       data.createdBy,
+      new Date(),
     ]
   );
 

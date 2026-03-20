@@ -60,7 +60,7 @@ export async function createRevenue(data: {
   date: string;
   createdBy?: string;
 }): Promise<Revenue> {
-  const result = await query('INSERT INTO revenues SET ?', [data]);
+  const result = await query('INSERT INTO revenues SET ?', [{ ...data, updatedAt: new Date() }]);
   const rows = await query('SELECT * FROM revenues WHERE id = ?', [(result as { insertId: string }).insertId]);
   return toRevenue(rows[0]);
 }
@@ -76,7 +76,7 @@ export async function updateRevenue(
     date: string;
   }>
 ): Promise<Revenue> {
-  await query('UPDATE revenues SET ? WHERE id = ?', [data, id]);
+  await query('UPDATE revenues SET ? WHERE id = ?', [{ ...data, updatedAt: new Date() }, id]);
   const rows = await query('SELECT * FROM revenues WHERE id = ?', [id]);
   return toRevenue(rows[0]);
 }

@@ -43,8 +43,8 @@ export const POST = apiHandler(async (request) => {
 
   const id = crypto.randomUUID();
   await query(
-    'INSERT INTO orders (id, customerName, customerPhone, customerEmail, items, totalAmount, notes, status, paymentMethod, orderDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [id, customerName, customerPhone, customerEmail || "", JSON.stringify(items), totalAmount || "", notes || "", 'pending', paymentMethod || "", orderDate || new Date().toISOString().split("T")[0]]
+    'INSERT INTO orders (id, customerName, customerPhone, customerEmail, items, totalAmount, notes, status, paymentMethod, orderDate, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, customerName, customerPhone, customerEmail || "", JSON.stringify(items), totalAmount || "", notes || "", 'pending', paymentMethod || "", orderDate || new Date().toISOString().split("T")[0], new Date()]
   );
 
   const rows = await query('SELECT * FROM orders WHERE id = ?', [id]);

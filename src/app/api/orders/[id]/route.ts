@@ -55,6 +55,8 @@ export const PUT = apiHandler(async (
   }
 
   if (fields.length > 0) {
+    fields.push('updatedAt = ?');
+    values.push(new Date());
     values.push(id);
     await query(`UPDATE orders SET ${fields.join(', ')} WHERE id = ?`, values);
   }

@@ -94,8 +94,8 @@ export async function createRoomReservation(data: {
 }): Promise<RoomReservation> {
   const id = crypto.randomUUID();
   await query(
-    'INSERT INTO room_reservations (id, customerName, customerPhone, customerEmail, roomId, roomName, checkIn, checkOut, guests, notes, paymentMethod, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [id, data.customerName, data.customerPhone, data.customerEmail, data.roomId, data.roomName, data.checkIn, data.checkOut, data.guests, data.notes, data.paymentMethod, 'pending']
+    'INSERT INTO room_reservations (id, customerName, customerPhone, customerEmail, roomId, roomName, checkIn, checkOut, guests, notes, paymentMethod, status, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, data.customerName, data.customerPhone, data.customerEmail, data.roomId, data.roomName, data.checkIn, data.checkOut, data.guests, data.notes, data.paymentMethod, 'pending', new Date()]
   );
   const created = await readRoomReservationById(id);
   if (!created) throw new Error('Failed to create room reservation');
@@ -126,6 +126,8 @@ export async function updateRoomReservation(id: string, data: Partial<{
   });
 
   if (fields.length > 0) {
+    fields.push('updatedAt = ?');
+    values.push(new Date());
     values.push(id);
     await query(`UPDATE room_reservations SET ${fields.join(', ')} WHERE id = ?`, values);
   }

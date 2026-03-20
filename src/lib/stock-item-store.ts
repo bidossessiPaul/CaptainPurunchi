@@ -64,7 +64,7 @@ export async function createStockItem(data: {
   unitPrice?: number;
   supplier?: string;
 }): Promise<StockItem> {
-  const result = await query('INSERT INTO stock_items SET ?', [data]);
+  const result = await query('INSERT INTO stock_items SET ?', [{ ...data, updatedAt: new Date() }]);
   const rows = await query('SELECT * FROM stock_items WHERE id = ?', [(result as { insertId: string }).insertId]);
   return toStockItem(rows[0]);
 }
@@ -87,6 +87,7 @@ export async function updateStockItem(
   if (updateData.active !== undefined) {
     updateData.active = updateData.active ? 1 : 0;
   }
+  updateData.updatedAt = new Date();
   await query('UPDATE stock_items SET ? WHERE id = ?', [updateData, id]);
   const rows = await query('SELECT * FROM stock_items WHERE id = ?', [id]);
   return toStockItem(rows[0]);

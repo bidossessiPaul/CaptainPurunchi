@@ -73,8 +73,13 @@ export async function openCashRegister(data: {
   openingBalance: number;
   notes?: string;
 }): Promise<CashRegister> {
-  const result = await query('INSERT INTO cash_registers SET ?', [data]);
-  const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [(result as { insertId: string }).insertId]);
+  const id = crypto.randomUUID();
+  const now = new Date();
+  await query(
+    'INSERT INTO cash_registers (id, date, openedBy, openingBalance, notes, updatedAt) VALUES (?, ?, ?, ?, ?, ?)',
+    [id, data.date, data.openedBy, data.openingBalance, data.notes || '', now]
+  );
+  const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);
   return toCashRegister(rows[0]);
 }
 
@@ -97,15 +102,10 @@ export async function closeCashRegister(
   const expectedBalance = opening + totalPayments;
   const difference = data.closingBalance - expectedBalance;
 
-  await query('UPDATE cash_registers SET ? WHERE id = ?', [
-    {
-      ...data,
-      difference,
-      status: "closed",
-      closedAt: new Date(),
-    },
-    id
-  ]);
+  await query(
+    'UPDATE cash_registers SET closedBy = ?, especes = ?, carte = ?, mtnMoney = ?, moovMoney = ?, virement = ?, closingBalance = ?, difference = ?, status = ?, closedAt = ?, notes = ?, updatedAt = ? WHERE id = ?',
+    [data.closedBy, data.especes, data.carte, data.mtnMoney, data.moovMoney, data.virement, data.closingBalance, difference, 'closed', new Date(), data.notes || '', new Date(), id]
+  );
 
   const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);
   return toCashRegister(rows[0]);
@@ -118,7 +118,15 @@ export async function updateCashRegister(
     openingBalance: number;
   }>
 ): Promise<CashRegister> {
-  await query('UPDATE cash_registers SET ? WHERE id = ?', [data, id]);
+  const fields: string[] = [];
+  const params: unknown[] = [];
+  if (data.notes !== undefined) { fields.push('notes = ?'); params.push(data.notes); }
+  if (data.openingBalance !== undefined) { fields.push('openingBalance = ?'); params.push(data.openingBalance); }
+  if (fields.length > 0) {
+    fields.push('updatedAt = ?'); params.push(new Date());
+    params.push(id);
+    await query(`UPDATE cash_registers SET ${fields.join(', ')} WHERE id = ?`, params);
+  }
   const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);
   return toCashRegister(rows[0]);
 }

@@ -15,26 +15,42 @@ export default function CashOperationForm({ cashRegisterId, onSave, onCancel }: 
   const [paymentMethod, setPaymentMethod] = useState("especes");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || Number(amount) <= 0) return;
     setSaving(true);
+    setError(null);
 
-    await fetch("/api/finance/cash-operations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        cashRegisterId,
-        type,
-        amount: Number(amount),
-        paymentMethod,
-        description,
-      }),
-    });
+    try {
+      const res = await fetch("/api/finance/cash-operations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cashRegisterId,
+          type,
+          amount: Number(amount),
+          paymentMethod,
+          description,
+        }),
+      });
 
-    setSaving(false);
-    onSave();
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Erreur lors de l'enregistrement");
+        setSaving(false);
+        return;
+      }
+
+      setAmount("");
+      setDescription("");
+      setSaving(false);
+      onSave();
+    } catch {
+      setError("Erreur réseau");
+      setSaving(false);
+    }
   };
 
   return (
@@ -47,6 +63,11 @@ export default function CashOperationForm({ cashRegisterId, onSave, onCancel }: 
       </div>
       <div className="card-body">
         <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="alert alert-danger py-2 mb-3">
+              <i className="fa-solid fa-circle-exclamation me-2"></i>{error}
+            </div>
+          )}
           <div className="row">
             <div className="col-md-3 mb-3">
               <label className="form-label">Type</label>

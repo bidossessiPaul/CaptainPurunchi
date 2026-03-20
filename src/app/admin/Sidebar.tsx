@@ -23,17 +23,28 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { label: "Navigation", type: "label" },
+  // Général
+  { label: "Général", type: "label" },
   { href: "/admin", icon: "fa-solid fa-table-columns", label: "Tableau de bord", page: "dashboard" },
+
+  // Opérations quotidiennes
+  { label: "Opérations", type: "label" },
   { href: "/admin/reservations", icon: "fa-solid fa-calendar-days", label: "Réservations", badge: "reservations", page: "reservations" },
-  { href: "/admin/calendar", icon: "fa-solid fa-calendar", label: "Planning Calendrier", page: "calendar" },
+  { href: "/admin/calendar", icon: "fa-solid fa-calendar", label: "Planning", page: "calendar" },
+  { href: "/admin/orders", icon: "fa-solid fa-bag-shopping", label: "Commandes", badge: "orders", page: "orders" },
   { href: "/admin/menu", icon: "fa-solid fa-cart-shopping", label: "Notre Carte", page: "menu" },
   { href: "/admin/daily-menu", icon: "fa-solid fa-utensils", label: "Menu du Jour", page: "daily-menu" },
-  { href: "/admin/orders", icon: "fa-solid fa-bag-shopping", label: "Commandes", badge: "orders", page: "orders" },
   { href: "/admin/stock", icon: "fa-solid fa-boxes-stacked", label: "Stock", badge: "stock", page: "stock" },
-  { label: "Finance", type: "label" },
+  { href: "/admin/ravitaillement", icon: "fa-solid fa-truck-field", label: "Ravitaillement", page: "ravitaillement" },
+
+  // Comptabilité & Finance
+  { label: "Comptabilité", type: "label" },
   { href: "/admin/finance", icon: "fa-solid fa-chart-line", label: "Finances", page: "finance" },
-  { label: "Contenu", type: "label" },
+  { href: "/admin/caisse", icon: "fa-solid fa-cash-register", label: "Caisse", page: "caisse" },
+  { href: "/admin/factures", icon: "fa-solid fa-file-invoice", label: "Factures", page: "factures" },
+
+  // Contenu du site web
+  { label: "Site Web", type: "label" },
   { href: "/admin/hero", icon: "fa-solid fa-images", label: "Hero Slideshow", page: "hero" },
   { href: "/admin/specialties", icon: "fa-solid fa-utensils", label: "Spécialités", page: "specialties" },
   { href: "/admin/gallery", icon: "fa-solid fa-image", label: "Galerie", page: "gallery" },
@@ -42,8 +53,10 @@ const menuItems: MenuItem[] = [
   { href: "/admin/testimonials", icon: "fa-solid fa-star", label: "Avis", page: "testimonials" },
   { href: "/admin/blog", icon: "fa-solid fa-file-pen", label: "Blog", page: "blog" },
   { href: "/admin/comments", icon: "fa-solid fa-comments", label: "Commentaires", badge: "comments", page: "comments" },
-  { label: "Paramètres", type: "label" },
-  { href: "/admin/contact", icon: "fa-solid fa-envelope", label: "Messages & Contact", badge: "messages", page: "contact" },
+
+  // Administration
+  { label: "Administration", type: "label" },
+  { href: "/admin/contact", icon: "fa-solid fa-envelope", label: "Messages", badge: "messages", page: "contact" },
   { href: "/admin/team", icon: "fa-solid fa-users-gear", label: "Équipe", page: "team" },
   { href: "/admin/activity", icon: "fa-solid fa-clock-rotate-left", label: "Journal d'activité", page: "activity" },
 ];

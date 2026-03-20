@@ -451,3 +451,32 @@ model StockMovement {
   @@index([type])
   @@index([date])
 }
+
+model SupplyList {
+  id        String   @id @default(uuid())
+  status    String   @default("draft") @db.VarChar(50)
+  note      String   @default("") @db.VarChar(500)
+  createdBy String   @default("") @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("supply_lists")
+  @@index([status])
+}
+
+model SupplyListItem {
+  id             String    @id @default(uuid())
+  supplyListId   String    @db.VarChar(255)
+  stockItemId    String    @db.VarChar(255)
+  stockItemName  String    @default("") @db.VarChar(255)
+  quantityNeeded Float     @default(0)
+  quantityBought Float     @default(0)
+  unitPrice      Int       @default(0)
+  purchased      Boolean   @default(false)
+  purchasedAt    DateTime?
+  purchasedBy    String    @default("") @db.VarChar(255)
+
+  @@map("supply_list_items")
+  @@index([supplyListId])
+  @@index([stockItemId])
+}

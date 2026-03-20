@@ -13,7 +13,6 @@ import {
 } from "@/lib/constants";
 import StockItemForm from "./StockItemForm";
 import StockMovementForm from "./StockMovementForm";
-
 const BarChart = dynamic(() => import("recharts").then((m) => m.BarChart), { ssr: false });
 const Bar = dynamic(() => import("recharts").then((m) => m.Bar), { ssr: false });
 const XAxis = dynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false });

@@ -30,8 +30,12 @@ export async function createCashOperation(data: {
   description: string;
   createdBy: string;
 }): Promise<CashOperation> {
-  const result = await query('INSERT INTO cash_operations SET ?', [data]);
-  const ops = await query('SELECT * FROM cash_operations WHERE id = ?', [(result as { insertId: string }).insertId]);
+  const id = crypto.randomUUID();
+  await query(
+    'INSERT INTO cash_operations (id, cashRegisterId, type, amount, paymentMethod, description, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [id, data.cashRegisterId, data.type, data.amount, data.paymentMethod, data.description, data.createdBy]
+  );
+  const ops = await query('SELECT * FROM cash_operations WHERE id = ?', [id]);
   return toOp(ops[0]);
 }
 

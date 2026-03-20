@@ -19,9 +19,10 @@ export async function logActivity(data: {
   targetId?: string;
   details?: string;
 }): Promise<void> {
+  const id = crypto.randomUUID();
   await query(
-    'INSERT INTO activity_logs (userId, userName, action, target, targetId, details) VALUES (?, ?, ?, ?, ?, ?)',
-    [data.userId, data.userName, data.action, data.target, data.targetId ?? null, data.details ?? ""]
+    'INSERT INTO activity_logs (id, userId, userName, action, target, targetId, details) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [id, data.userId, data.userName, data.action, data.target, data.targetId ?? null, data.details ?? ""]
   );
 }
 

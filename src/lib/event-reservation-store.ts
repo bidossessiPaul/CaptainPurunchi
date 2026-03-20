@@ -84,8 +84,8 @@ export async function createEventReservation(data: {
 }): Promise<EventReservation> {
   const id = crypto.randomUUID();
   await query(
-    'INSERT INTO event_reservations (id, customerName, customerPhone, customerEmail, eventId, eventTitle, attendees, notes, paymentMethod, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [id, data.customerName, data.customerPhone, data.customerEmail, data.eventId, data.eventTitle, data.attendees, data.notes, data.paymentMethod, 'pending']
+    'INSERT INTO event_reservations (id, customerName, customerPhone, customerEmail, eventId, eventTitle, attendees, notes, paymentMethod, status, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, data.customerName, data.customerPhone, data.customerEmail, data.eventId, data.eventTitle, data.attendees, data.notes, data.paymentMethod, 'pending', new Date()]
   );
   const created = await readEventReservationById(id);
   if (!created) throw new Error('Failed to create event reservation');
@@ -114,6 +114,8 @@ export async function updateEventReservation(id: string, data: Partial<{
   });
 
   if (fields.length > 0) {
+    fields.push('updatedAt = ?');
+    values.push(new Date());
     values.push(id);
     await query(`UPDATE event_reservations SET ${fields.join(', ')} WHERE id = ?`, values);
   }

@@ -74,8 +74,8 @@ export async function createTableReservation(data: {
 }): Promise<TableReservation> {
   const id = crypto.randomUUID();
   await query(
-    'INSERT INTO table_reservations (id, name, phone, email, numberOfPersons, date, time, message, paymentMethod, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [id, data.name, data.phone, data.email, data.numberOfPersons, data.date, data.time, data.message, data.paymentMethod, 'pending']
+    'INSERT INTO table_reservations (id, name, phone, email, numberOfPersons, date, time, message, paymentMethod, status, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, data.name, data.phone, data.email, data.numberOfPersons, data.date, data.time, data.message, data.paymentMethod, 'pending', new Date()]
   );
   const created = await readTableReservationById(id);
   if (!created) throw new Error('Failed to create table reservation');
@@ -104,6 +104,8 @@ export async function updateTableReservation(id: string, data: Partial<{
   });
 
   if (fields.length > 0) {
+    fields.push('updatedAt = ?');
+    values.push(new Date());
     values.push(id);
     await query(`UPDATE table_reservations SET ${fields.join(', ')} WHERE id = ?`, values);
   }

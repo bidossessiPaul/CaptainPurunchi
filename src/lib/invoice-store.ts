@@ -86,7 +86,7 @@ export async function createInvoice(data: {
   createdBy?: string;
 }): Promise<Invoice> {
   const invoiceNumber = await generateInvoiceNumber();
-  const result = await query('INSERT INTO invoices SET ?', [{ ...data, invoiceNumber }]);
+  const result = await query('INSERT INTO invoices SET ?', [{ ...data, invoiceNumber, updatedAt: new Date() }]);
   const rows = await query('SELECT * FROM invoices WHERE id = ?', [(result as { insertId: string }).insertId]);
   return toInvoice(rows[0]);
 }
@@ -107,7 +107,7 @@ export async function updateInvoice(
     notes: string;
   }>
 ): Promise<Invoice> {
-  await query('UPDATE invoices SET ? WHERE id = ?', [data, id]);
+  await query('UPDATE invoices SET ? WHERE id = ?', [{ ...data, updatedAt: new Date() }, id]);
   const rows = await query('SELECT * FROM invoices WHERE id = ?', [id]);
   return toInvoice(rows[0]);
 }

@@ -33,7 +33,10 @@ export type AdminPage =
   | "team"
   | "activity"
   | "finance"
-  | "stock";
+  | "caisse"
+  | "factures"
+  | "stock"
+  | "ravitaillement";
 
 type Action = "read" | "create" | "update" | "delete" | "approve";
 
@@ -57,7 +60,10 @@ const PATH_TO_PAGE: Record<string, AdminPage> = {
   "/admin/team": "team",
   "/admin/activity": "activity",
   "/admin/finance": "finance",
+  "/admin/caisse": "caisse",
+  "/admin/factures": "factures",
   "/admin/stock": "stock",
+  "/admin/ravitaillement": "ravitaillement",
 };
 
 // Map API paths to page keys
@@ -106,7 +112,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: ["read", "create", "update", "delete"],
     activity: ["read"],
     finance: ["read", "create", "update", "delete", "approve"],
+    caisse: ["read", "create", "update", "delete"],
+    factures: ["read", "create", "update", "delete"],
     stock: ["read", "create", "update", "delete"],
+    ravitaillement: ["read", "create", "update", "delete"],
   },
   director: {
     dashboard: ["read"],
@@ -127,7 +136,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: ["read", "create", "update"],
     activity: ["read"],
     finance: ["read", "create", "update", "delete", "approve"],
+    caisse: ["read", "create", "update", "delete"],
+    factures: ["read", "create", "update", "delete"],
     stock: ["read", "create", "update", "delete"],
+    ravitaillement: ["read", "create", "update", "delete"],
   },
   manager: {
     dashboard: ["read"],
@@ -148,7 +160,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: [],
     activity: ["read"],
     finance: ["read", "create", "update", "approve"],
+    caisse: ["read", "create", "update"],
+    factures: ["read", "create", "update"],
     stock: ["read", "create", "update", "delete"],
+    ravitaillement: ["read", "create", "update", "delete"],
   },
   accountant: {
     dashboard: ["read"],
@@ -169,7 +184,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: [],
     activity: [],
     finance: ["read", "create", "update", "delete"],
+    caisse: ["read", "create", "update"],
+    factures: ["read", "create", "update", "delete"],
     stock: ["read"],
+    ravitaillement: ["read"],
   },
   cashier: {
     dashboard: ["read"],
@@ -190,7 +208,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: [],
     activity: [],
     finance: ["read", "create"],
+    caisse: ["read", "create"],
+    factures: [],
     stock: [],
+    ravitaillement: [],
   },
   waiter: {
     dashboard: ["read"],
@@ -211,7 +232,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: [],
     activity: [],
     finance: [],
+    caisse: [],
+    factures: [],
     stock: [],
+    ravitaillement: [],
   },
   receptionist: {
     dashboard: ["read"],
@@ -232,7 +256,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: [],
     activity: [],
     finance: [],
+    caisse: [],
+    factures: [],
     stock: [],
+    ravitaillement: [],
   },
   chef: {
     dashboard: ["read"],
@@ -253,7 +280,10 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     team: [],
     activity: [],
     finance: [],
+    caisse: [],
+    factures: [],
     stock: ["read", "create", "update"],
+    ravitaillement: ["read", "create", "update"],
   },
 };
 
