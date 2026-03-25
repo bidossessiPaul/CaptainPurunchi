@@ -20,12 +20,12 @@ export default function Specialties({ items }: { items: Specialty[] }) {
       <div className="container" style={{ position: "relative", zIndex: 2 }}>
         <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
           <h2 className="block-title color-white text-center">
-            Nos Sp&eacute;cialit&eacute;s
+            Nos Spécialités
           </h2>
           <h5 className="title-caption text-center">
-            D&eacute;couvrez les cr&eacute;ations signatures de notre chef,
-            pr&eacute;par&eacute;es chaque jour avec des produits frais
-            de la p&ecirc;che locale et des ingr&eacute;dients de saison.
+            Découvrez les créations signatures de notre chef,
+            préparées chaque jour avec des produits frais
+            de la pêche locale et des ingrédients de saison.
           </h5>
         </div>
 

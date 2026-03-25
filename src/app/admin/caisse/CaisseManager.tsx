@@ -17,7 +17,7 @@ function monthStart() {
 }
 
 function fmt(n: number) {
-  return n.toLocaleString("fr-FR");
+  return Math.round(n).toLocaleString("fr-FR");
 }
 
 export default function CaisseManager() {
@@ -37,8 +37,13 @@ export default function CaisseManager() {
   const [cashForm, setCashForm] = useState<"open" | "close" | null>(null);
 
   const loadOpsForRegister = async (reg: CashRegister) => {
-    const ops = await fetch(`/api/finance/cash-operations?cashRegisterId=${reg.id}`).then((r) => r.json());
-    const opsList: CashOperation[] = Array.isArray(ops) ? ops : [];
+    let opsList: CashOperation[] = [];
+    try {
+      const ops = await fetch(`/api/finance/cash-operations?cashRegisterId=${reg.id}`).then((r) => r.json());
+      opsList = Array.isArray(ops) ? ops : [];
+    } catch (err) {
+      console.error("Erreur chargement opérations:", err);
+    }
     const totals = { especes: 0, carte: 0, mtnMoney: 0, moovMoney: 0, virement: 0 };
     for (const op of opsList) {
       const sign = op.type === "encaissement" ? 1 : -1;
@@ -94,8 +99,13 @@ export default function CaisseManager() {
   }, [fetchData]);
 
   const handleDeleteOp = async (opId: string) => {
-    await fetch(`/api/finance/cash-operations/${opId}`, { method: "DELETE" });
-    fetchData();
+    if (!confirm("Supprimer cette opération ?")) return;
+    try {
+      await fetch(`/api/finance/cash-operations/${opId}`, { method: "DELETE" });
+      fetchData();
+    } catch (err) {
+      console.error("Erreur suppression:", err);
+    }
   };
 
   const handleViewRegister = async (reg: CashRegister) => {
@@ -143,7 +153,7 @@ export default function CaisseManager() {
     return (
       <>
         <button className="btn btn-outline-secondary btn-sm mb-3" onClick={() => setViewRegister(null)}>
-          <i className="fa-solid fa-arrow-left me-1"></i> Retour à l&apos;historique
+          <i className="fa-solid fa-arrow-left me-1"></i> Retour à l'historique
         </button>
 
         {/* Résumé de la caisse */}
@@ -311,7 +321,7 @@ export default function CaisseManager() {
         <label className="form-label mb-0">au</label>
         <input type="date" className="form-control" style={{ width: "auto" }} value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
         <button className="btn btn-outline-primary btn-sm" onClick={() => { setDateFrom(monthStart()); setDateTo(todayStr()); }}>Ce mois</button>
-        <button className="btn btn-outline-primary btn-sm" onClick={() => { setDateFrom(todayStr()); setDateTo(todayStr()); }}>Aujourd&apos;hui</button>
+        <button className="btn btn-outline-primary btn-sm" onClick={() => { setDateFrom(todayStr()); setDateTo(todayStr()); }}>Aujourd'hui</button>
       </div>
 
       {/* Active register (open - could be from any day) */}
@@ -447,7 +457,7 @@ export default function CaisseManager() {
               <div className="text-center py-4">
                 <i className="fa-solid fa-cash-register" style={{ fontSize: "48px", color: "#95a0c5" }}></i>
                 <h5 className="mt-3">Caisse non ouverte</h5>
-                <p className="text-muted">La caisse n&apos;a pas encore été ouverte aujourd&apos;hui.</p>
+                <p className="text-muted">La caisse n'a pas encore été ouverte aujourd'hui.</p>
               </div>
             )}
           </div>

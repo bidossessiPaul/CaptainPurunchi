@@ -1,5 +1,8 @@
 export const COOKIE_NAME = "admin_session";
-const SECRET = process.env.ADMIN_PASSWORD || "captain-purunchi-secret";
+const SECRET = process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD || "captain-purunchi-secret";
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV === "production") {
+  console.warn("[SECURITY] SESSION_SECRET env var is not set — using ADMIN_PASSWORD as fallback. Set a strong random SESSION_SECRET for production.");
+}
 
 async function sha256(input: string): Promise<string> {
   const encoder = new TextEncoder();

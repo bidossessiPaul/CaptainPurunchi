@@ -438,6 +438,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+  margin-bottom: 60px;
 }
 
 .gallery-item {
@@ -544,7 +545,7 @@
 .galerie-page {
   min-height: 100vh;
   background: #f8f8f8;
-  padding-bottom: 0;
+  padding-bottom: 60px;
 }
 
 .galerie-page-header {
@@ -1288,6 +1289,106 @@
   }
 }
 
+/* --- Contact Map --- */
+.contact-map-section {
+  padding: 70px 0;
+  background: #fff;
+}
+
+.contact-map-section h2 {
+  font-family: 'nautilus_pompiliusregular', serif;
+  font-size: 36px;
+  color: #1a3a5c;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.contact-map-wrapper {
+  margin-top: 30px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.contact-map-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* --- Contact Reviews --- */
+.contact-reviews-section {
+  padding: 70px 0;
+  background: #f8f9fa;
+}
+
+.contact-reviews-section h2 {
+  font-family: 'nautilus_pompiliusregular', serif;
+  font-size: 36px;
+  color: #1a3a5c;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.contact-reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.contact-review-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 30px 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.contact-review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  color: inherit;
+}
+
+.contact-review-icon {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.contact-review-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a3a5c;
+  margin-bottom: 8px;
+}
+
+.contact-review-card p {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.contact-review-cta {
+  color: #5BC0EB;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .contact-reviews-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
 /* --- Contact Form --- */
 .contact-form-section {
   padding: 70px 0;
@@ -1832,6 +1933,35 @@
 .rooms-scroll::-webkit-scrollbar-thumb {
   background: #5BC0EB;
   border-radius: 3px;
+}
+
+/* Grid layout for /chambres page */
+.rooms-grid-wrapper {
+  padding: 0;
+}
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+@media (max-width: 991px) {
+  .rooms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 575px) {
+  .rooms-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rooms-grid .room-card {
+  min-width: unset;
+  max-width: unset;
+  flex-shrink: unset;
 }
 
 .room-card {
@@ -3311,11 +3441,17 @@
   padding-top: 50px;
 }
 
+/* Remove space between last section and footer */
+.cp-footer ~ .whatsapp-float {
+  /* whatsapp float is fixed, no impact */
+}
+
 /* ===================== NEW FOOTER ===================== */
 .cp-footer {
   background: #0e1f33;
   color: #ccc;
   font-family: 'Roboto', sans-serif;
+  margin-top: 0;
 }
 
 .cp-footer-main {

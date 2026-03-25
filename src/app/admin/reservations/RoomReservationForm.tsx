@@ -7,6 +7,7 @@ import { PAYMENT_METHODS } from "@/lib/constants";
 
 interface Props {
   reservation: RoomReservation | null;
+  initialDate?: string;
   onSave: () => void;
   onCancel: () => void;
 }
@@ -18,13 +19,13 @@ const STATUS_OPTIONS = [
   { value: "cancelled", label: "Annulé" },
 ];
 
-export default function RoomReservationForm({ reservation, onSave, onCancel }: Props) {
+export default function RoomReservationForm({ reservation, initialDate, onSave, onCancel }: Props) {
   const [customerName, setCustomerName] = useState(reservation?.customerName ?? "");
   const [customerPhone, setCustomerPhone] = useState(reservation?.customerPhone ?? "");
   const [customerEmail, setCustomerEmail] = useState(reservation?.customerEmail ?? "");
   const [roomId, setRoomId] = useState(reservation?.roomId ?? "");
   const [roomName, setRoomName] = useState(reservation?.roomName ?? "");
-  const [checkIn, setCheckIn] = useState(reservation?.checkIn ?? "");
+  const [checkIn, setCheckIn] = useState(reservation?.checkIn ?? initialDate ?? "");
   const [checkOut, setCheckOut] = useState(reservation?.checkOut ?? "");
   const [guests, setGuests] = useState(reservation?.guests ?? "");
   const [notes, setNotes] = useState(reservation?.notes ?? "");

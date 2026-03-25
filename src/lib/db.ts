@@ -15,13 +15,13 @@ const poolConfig = {
     waitForConnections: true,
     connectionLimit: 5,
     queueLimit: 0,
-    // Enable named placeholders for easier query writing
-    namedPlaceholders: true,
     // Timeouts for TiDB Serverless (cold starts can be slow)
     connectTimeout: 30000,
     // Recycle stale connections
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
+    // Force UTF-8 for proper accent handling
+    charset: 'utf8mb4',
     // Required for TiDB Serverless (SSL mandatory)
     ssl: {
         rejectUnauthorized: true

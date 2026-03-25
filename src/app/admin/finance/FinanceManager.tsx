@@ -34,7 +34,7 @@ function monthStart() {
 }
 
 function fmt(n: number) {
-  return n.toLocaleString("fr-FR");
+  return Math.round(n).toLocaleString("fr-FR");
 }
 
 export default function FinanceManager() {
@@ -140,7 +140,9 @@ export default function FinanceManager() {
         const res = await fetch(`/api/finance/summary/monthly?year=${bilanYear}`).then((r) => r.json());
         if (res && !res.error) setBilanData(res);
       }
-    } catch {}
+    } catch (err) {
+      console.error("Erreur chargement finances:", err);
+    }
     setLoading(false);
   }, [tab, dateFrom, dateTo, bilanYear]);
 
@@ -748,7 +750,7 @@ export default function FinanceManager() {
               className="btn btn-outline-primary btn-sm"
               onClick={() => { setDateFrom(todayStr()); setDateTo(todayStr()); }}
             >
-              Aujourd&apos;hui
+              Aujourd'hui
             </button>
           </div>
 

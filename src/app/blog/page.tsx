@@ -8,9 +8,9 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Blog — Recettes, Actualités & Coulisses du Captain Purunchi Cotonou",
+  title: "Blog — Recettes & Actualités Captain Purunchi",
   description:
-    "Blog du Captain Purunchi : recettes de fruits de mer, coulisses de la cuisine, actualités du restaurant et conseils gastronomiques à Cotonou, Bénin. Découvrez nos articles.",
+    "Blog Captain Purunchi : recettes fruits de mer, coulisses cuisine, actualités restaurant et conseils gastronomiques à Cotonou, Bénin.",
   keywords: [
     "blog Captain Purunchi", "recettes fruits de mer Cotonou",
     "actualités restaurant Cotonou", "blog gastronomique Bénin",
@@ -22,7 +22,12 @@ export const metadata: Metadata = {
     title: "Blog Captain Purunchi — Recettes & Actualités",
     description: "Recettes, coulisses et actualités du Captain Purunchi. Suivez notre blog pour les dernières nouvelles du restaurant à Cotonou.",
     url: "/blog",
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: "Blog Captain Purunchi" }],
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Blog Captain Purunchi" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog \u2014 Recettes & Actualit\u00e9s Captain Purunchi",
+    description: "Recettes, coulisses et actualit\u00e9s du Captain Purunchi \u00e0 Cotonou, B\u00e9nin.",
   },
   alternates: { canonical: "/blog" },
 };
@@ -67,7 +72,7 @@ export default async function BlogPage() {
                   </div>
                 )}
                 <div className="blog-archive-card-overlay">
-                  <span>Lire &rarr;</span>
+                  <span>Lire →</span>
                 </div>
               </div>
               <div className="blog-archive-card-body">
@@ -83,7 +88,7 @@ export default async function BlogPage() {
                     <i className="fa fa-user"></i> {post.author}
                   </span>
                   <span className="blog-archive-card-readmore">
-                    Lire l&apos;article &rarr;
+                    Lire l'article →
                   </span>
                 </div>
               </div>

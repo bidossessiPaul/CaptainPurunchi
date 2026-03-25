@@ -39,7 +39,7 @@ type TabKey = (typeof TABS)[number]["key"];
 const PIE_COLORS = ["#1a3a5c", "#5BC0EB", "#28a745", "#ffc107", "#dc3545", "#6f42c1"];
 
 function fmt(n: number) {
-  return n.toLocaleString("fr-FR");
+  return Math.round(n).toLocaleString("fr-FR");
 }
 
 export default function StockManager() {
@@ -103,8 +103,8 @@ export default function StockManager() {
         const all: StockItem[] = await res.json();
         setItems(all.filter((i) => i.minStock > 0 && i.currentStock < i.minStock));
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error("Erreur chargement stock:", err);
     }
     setLoading(false);
   }, [tab, filterCategory, filterSearch, filterMovType, filterMovItem, dateFrom, dateTo]);

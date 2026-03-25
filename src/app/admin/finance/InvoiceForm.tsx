@@ -184,7 +184,7 @@ export default function InvoiceForm({ invoice, onSave, onCancel }: Props) {
           <div className="row">
             <div className="col-md-6">
               <div className="mb-3">
-                <label className="form-label">Date d&apos;échéance</label>
+                <label className="form-label">Date d'échéance</label>
                 <input
                   type="date"
                   className="form-control"

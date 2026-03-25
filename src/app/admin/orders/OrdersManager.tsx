@@ -30,11 +30,16 @@ export default function OrdersManager() {
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-    let url = `/api/orders?date=${selectedDate}`;
-    if (activeTab !== "all") url += `&status=${activeTab}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    setOrders(data);
+    try {
+      let url = `/api/orders?date=${selectedDate}`;
+      if (activeTab !== "all") url += `&status=${activeTab}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erreur chargement commandes:", err);
+      setOrders([]);
+    }
     setLoading(false);
   }, [selectedDate, activeTab]);
 
@@ -44,12 +49,16 @@ export default function OrdersManager() {
 
   const handleChangeStatus = async (id: string, status: Order["status"]) => {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
-    await fetch(`/api/orders/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    await fetchOrders();
+    try {
+      await fetch(`/api/orders/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      await fetchOrders();
+    } catch (err) {
+      console.error("Erreur changement statut:", err);
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -87,7 +96,7 @@ export default function OrdersManager() {
               className={`btn ${selectedDate === todayStr() ? "btn-primary" : "btn-outline-primary"}`}
               onClick={() => setSelectedDate(todayStr())}
             >
-              Aujourd&apos;hui
+              Aujourd'hui
             </button>
             <input
               type="date"

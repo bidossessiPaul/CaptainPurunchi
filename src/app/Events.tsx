@@ -63,10 +63,10 @@ export default function Events({ events, whatsapp, hideTitle }: { events: Event[
         {!hideTitle && (
           <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
             <h2 className="block-title color-white text-center">
-              &Eacute;v&eacute;nements &amp; Actualit&eacute;s
+              Événements &amp; Actualités
             </h2>
             <p className="events-subtitle text-center">
-              Restez inform&eacute;s de nos soir&eacute;es, &eacute;v&eacute;nements et derni&egrave;res nouvelles.
+              Restez informés de nos soirées, événements et dernières nouvelles.
             </p>
           </div>
         )}
@@ -135,7 +135,7 @@ export default function Events({ events, whatsapp, hideTitle }: { events: Event[
                       <img src={feat.thumb} alt={feat.title} />
                       <div className="event-featured-overlay" />
                       <div className="event-featured-badge">
-                        <i className="fa fa-star" aria-hidden="true"></i> &Agrave; la une
+                        <i className="fa fa-star" aria-hidden="true"></i> À la une
                       </div>
                       <div className="event-card-date-badge">
                         <span className="event-day">{feat.day}</span>
@@ -305,7 +305,7 @@ export default function Events({ events, whatsapp, hideTitle }: { events: Event[
               {resSuccess ? (
                 <div className="reserve-inline-success">
                   <i className="fa fa-check-circle"></i>
-                  <p>Votre r&eacute;servation a &eacute;t&eacute; envoy&eacute;e !</p>
+                  <p>Votre réservation a été envoyée !</p>
                   <span>{resEmail ? "Un email de confirmation vous a été envoyé." : "Nous vous contacterons pour confirmer."}</span>
                   {whatsapp && (
                     <a
@@ -325,14 +325,14 @@ export default function Events({ events, whatsapp, hideTitle }: { events: Event[
                   className="event-modal-reserve-btn active-btn"
                   onClick={() => setShowReserveForm(true)}
                 >
-                  R&eacute;server ma place
+                  Réserver ma place
                 </button>
               ) : (
                 <div className="reserve-inline-form">
-                  <h4>R&eacute;server ma place</h4>
+                  <h4>Réserver ma place</h4>
                   <div className="reserve-inline-row">
                     <input type="text" placeholder="Votre nom *" value={resName} onChange={(e) => setResName(e.target.value)} />
-                    <input type="tel" placeholder="T&eacute;l&eacute;phone *" value={resPhone} onChange={(e) => setResPhone(e.target.value)} />
+                    <input type="tel" placeholder="Téléphone *" value={resPhone} onChange={(e) => setResPhone(e.target.value)} />
                   </div>
                   <input type="email" placeholder="Email (pour recevoir la confirmation)" value={resEmail} onChange={(e) => setResEmail(e.target.value)} style={{ width: "100%" }} />
                   <select value={resAttendees} onChange={(e) => setResAttendees(e.target.value)}>
@@ -344,7 +344,7 @@ export default function Events({ events, whatsapp, hideTitle }: { events: Event[
                     <option>5 personnes</option>
                     <option>6+ personnes</option>
                   </select>
-                  <textarea placeholder="Notes ou demandes sp&eacute;ciales..." value={resNotes} onChange={(e) => setResNotes(e.target.value)} rows={2} />
+                  <textarea placeholder="Notes ou demandes spéciales..." value={resNotes} onChange={(e) => setResNotes(e.target.value)} rows={2} />
                   <div className="reserve-inline-actions">
                     <button className="reserve-inline-submit" disabled={!resName || !resPhone || resSubmitting} onClick={() => handleReserveSubmit(ev)}>
                       {resSubmitting ? "Envoi..." : "Envoyer la demande"}

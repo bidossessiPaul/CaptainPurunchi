@@ -171,7 +171,7 @@ export default function EventsManager() {
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Chargement...</span>
           </div>
-          <p className="mt-3 text-muted">Chargement des &eacute;v&eacute;nements...</p>
+          <p className="mt-3 text-muted">Chargement des événements...</p>
         </div>
       </div>
     );
@@ -188,10 +188,10 @@ export default function EventsManager() {
             disabled={showForm}
           >
             <i className="iconoir-plus me-1"></i>
-            Ajouter un &eacute;v&eacute;nement
+            Ajouter un événement
           </button>
           <span className="text-muted ms-3 fs-13">
-            {events.length} &eacute;v&eacute;nement{events.length !== 1 ? "s" : ""} &bull;{" "}
+            {events.length} événement{events.length !== 1 ? "s" : ""} •{" "}
             {events.filter((e) => e.active).length} actif{events.filter((e) => e.active).length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -219,14 +219,14 @@ export default function EventsManager() {
         <div className="card">
           <div className="card-body text-center py-5">
             <i className="iconoir-community" style={{ fontSize: "48px", color: "#95a0c5" }}></i>
-            <h5 className="mt-3">Aucun &eacute;v&eacute;nement</h5>
-            <p className="text-muted">Ajoutez votre premier &eacute;v&eacute;nement.</p>
+            <h5 className="mt-3">Aucun événement</h5>
+            <p className="text-muted">Ajoutez votre premier événement.</p>
             <button
               className="btn btn-primary"
               onClick={() => setShowForm(true)}
             >
               <i className="iconoir-plus me-1"></i>
-              Ajouter un &eacute;v&eacute;nement
+              Ajouter un événement
             </button>
           </div>
         </div>
@@ -255,8 +255,8 @@ export default function EventsManager() {
       {/* Delete confirmation */}
       <ConfirmModal
         open={deleteTarget !== null}
-        title="Supprimer l'&eacute;v&eacute;nement"
-        message="Cette action est irr&eacute;versible. Voulez-vous vraiment supprimer cet &eacute;v&eacute;nement ?"
+        title="Supprimer l'événement"
+        message="Cette action est irréversible. Voulez-vous vraiment supprimer cet événement ?"
         confirmLabel="Supprimer"
         cancelLabel="Annuler"
         variant="danger"

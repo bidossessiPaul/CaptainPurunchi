@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Room } from "@/app/types/room";
 
-export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; whatsapp?: string; hideTitle?: boolean }) {
+export default function Rooms({ rooms, whatsapp, hideTitle, grid }: { rooms: Room[]; whatsapp?: string; hideTitle?: boolean; grid?: boolean }) {
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
   const [modalPhoto, setModalPhoto] = useState(0);
   const [showReserveForm, setShowReserveForm] = useState(false);
@@ -70,13 +70,13 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
           <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
             <h2 className="block-title text-center">Nos Chambres</h2>
             <p className="rooms-subtitle text-center">
-              Prolongez votre exp&eacute;rience et s&eacute;journez dans nos chambres confortables.
+              Prolongez votre expérience et séjournez dans nos chambres confortables.
             </p>
           </div>
         )}
 
-        <div className="rooms-scroll-wrapper">
-          <div className="rooms-scroll">
+        <div className={grid ? "rooms-grid-wrapper" : "rooms-scroll-wrapper"}>
+          <div className={grid ? "rooms-grid" : "rooms-scroll"}>
             {rooms.map((r, i) => (
               <div key={r.id} className="room-card" onClick={() => openModal(i)} style={{ cursor: "pointer" }}>
                 <div className="room-card-img">
@@ -90,7 +90,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
                   </p>
                   <p className="room-card-desc">{r.shortDesc}</p>
                   <button className="room-card-btn" onClick={() => openModal(i)}>
-                    Voir d&eacute;tails
+                    Voir détails
                   </button>
                 </div>
               </div>
@@ -164,7 +164,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
               {resSuccess ? (
                 <div className="reserve-inline-success">
                   <i className="fa fa-check-circle"></i>
-                  <p>Votre demande de r&eacute;servation a &eacute;t&eacute; envoy&eacute;e !</p>
+                  <p>Votre demande de réservation a été envoyée !</p>
                   <span>{resEmail ? "Un email de confirmation vous a été envoyé." : "Nous vous contacterons pour confirmer."}</span>
                   {whatsapp && (
                     <a
@@ -184,23 +184,23 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
                   className="room-modal-reserve-btn active-btn"
                   onClick={() => setShowReserveForm(true)}
                 >
-                  R&eacute;server cette chambre
+                  Réserver cette chambre
                 </button>
               ) : (
                 <div className="reserve-inline-form">
-                  <h4>R&eacute;server cette chambre</h4>
+                  <h4>Réserver cette chambre</h4>
                   <div className="reserve-inline-row">
                     <input type="text" placeholder="Votre nom *" value={resName} onChange={(e) => setResName(e.target.value)} />
-                    <input type="tel" placeholder="T&eacute;l&eacute;phone *" value={resPhone} onChange={(e) => setResPhone(e.target.value)} />
+                    <input type="tel" placeholder="Téléphone *" value={resPhone} onChange={(e) => setResPhone(e.target.value)} />
                   </div>
                   <input type="email" placeholder="Email (pour recevoir la confirmation)" value={resEmail} onChange={(e) => setResEmail(e.target.value)} style={{ width: "100%" }} />
                   <div className="reserve-inline-row">
                     <div className="reserve-inline-field">
-                      <label>Arriv&eacute;e *</label>
+                      <label>Arrivée *</label>
                       <input type="date" value={resCheckIn} onChange={(e) => setResCheckIn(e.target.value)} />
                     </div>
                     <div className="reserve-inline-field">
-                      <label>D&eacute;part *</label>
+                      <label>Départ *</label>
                       <input type="date" value={resCheckOut} onChange={(e) => setResCheckOut(e.target.value)} />
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export default function Rooms({ rooms, whatsapp, hideTitle }: { rooms: Room[]; w
                     <option>4 personnes</option>
                     <option>5+ personnes</option>
                   </select>
-                  <textarea placeholder="Notes ou demandes sp&eacute;ciales..." value={resNotes} onChange={(e) => setResNotes(e.target.value)} rows={2} />
+                  <textarea placeholder="Notes ou demandes spéciales..." value={resNotes} onChange={(e) => setResNotes(e.target.value)} rows={2} />
                   <div className="reserve-inline-actions">
                     <button className="reserve-inline-submit" disabled={!resName || !resPhone || !resCheckIn || !resCheckOut || resSubmitting} onClick={() => handleReserveSubmit(room)}>
                       {resSubmitting ? "Envoi..." : "Envoyer la demande"}

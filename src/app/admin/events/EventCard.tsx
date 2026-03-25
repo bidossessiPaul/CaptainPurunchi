@@ -74,7 +74,7 @@ export default function EventCard({
             className="badge bg-warning text-dark"
             style={{ position: "absolute", bottom: "34px", right: "10px" }}
           >
-            <i className="fa fa-star me-1"></i>&Agrave; la une
+            <i className="fa fa-star me-1"></i>À la une
           </span>
         )}
 
@@ -95,7 +95,7 @@ export default function EventCard({
               justifyContent: "center",
             }}
           >
-            <span className="badge bg-secondary fs-14">D&eacute;sactiv&eacute;</span>
+            <span className="badge bg-secondary fs-14">Désactivé</span>
           </div>
         )}
       </div>

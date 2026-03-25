@@ -121,7 +121,7 @@ export default async function AdminDashboard() {
               {todayReservations.length === 0 ? (
                 <div className="text-center py-4">
                   <i className="fa-solid fa-calendar-xmark fs-1 text-muted mb-3 d-block"></i>
-                  <p className="text-muted mb-0">Aucune réservation pour aujourd&apos;hui</p>
+                  <p className="text-muted mb-0">Aucune réservation pour aujourd'hui</p>
                 </div>
               ) : (
                 <div className="table-responsive">
@@ -183,7 +183,7 @@ export default async function AdminDashboard() {
               {todayOrders.length === 0 ? (
                 <div className="text-center py-4">
                   <i className="fa-solid fa-basket-shopping fs-1 text-muted mb-3 d-block"></i>
-                  <p className="text-muted mb-0">Aucune commande pour aujourd&apos;hui</p>
+                  <p className="text-muted mb-0">Aucune commande pour aujourd'hui</p>
                 </div>
               ) : (
                 <>
@@ -197,7 +197,7 @@ export default async function AdminDashboard() {
                         <div className="flex-grow-1 ms-3">
                           <h6 className="mb-1 fw-semibold fs-13">{o.customerName}</h6>
                           <p className="text-muted mb-0 fs-13">
-                            {o.items.length} article{o.items.length > 1 ? "s" : ""} &bull; {o.totalAmount}&nbsp;FCFA
+                            {o.items.length} article{o.items.length > 1 ? "s" : ""} • {o.totalAmount} FCFA
                           </p>
                         </div>
                         <span className={`badge bg-${s.cls}-subtle text-${s.cls}`}>{s.text}</span>
@@ -231,7 +231,7 @@ export default async function AdminDashboard() {
               {todayDishes.length === 0 ? (
                 <div className="text-center py-4">
                   <i className="fa-solid fa-utensils fs-1 text-muted mb-3 d-block"></i>
-                  <p className="text-muted mb-2">Aucun plat prévu pour aujourd&apos;hui</p>
+                  <p className="text-muted mb-2">Aucun plat prévu pour aujourd'hui</p>
                   <Link href="/admin/daily-menu" className="btn btn-sm btn-primary">
                     <i className="fa-solid fa-plus me-1"></i> Ajouter des plats
                   </Link>
@@ -257,7 +257,7 @@ export default async function AdminDashboard() {
                         <p className="text-muted mb-0 fs-13">{d.category}</p>
                       </div>
                       <span className="fw-bold" style={{ color: "var(--admin-primary-dark)" }}>
-                        {d.price}&nbsp;FCFA
+                        {d.price} FCFA
                       </span>
                     </div>
                   ))}

@@ -43,8 +43,8 @@ export default function Footer({ contact }: { contact: ContactInfo }) {
                 <li><Link href="/menu">Notre Menu</Link></li>
                 <li><Link href="/galerie">Galerie</Link></li>
                 <li><Link href="/chambres">Chambres</Link></li>
-                <li><Link href="/evenements">&Eacute;v&eacute;nements</Link></li>
-                <li><Link href="/reservation">R&eacute;servation</Link></li>
+                <li><Link href="/evenements">Événements</Link></li>
+                <li><Link href="/reservation">Réservation</Link></li>
               </ul>
             </div>
 
@@ -76,13 +76,24 @@ export default function Footer({ contact }: { contact: ContactInfo }) {
                   <li><span>{contact.hours3Label}</span><span>{contact.hours3Value}</span></li>
                 )}
               </ul>
+              <div className="cp-footer-reviews">
+                <h4 style={{ marginTop: "20px" }}>Laissez un avis</h4>
+                <div className="cp-footer-socials">
+                  <a href="https://g.page/r/captainpurunchi/review" target="_blank" rel="noopener noreferrer" aria-label="Avis Google" title="Avis Google">
+                    <i className="fa fa-google"></i>
+                  </a>
+                  <a href="https://www.tripadvisor.com/UserReview" target="_blank" rel="noopener noreferrer" aria-label="Avis TripAdvisor" title="Avis TripAdvisor">
+                    <i className="fa fa-tripadvisor"></i>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div className="cp-footer-bottom">
         <div className="container">
-          <p>&copy; {new Date().getFullYear()} Captain Purunchi &mdash; Tous droits r&eacute;serv&eacute;s</p>
+          <p>© {new Date().getFullYear()} Captain Purunchi — Tous droits réservés</p>
         </div>
       </div>
     </footer>

@@ -249,7 +249,7 @@ export default function MenuPageClient({
               className="menu-cart-order-btn"
               onClick={() => setShowOrder(true)}
             >
-              Commander &bull; {formatTotal(totalAmount)}
+              Commander • {formatTotal(totalAmount)}
             </button>
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function MenuPageClient({
                     {submitting ? (
                       <span>Envoi en cours...</span>
                     ) : (
-                      <span>Valider &bull; {formatTotal(totalAmount)}</span>
+                      <span>Valider • {formatTotal(totalAmount)}</span>
                     )}
                   </button>
                 </div>
@@ -354,9 +354,9 @@ export default function MenuPageClient({
                   <div className="menu-order-success-icon">
                     <i className="fa fa-check-circle"></i>
                   </div>
-                  <h3>Commande envoy&eacute;e !</h3>
+                  <h3>Commande envoyée !</h3>
                   <p>
-                    Nous avons bien re&ccedil;u votre commande.
+                    Nous avons bien reçu votre commande.
                     Confirmez-la sur WhatsApp pour un traitement rapide.
                   </p>
                 </div>

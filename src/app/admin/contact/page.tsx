@@ -30,14 +30,14 @@ export default function ContactAdminPage() {
           onClick={() => setTab("messages")}
         >
           <i className="fa-solid fa-inbox me-1"></i>
-          Messages re&ccedil;us
+          Messages reçus
         </button>
         <button
           className={`btn btn-sm ${tab === "settings" ? "btn-primary" : "btn-light"}`}
           onClick={() => setTab("settings")}
         >
           <i className="fa-solid fa-gear me-1"></i>
-          Param&egrave;tres
+          Paramètres
         </button>
       </div>
 

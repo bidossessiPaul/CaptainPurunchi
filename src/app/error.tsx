@@ -11,9 +11,9 @@ export default function Error({
       <div>
         <h2>Une erreur est survenue</h2>
         <p>
-          Nous sommes d&eacute;sol&eacute;s, quelque chose ne s&apos;est pas pass&eacute; comme pr&eacute;vu.
+          Nous sommes désolés, quelque chose ne s'est pas passé comme prévu.
         </p>
-        <button onClick={reset}>R&eacute;essayer</button>
+        <button onClick={reset}>Réessayer</button>
       </div>
     </div>
   );

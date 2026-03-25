@@ -98,17 +98,15 @@ export async function deleteStockItem(id: string): Promise<void> {
 }
 
 export async function countLowStockItems(): Promise<number> {
-  const items = await query(
-    'SELECT currentStock, minStock FROM stock_items WHERE active = 1'
+  const rows = await query(
+    'SELECT COUNT(*) as count FROM stock_items WHERE active = 1 AND minStock > 0 AND currentStock < minStock'
   );
-  return items.filter((i: { currentStock: number; minStock: number }) => i.currentStock < i.minStock && i.minStock > 0).length;
+  return (rows[0] as { count: number }).count;
 }
 
 export async function readLowStockItems(): Promise<StockItem[]> {
-  const items = await query(
-    'SELECT * FROM stock_items WHERE active = 1 ORDER BY name ASC'
+  const rows = await query(
+    'SELECT * FROM stock_items WHERE active = 1 AND minStock > 0 AND currentStock < minStock ORDER BY name ASC'
   );
-  return items
-    .filter((i: { currentStock: number; minStock: number }) => i.currentStock < i.minStock && i.minStock > 0)
-    .map(toStockItem);
+  return rows.map(toStockItem);
 }

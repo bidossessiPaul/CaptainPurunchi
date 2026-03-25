@@ -71,7 +71,7 @@ export default function DishCard({
               justifyContent: "center",
             }}
           >
-            <span className="badge bg-secondary fs-14">D&eacute;sactiv&eacute;</span>
+            <span className="badge bg-secondary fs-14">Désactivé</span>
           </div>
         )}
       </div>

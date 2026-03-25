@@ -142,7 +142,7 @@ export default function BlogForm({ post, onSubmit, onCancel }: BlogFormProps) {
               <input
                 type="text"
                 className="form-control form-control-sm"
-                placeholder="15 F&Eacute;VRIER 2025"
+                placeholder="15 FÉVRIER 2025"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
@@ -229,7 +229,7 @@ export default function BlogForm({ post, onSubmit, onCancel }: BlogFormProps) {
                   <em>I</em>
                 </button>
                 <button type="button" className="btn btn-sm btn-light" onClick={() => insertMarkdown("\n- ")} title="Liste">
-                  &bull; Liste
+                  • Liste
                 </button>
                 <button type="button" className="btn btn-sm btn-light" onClick={() => insertMarkdown("\n> ")} title="Citation">
                   &ldquo; Citation

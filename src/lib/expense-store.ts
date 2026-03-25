@@ -123,8 +123,10 @@ export async function updateExpense(
   const params: any[] = [];
 
   Object.entries(data).forEach(([key, value]) => {
-    fields.push(`${key} = ?`);
-    params.push(value);
+    if (value !== undefined) {
+      fields.push(`${key} = ?`);
+      params.push(value);
+    }
   });
 
   params.push(id);
@@ -147,7 +149,7 @@ export async function approveExpense(
   const status = approved ? "approved" : "rejected";
 
   await query(
-    'UPDATE expenses SET status = ?, approvedBy = ?, approvedAt = NOW() WHERE id = ?',
+    'UPDATE expenses SET status = ?, approvedBy = ?, approvedAt = NOW(), updatedAt = NOW() WHERE id = ?',
     [status, approvedBy, id]
   );
 

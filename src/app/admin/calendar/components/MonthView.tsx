@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { isSameDay } from 'date-fns';
 import type { UnifiedCalendarEvent } from '../types';
 import {
@@ -19,6 +19,19 @@ interface MonthViewProps {
 }
 
 export default function MonthView({ currentDate, events, loading, error, onDateClick }: MonthViewProps) {
+  const [popupDate, setPopupDate] = useState<string | null>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  // Close popup on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        setPopupDate(null);
+      }
+    };
+    if (popupDate) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [popupDate]);
   // Generate calendar grid days (42 days = 6 weeks)
   const gridDays = useMemo(() => getMonthGridDays(currentDate), [currentDate]);
 
@@ -76,15 +89,20 @@ export default function MonthView({ currentDate, events, loading, error, onDateC
     };
   };
 
-  // Handle date click
+  // Handle date click — show quick action popup
   const handleDateClick = (day: Date) => {
     if (onDateClick) {
       onDateClick(day);
     } else {
-      // Default: Navigate to reservations page with date filter
       const dateStr = day.toISOString().split('T')[0];
-      window.location.href = `/admin/reservations?date=${dateStr}`;
+      setPopupDate(prev => prev === dateStr ? null : dateStr);
     }
+  };
+
+  const navigateToReservation = (date: string, type?: string) => {
+    const params = new URLSearchParams({ date });
+    if (type) params.set("type", type);
+    window.location.href = `/admin/reservations?${params}`;
   };
 
   // Loading state
@@ -125,6 +143,8 @@ export default function MonthView({ currentDate, events, loading, error, onDateC
           const isOtherMonth = !isInCurrentMonth(day, currentDate);
           const isToday = isTodayDate(day);
           const densityClass = getDensityClass(counts.total);
+          const dateStr = day.toISOString().split('T')[0];
+          const isPopupOpen = popupDate === dateStr;
 
           return (
             <div
@@ -165,6 +185,33 @@ export default function MonthView({ currentDate, events, loading, error, onDateC
                       <i className="fa-solid fa-people-group me-1"></i>{counts.event}
                     </span>
                   )}
+                </div>
+              )}
+
+              {/* Quick action popup */}
+              {isPopupOpen && (
+                <div
+                  ref={popupRef}
+                  className={styles.datePopup}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className={styles.datePopupHeader}>
+                    {new Date(dateStr + "T00:00:00").toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}
+                  </div>
+                  <button className={styles.datePopupBtn} onClick={() => navigateToReservation(dateStr)}>
+                    <i className="fa-solid fa-eye me-2"></i>Voir les réservations
+                  </button>
+                  <div className={styles.datePopupDivider} />
+                  <span className={styles.datePopupLabel}>Créer :</span>
+                  <button className={styles.datePopupBtn} onClick={() => navigateToReservation(dateStr, "table")}>
+                    <i className="fa-solid fa-utensils me-2 text-primary"></i>Réservation table
+                  </button>
+                  <button className={styles.datePopupBtn} onClick={() => navigateToReservation(dateStr, "room")}>
+                    <i className="fa-solid fa-bed me-2 text-warning"></i>Réservation chambre
+                  </button>
+                  <button className={styles.datePopupBtn} onClick={() => navigateToReservation(dateStr, "event")}>
+                    <i className="fa-solid fa-people-group me-2 text-info"></i>Réservation événement
+                  </button>
                 </div>
               )}
             </div>

@@ -15,14 +15,21 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 export const metadata: Metadata = {
-  title: "Captain Purunchi \u2014 Meilleur Restaurant Fruits de Mer & H\u00e9bergement \u00e0 Cotonou, B\u00e9nin",
+  title: "Captain Purunchi \u2014 Restaurant Fruits de Mer Cotonou",
   description:
-    "D\u00e9couvrez Captain Purunchi, restaurant gastronomique de fruits de mer bord de mer \u00e0 Cotonou. Homard grill\u00e9, gambas royales, poissons bras\u00e9s, cocktails sur le rooftop vue mer et h\u00e9bergement. R\u00e9servez votre table en ligne.",
+    "D\u00e9couvrez Captain Purunchi : restaurant fruits de mer \u00e0 Cotonou. Homard grill\u00e9, gambas, rooftop vue mer et h\u00e9bergement. R\u00e9servez en ligne.",
   openGraph: {
     title: "Captain Purunchi \u2014 Restaurant Fruits de Mer, Rooftop & H\u00e9bergement \u00e0 Cotonou",
     description:
       "Meilleur restaurant fruits de mer \u00e0 Cotonou, B\u00e9nin. Produits frais, cuisine du chef, rooftop vue sur l\u2019Atlantique, chambres confortables. Exp\u00e9rience culinaire unique bord de mer.",
     type: "website",
+    url: "/",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Captain Purunchi Cotonou" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Captain Purunchi \u2014 Restaurant Fruits de Mer Cotonou",
+    description: "Homard grill\u00e9, gambas, rooftop vue mer et h\u00e9bergement \u00e0 Cotonou, B\u00e9nin. R\u00e9servez en ligne.",
   },
   keywords: [
     "Captain Purunchi", "restaurant fruits de mer Cotonou", "meilleur restaurant Cotonou",
@@ -95,35 +102,35 @@ export default async function Home() {
           <div className="row">
             <div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
               <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
-                <h2 className="block-title">&Agrave; propos</h2>
+                <h2 className="block-title">À propos</h2>
                 <h3>BIENVENUE CHEZ CAPTAIN PURUNCHI</h3>
                 <p>
-                  Nich&eacute; au c&oelig;ur de Cotonou, Captain Purunchi est bien plus
-                  qu&apos;un simple restaurant. C&apos;est une escale gourmande o&ugrave;
-                  les saveurs de la mer rencontrent l&apos;art culinaire, dans un
+                  Niché au cœur de Cotonou, Captain Purunchi est bien plus
+                  qu'un simple restaurant. C'est une escale gourmande où
+                  les saveurs de la mer rencontrent l'art culinaire, dans un
                   cadre chaleureux et convivial.
                 </p>
                 <p>
-                  Notre cuisine met &agrave; l&apos;honneur les produits frais de la
-                  p&ecirc;che locale, avec une sp&eacute;cialit&eacute; pour les fruits de mer
-                  et les grillades pr&eacute;par&eacute;s avec passion par notre &eacute;quipe.
-                  Poissons bras&eacute;s, homards grill&eacute;s, crevettes flamb&eacute;es
-                  &mdash; chaque plat raconte une histoire de fra&icirc;cheur et de saveurs.
+                  Notre cuisine met à l'honneur les produits frais de la
+                  pêche locale, avec une spécialité pour les fruits de mer
+                  et les grillades préparés avec passion par notre équipe.
+                  Poissons brasés, homards grillés, crevettes flambées
+                  — chaque plat raconte une histoire de fraîcheur et de saveurs.
                 </p>
                 <p>
-                  Que ce soit pour un d&eacute;jeuner d&apos;affaires, un d&icirc;ner en
-                  amoureux ou une soir&eacute;e entre amis sur notre rooftop avec vue,
-                  chaque moment chez Captain Purunchi est une exp&eacute;rience
+                  Que ce soit pour un déjeuner d'affaires, un dîner en
+                  amoureux ou une soirée entre amis sur notre rooftop avec vue,
+                  chaque moment chez Captain Purunchi est une expérience
                   inoubliable.
                 </p>
                 <p>
-                  Profitez &eacute;galement de nos espaces d&apos;h&eacute;bergement
-                  pour prolonger votre s&eacute;jour et vivre pleinement
-                  l&apos;ambiance maritime qui fait notre identit&eacute;.
+                  Profitez également de nos espaces d'hébergement
+                  pour prolonger votre séjour et vivre pleinement
+                  l'ambiance maritime qui fait notre identité.
                 </p>
                 <div className="book-btn" style={{ marginTop: "25px" }}>
                   <a href="/reservation" className="table-btn hvr-underline-from-center">
-                    R&eacute;server une table
+                    Réserver une table
                   </a>
                 </div>
               </div>
@@ -153,39 +160,39 @@ export default async function Home() {
           <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
             <h2 className="block-title color-white text-center">Pourquoi nous choisir</h2>
             <p className="title-caption text-center">
-              Une exp&eacute;rience unique qui fait revenir nos clients encore et encore.
+              Une expérience unique qui fait revenir nos clients encore et encore.
             </p>
           </div>
           <div className="why-us-grid">
             <div className="why-us-card">
               <div className="why-us-icon"><i className="fa fa-anchor" aria-hidden="true"></i></div>
-              <h3>Produits frais de la p&ecirc;che</h3>
+              <h3>Produits frais de la pêche</h3>
               <p>Nos poissons et fruits de mer arrivent chaque matin directement du port de Cotonou.</p>
             </div>
             <div className="why-us-card">
               <div className="why-us-icon"><i className="fa fa-eye" aria-hidden="true"></i></div>
               <h3>Vue panoramique</h3>
-              <p>Notre rooftop offre une vue imprenable sur Cotonou. L&apos;endroit id&eacute;al pour vos soir&eacute;es.</p>
+              <p>Notre rooftop offre une vue imprenable sur Cotonou. L'endroit idéal pour vos soirées.</p>
             </div>
             <div className="why-us-card">
               <div className="why-us-icon"><i className="fa fa-fire" aria-hidden="true"></i></div>
               <h3>Grillades au feu de bois</h3>
-              <p>Nos viandes et poissons sont grill&eacute;s au feu de bois pour un go&ucirc;t authentique.</p>
+              <p>Nos viandes et poissons sont grillés au feu de bois pour un goût authentique.</p>
             </div>
             <div className="why-us-card">
               <div className="why-us-icon"><i className="fa fa-glass" aria-hidden="true"></i></div>
               <h3>Cocktails signatures</h3>
-              <p>D&eacute;couvrez nos cr&eacute;ations originales avec des fruits frais locaux.</p>
+              <p>Découvrez nos créations originales avec des fruits frais locaux.</p>
             </div>
             <div className="why-us-card">
               <div className="why-us-icon"><i className="fa fa-bed" aria-hidden="true"></i></div>
-              <h3>H&eacute;bergement sur place</h3>
-              <p>Prolongez votre exp&eacute;rience avec nos chambres confortables.</p>
+              <h3>Hébergement sur place</h3>
+              <p>Prolongez votre expérience avec nos chambres confortables.</p>
             </div>
             <div className="why-us-card">
               <div className="why-us-icon"><i className="fa fa-music" aria-hidden="true"></i></div>
-              <h3>Ambiance &amp; &eacute;v&eacute;nements</h3>
-              <p>Soir&eacute;es &agrave; th&egrave;me, musique live et DJ sets chaque week-end.</p>
+              <h3>Ambiance &amp; événements</h3>
+              <p>Soirées à thème, musique live et DJ sets chaque week-end.</p>
             </div>
           </div>
         </div>
@@ -204,9 +211,9 @@ export default async function Home() {
             <div className="form-reservations-box">
               <div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
-                  <h2 className="block-title text-center">R&eacute;servation</h2>
+                  <h2 className="block-title text-center">Réservation</h2>
                 </div>
-                <p className="reservation-desc">Remplissez le formulaire et nous vous confirmerons votre r&eacute;servation.</p>
+                <p className="reservation-desc">Remplissez le formulaire et nous vous confirmerons votre réservation.</p>
                 <TableReservationForm whatsapp={contact.whatsapp} />
               </div>
             </div>

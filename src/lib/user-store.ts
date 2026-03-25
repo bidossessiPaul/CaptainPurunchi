@@ -35,7 +35,7 @@ function toPublic(u: {
 }
 
 export async function readAllUsers(): Promise<UserPublic[]> {
-  const rows = await query('SELECT * FROM users ORDER BY createdAt DESC');
+  const rows = await query('SELECT id, name, email, role, avatar, active, lastLogin, createdAt, updatedAt FROM users ORDER BY createdAt DESC');
   return rows.map(toPublic);
 }
 
@@ -98,7 +98,7 @@ export async function verifyUserPassword(email: string, password: string) {
   const match = await bcrypt.compare(password, user.password);
   if (!match) return null;
 
-  await query('UPDATE users SET lastLogin = ? WHERE id = ?', [new Date(), user.id]);
+  await query('UPDATE users SET lastLogin = ?, updatedAt = ? WHERE id = ?', [new Date(), new Date(), user.id]);
 
   return { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar };
 }

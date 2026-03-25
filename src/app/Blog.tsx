@@ -16,7 +16,7 @@ export default function Blog({ posts }: { posts: BlogPost[] }) {
           <span className="home-blog-label">Blog</span>
           <h2 className="home-blog-title">Notre Blog</h2>
           <p className="home-blog-subtitle">
-            Recettes, coulisses et actualit&eacute;s de Captain Purunchi.
+            Recettes, coulisses et actualités de Captain Purunchi.
           </p>
         </div>
 
@@ -36,7 +36,7 @@ export default function Blog({ posts }: { posts: BlogPost[] }) {
                   </div>
                 )}
                 <div className="home-blog-card-overlay">
-                  <span>Lire &rarr;</span>
+                  <span>Lire →</span>
                 </div>
               </div>
               <div className="home-blog-card-body">
@@ -45,7 +45,7 @@ export default function Blog({ posts }: { posts: BlogPost[] }) {
                 </p>
                 <h3 className="home-blog-card-title">{post.title}</h3>
                 <span className="home-blog-card-readmore">
-                  Lire l&apos;article &rarr;
+                  Lire l'article →
                 </span>
               </div>
             </Link>

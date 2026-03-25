@@ -8,7 +8,7 @@ import ConfirmModal from "../ConfirmModal";
 import { generateInvoicePDF } from "@/lib/generate-invoice-pdf";
 
 function fmt(n: number) {
-  return n.toLocaleString("fr-FR");
+  return Math.round(n).toLocaleString("fr-FR");
 }
 
 export default function FacturesManager() {
@@ -33,7 +33,9 @@ export default function FacturesManager() {
     try {
       const res = await fetch("/api/finance/invoices").then((r) => r.json());
       setInvoices(Array.isArray(res) ? res : []);
-    } catch {}
+    } catch (err) {
+      console.error("Erreur chargement factures:", err);
+    }
     setLoading(false);
   }, []);
 
@@ -46,12 +48,16 @@ export default function FacturesManager() {
   };
 
   const handleInvoiceStatus = async (invoice: Invoice, status: string) => {
-    await fetch(`/api/finance/invoices/${invoice.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    fetchData();
+    try {
+      await fetch(`/api/finance/invoices/${invoice.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      fetchData();
+    } catch (err) {
+      console.error("Erreur changement statut facture:", err);
+    }
   };
 
   const handleSendInvoiceEmail = async (invoice: Invoice) => {
@@ -71,9 +77,14 @@ export default function FacturesManager() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    const id = deleteTarget.id;
     setDeleteTarget(null);
-    await fetch(`/api/finance/invoices/${deleteTarget.id}`, { method: "DELETE" });
-    fetchData();
+    try {
+      await fetch(`/api/finance/invoices/${id}`, { method: "DELETE" });
+      fetchData();
+    } catch (err) {
+      console.error("Erreur suppression facture:", err);
+    }
   };
 
   const downloadCSV = (filename: string, headers: string[], rows: string[][]) => {

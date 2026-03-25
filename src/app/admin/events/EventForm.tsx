@@ -242,7 +242,7 @@ export default function EventForm({ event, onSubmit, onCancel }: EventFormProps)
                   id="form-featured"
                 />
                 <label className="form-check-label fs-13" htmlFor="form-featured">
-                  &Agrave; la une
+                  À la une
                 </label>
               </div>
             </div>

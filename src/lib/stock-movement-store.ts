@@ -78,11 +78,11 @@ export async function createStockMovement(data: {
   // Update currentStock on the StockItem
   if (data.type === "adjustment") {
     // Adjustment sets the stock to the given quantity
-    await query('UPDATE stock_items SET currentStock = ? WHERE id = ?', [data.quantity, data.stockItemId]);
+    await query('UPDATE stock_items SET currentStock = ?, updatedAt = ? WHERE id = ?', [data.quantity, new Date(), data.stockItemId]);
   } else {
     // entry = +quantity, exit/waste = -quantity
     const delta = data.type === "entry" ? Math.abs(data.quantity) : -Math.abs(data.quantity);
-    await query('UPDATE stock_items SET currentStock = currentStock + ? WHERE id = ?', [delta, data.stockItemId]);
+    await query('UPDATE stock_items SET currentStock = currentStock + ?, updatedAt = ? WHERE id = ?', [delta, new Date(), data.stockItemId]);
   }
 
   const rows = await query('SELECT * FROM stock_movements WHERE id = ?', [(result as { insertId: string }).insertId]);
@@ -99,7 +99,7 @@ export async function deleteStockMovement(id: string): Promise<void> {
     // Can't reliably reverse an adjustment — just delete the record
   } else {
     const delta = movement.type === "entry" ? -Math.abs(movement.quantity) : Math.abs(movement.quantity);
-    await query('UPDATE stock_items SET currentStock = currentStock + ? WHERE id = ?', [delta, movement.stockItemId]);
+    await query('UPDATE stock_items SET currentStock = currentStock + ?, updatedAt = ? WHERE id = ?', [delta, new Date(), movement.stockItemId]);
   }
 
   await query('DELETE FROM stock_movements WHERE id = ?', [id]);

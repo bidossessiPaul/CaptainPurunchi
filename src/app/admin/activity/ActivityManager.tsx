@@ -98,7 +98,7 @@ export default function ActivityManager() {
             <div className="row align-items-center">
               <div className="col">
                 <h4 className="card-title">
-                  Journal d&apos;activité
+                  Journal d'activité
                   <span className="badge bg-primary-subtle text-primary ms-2">{total}</span>
                 </h4>
               </div>

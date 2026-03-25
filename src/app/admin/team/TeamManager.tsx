@@ -117,7 +117,7 @@ export default function TeamManager({ initialUsers }: Props) {
               <div className="row align-items-center">
                 <div className="col">
                   <h4 className="card-title">
-                    Membres de l&apos;équipe
+                    Membres de l'équipe
                     <span className="badge bg-primary-subtle text-primary ms-2">{users.length}</span>
                   </h4>
                 </div>
@@ -138,7 +138,7 @@ export default function TeamManager({ initialUsers }: Props) {
               {users.length === 0 ? (
                 <div className="text-center py-5">
                   <i className="fa-solid fa-users fs-1 text-muted mb-3 d-block"></i>
-                  <p className="text-muted mb-0">Aucun membre dans l&apos;équipe</p>
+                  <p className="text-muted mb-0">Aucun membre dans l'équipe</p>
                 </div>
               ) : (
                 <div className="table-responsive">

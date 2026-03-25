@@ -9,6 +9,7 @@ export default function GalleryManager() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,42 +25,53 @@ export default function GalleryManager() {
     fetchImages();
   }, [fetchImages]);
 
-  // Upload new image
+  // Upload multiple images
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
+    setUploadProgress({ done: 0, total: files.length });
+    const errors: string[] = [];
 
-    const formData = new FormData();
-    formData.append("file", file);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
 
-    const uploadRes = await fetch("/api/gallery/upload", {
-      method: "POST",
-      body: formData,
-    });
+        const uploadRes = await fetch("/api/gallery/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-    if (!uploadRes.ok) {
-      const err = await uploadRes.json();
-      alert(err.error || "Erreur lors de l'upload");
-      setUploading(false);
-      return;
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json();
+          errors.push(`${file.name}: ${err.error || "Erreur"}`);
+          setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
+          continue;
+        }
+
+        const { src, type } = await uploadRes.json();
+
+        await fetch("/api/gallery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ src, alt: "", type }),
+        });
+      } catch {
+        errors.push(`${file.name}: Erreur réseau`);
+      }
+      setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
     }
 
-    const { src, type } = await uploadRes.json();
-
-    const createRes = await fetch("/api/gallery", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ src, alt: "", type }),
-    });
-
-    if (createRes.ok) {
-      await fetchImages();
-    }
-
+    await fetchImages();
     setUploading(false);
+    setUploadProgress({ done: 0, total: 0 });
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (errors.length > 0) {
+      alert(`${errors.length} erreur(s) :\n${errors.join("\n")}`);
+    }
   };
 
   // Toggle active
@@ -182,6 +194,7 @@ export default function GalleryManager() {
             type="file"
             accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm"
             className="d-none"
+            multiple
             onChange={handleUpload}
           />
           <button
@@ -192,20 +205,20 @@ export default function GalleryManager() {
             {uploading ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" />
-                Upload en cours...
+                Upload {uploadProgress.done}/{uploadProgress.total}...
               </>
             ) : (
               <>
                 <i className="iconoir-plus me-1"></i>
-                Ajouter image / vid&eacute;o
+                Ajouter images / vidéos
               </>
             )}
           </button>
           <span className="text-muted ms-3 fs-13">
-            {images.length} m&eacute;dia{images.length !== 1 ? "s" : ""} &bull;{" "}
+            {images.length} média{images.length !== 1 ? "s" : ""} •{" "}
             {images.filter((img) => img.active).length} actif{images.filter((img) => img.active).length !== 1 ? "s" : ""}
             {images.filter((img) => img.type === "video").length > 0 && (
-              <> &bull; {images.filter((img) => img.type === "video").length} vid&eacute;o{images.filter((img) => img.type === "video").length !== 1 ? "s" : ""}</>
+              <> • {images.filter((img) => img.type === "video").length} vidéo{images.filter((img) => img.type === "video").length !== 1 ? "s" : ""}</>
             )}
           </span>
         </div>
@@ -217,7 +230,7 @@ export default function GalleryManager() {
           <div className="card-body text-center py-5">
             <i className="iconoir-media-image-list" style={{ fontSize: "48px", color: "#95a0c5" }}></i>
             <h5 className="mt-3">Aucune image</h5>
-            <p className="text-muted">Ajoutez votre premi&egrave;re image &agrave; la galerie.</p>
+            <p className="text-muted">Ajoutez votre première image à la galerie.</p>
             <button
               className="btn btn-primary"
               onClick={() => fileInputRef.current?.click()}

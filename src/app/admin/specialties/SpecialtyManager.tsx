@@ -188,7 +188,7 @@ export default function SpecialtyManager() {
             {showForm ? "Annuler" : "Ajouter une spécialité"}
           </button>
           <span className="text-muted ms-3 fs-13">
-            {items.length} spécialité{items.length !== 1 ? "s" : ""} &bull;{" "}
+            {items.length} spécialité{items.length !== 1 ? "s" : ""} •{" "}
             {items.filter((s) => s.active).length} active{items.filter((s) => s.active).length !== 1 ? "s" : ""}
           </span>
         </div>

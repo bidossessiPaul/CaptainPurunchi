@@ -102,9 +102,10 @@ export async function closeCashRegister(
   const expectedBalance = opening + totalPayments;
   const difference = data.closingBalance - expectedBalance;
 
+  const now = new Date();
   await query(
     'UPDATE cash_registers SET closedBy = ?, especes = ?, carte = ?, mtnMoney = ?, moovMoney = ?, virement = ?, closingBalance = ?, difference = ?, status = ?, closedAt = ?, notes = ?, updatedAt = ? WHERE id = ?',
-    [data.closedBy, data.especes, data.carte, data.mtnMoney, data.moovMoney, data.virement, data.closingBalance, difference, 'closed', new Date(), data.notes || '', new Date(), id]
+    [data.closedBy, data.especes, data.carte, data.mtnMoney, data.moovMoney, data.virement, data.closingBalance, difference, 'closed', now, data.notes || '', now, id]
   );
 
   const rows = await query('SELECT * FROM cash_registers WHERE id = ?', [id]);

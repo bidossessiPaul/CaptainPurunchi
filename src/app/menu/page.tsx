@@ -10,10 +10,17 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 export const metadata: Metadata = {
   title: "Carte & Menu Fruits de Mer \u2014 Restaurant Gastronomique Cotonou",
   description:
-    "D\u00e9couvrez la carte du Captain Purunchi \u00e0 Cotonou : homard grill\u00e9, gambas royales, poissons bras\u00e9s, grillades au feu de bois, cocktails signatures. Produits frais de la p\u00eache locale. Commandez en ligne.",
+    "Carte du Captain Purunchi \u00e0 Cotonou : homard grill\u00e9, gambas, poissons bras\u00e9s, grillades au feu de bois et cocktails. Produits frais. Commandez en ligne.",
   openGraph: {
     title: "Carte & Menu | Captain Purunchi Cotonou",
     description: "Fruits de mer frais, grillades, cocktails et plats du chef. Cuisine gastronomique fran\u00e7aise et africaine \u00e0 Cotonou, B\u00e9nin.",
+    url: "/menu",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Captain Purunchi Menu" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Carte & Menu | Captain Purunchi Cotonou",
+    description: "Fruits de mer frais, grillades, cocktails et plats du chef \u00e0 Cotonou, B\u00e9nin.",
   },
   keywords: [
     "carte fruits de mer Cotonou", "menu gastronomique Cotonou", "homard grill\u00e9 Cotonou",
@@ -69,7 +76,7 @@ export default async function MenuPage() {
           <h1>Notre Carte</h1>
           <p>
             Des saveurs authentiques, des produits frais et des recettes
-            qui vous transportent au c&oelig;ur de l&apos;oc&eacute;an.
+            qui vous transportent au cœur de l{"'"}océan.
           </p>
         </div>
       </div>

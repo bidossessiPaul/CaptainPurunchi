@@ -261,7 +261,7 @@ export default function MenuManager() {
             {showCatForm ? "Annuler" : "Ajouter une catégorie"}
           </button>
           <span className="text-muted ms-3 fs-13">
-            {categories.length} catégorie{categories.length !== 1 ? "s" : ""} &bull; {totalItems} item{totalItems !== 1 ? "s" : ""}
+            {categories.length} catégorie{categories.length !== 1 ? "s" : ""} • {totalItems} item{totalItems !== 1 ? "s" : ""}
           </span>
         </div>
       </div>

@@ -15,9 +15,14 @@ export default function BlogManager() {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const fetchPosts = useCallback(async () => {
-    const res = await fetch("/api/blog");
-    const data = await res.json();
-    setPosts(data);
+    try {
+      const res = await fetch("/api/blog");
+      const data = await res.json();
+      setPosts(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erreur chargement articles:", err);
+      setPosts([]);
+    }
     setLoading(false);
   }, []);
 
@@ -166,7 +171,7 @@ export default function BlogManager() {
             Ajouter un article
           </button>
           <span className="text-muted ms-3 fs-13">
-            {posts.length} article{posts.length !== 1 ? "s" : ""} &bull;{" "}
+            {posts.length} article{posts.length !== 1 ? "s" : ""} •{" "}
             {posts.filter((p) => p.active).length} actif{posts.filter((p) => p.active).length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -226,7 +231,7 @@ export default function BlogManager() {
       <ConfirmModal
         open={deleteTarget !== null}
         title="Supprimer l'article"
-        message="Cette action est irr&eacute;versible. Voulez-vous vraiment supprimer cet article ?"
+        message="Cette action est irréversible. Voulez-vous vraiment supprimer cet article ?"
         confirmLabel="Supprimer"
         cancelLabel="Annuler"
         variant="danger"

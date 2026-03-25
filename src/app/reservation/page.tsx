@@ -7,9 +7,9 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Réserver une Table — Restaurant Fruits de Mer & Rooftop Cotonou",
+  title: "Réserver une Table — Captain Purunchi Cotonou",
   description:
-    "Réservez votre table au Captain Purunchi à Cotonou : restaurant fruits de mer, rooftop vue mer, terrasse. Réservation en ligne rapide pour déjeuner, dîner, événements privés et groupes.",
+    "Réservez votre table au Captain Purunchi à Cotonou. Restaurant fruits de mer, rooftop vue mer. Réservation en ligne pour déjeuner, dîner et groupes.",
   keywords: [
     "réserver table Cotonou", "réservation restaurant Cotonou",
     "réservation Captain Purunchi", "réserver restaurant fruits de mer Cotonou",
@@ -23,7 +23,12 @@ export const metadata: Metadata = {
     title: "Réserver une Table — Captain Purunchi Cotonou",
     description: "Réservez votre table au Captain Purunchi : fruits de mer frais, rooftop vue mer, terrasse. Réservation rapide en ligne.",
     url: "/reservation",
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: "Réservation Captain Purunchi" }],
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Réservation Captain Purunchi" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Réserver une Table — Captain Purunchi Cotonou",
+    description: "Réservez votre table au Captain Purunchi. Fruits de mer, rooftop vue mer \u00e0 Cotonou.",
   },
   alternates: { canonical: "/reservation" },
 };
@@ -83,10 +88,10 @@ export default async function ReservationPage() {
 
       <div className="reservation-page-header">
         <div className="container">
-          <h1>R&eacute;servation</h1>
+          <h1>Réservation</h1>
           <p>
-            R&eacute;servez votre table en quelques clics et profitez
-            d&rsquo;une exp&eacute;rience culinaire unique au Captain Purunchi.
+            Réservez votre table en quelques clics et profitez
+            d'une expérience culinaire unique au Captain Purunchi.
           </p>
         </div>
       </div>
@@ -105,26 +110,26 @@ export default async function ReservationPage() {
 
       <section className="chambres-seo-section chambres-seo-why">
         <div className="container">
-          <h2>Pourquoi r&eacute;server chez Captain Purunchi&nbsp;?</h2>
+          <h2>Pourquoi réserver chez Captain Purunchi ?</h2>
           <p className="chambres-seo-intro">
-            Que ce soit pour un d&icirc;ner romantique, un repas en famille ou un d&eacute;jeuner d&rsquo;affaires,
-            Captain Purunchi vous accueille dans un cadre exceptionnel au c&oelig;ur de Cotonou.
+            Que ce soit pour un dîner romantique, un repas en famille ou un déjeuner d'affaires,
+            Captain Purunchi vous accueille dans un cadre exceptionnel au cœur de Cotonou.
           </p>
           <div className="chambres-seo-grid">
             <div className="chambres-seo-card">
               <div className="chambres-seo-icon"><i className="fa fa-cutlery" aria-hidden="true"></i></div>
-              <h3>Cuisine d&rsquo;exception</h3>
-              <p>Des plats locaux et internationaux pr&eacute;par&eacute;s avec des produits frais et de qualit&eacute; par notre chef.</p>
+              <h3>Cuisine d'exception</h3>
+              <p>Des plats locaux et internationaux préparés avec des produits frais et de qualité par notre chef.</p>
             </div>
             <div className="chambres-seo-card">
               <div className="chambres-seo-icon"><i className="fa fa-glass" aria-hidden="true"></i></div>
               <h3>Cadre unique</h3>
-              <p>Restaurant, bar et rooftop avec vue panoramique pour une atmosph&egrave;re in&eacute;galable.</p>
+              <p>Restaurant, bar et rooftop avec vue panoramique pour une atmosphère inégalable.</p>
             </div>
             <div className="chambres-seo-card">
               <div className="chambres-seo-icon"><i className="fa fa-heart" aria-hidden="true"></i></div>
-              <h3>Service personnalis&eacute;</h3>
-              <p>Notre &eacute;quipe attentive s&rsquo;adapte &agrave; vos besoins pour rendre chaque visite m&eacute;morable.</p>
+              <h3>Service personnalisé</h3>
+              <p>Notre équipe attentive s'adapte à vos besoins pour rendre chaque visite mémorable.</p>
             </div>
           </div>
         </div>
@@ -134,22 +139,22 @@ export default async function ReservationPage() {
         <div className="container">
           <h2>Nos espaces &amp; formules</h2>
           <p className="chambres-seo-intro">
-            Choisissez l&rsquo;espace qui correspond &agrave; votre occasion.
+            Choisissez l'espace qui correspond à votre occasion.
           </p>
           <div className="chambres-seo-list chambres-seo-list-3col">
             <ul>
-              <li><i className="fa fa-coffee" aria-hidden="true"></i> Petit-d&eacute;jeuner</li>
-              <li><i className="fa fa-sun-o" aria-hidden="true"></i> D&eacute;jeuner</li>
-              <li><i className="fa fa-moon-o" aria-hidden="true"></i> D&icirc;ner</li>
+              <li><i className="fa fa-coffee" aria-hidden="true"></i> Petit-déjeuner</li>
+              <li><i className="fa fa-sun-o" aria-hidden="true"></i> Déjeuner</li>
+              <li><i className="fa fa-moon-o" aria-hidden="true"></i> Dîner</li>
             </ul>
             <ul>
               <li><i className="fa fa-building" aria-hidden="true"></i> Rooftop</li>
-              <li><i className="fa fa-home" aria-hidden="true"></i> Salle int&eacute;rieure</li>
+              <li><i className="fa fa-home" aria-hidden="true"></i> Salle intérieure</li>
               <li><i className="fa fa-tree" aria-hidden="true"></i> Terrasse</li>
             </ul>
             <ul>
-              <li><i className="fa fa-users" aria-hidden="true"></i> Groupes &amp; s&eacute;minaires</li>
-              <li><i className="fa fa-birthday-cake" aria-hidden="true"></i> &Eacute;v&eacute;nements priv&eacute;s</li>
+              <li><i className="fa fa-users" aria-hidden="true"></i> Groupes &amp; séminaires</li>
+              <li><i className="fa fa-birthday-cake" aria-hidden="true"></i> Événements privés</li>
             </ul>
           </div>
         </div>
@@ -164,7 +169,7 @@ export default async function ReservationPage() {
           <div className="chambres-seo-grid">
             <div className="chambres-seo-card">
               <div className="chambres-seo-icon"><i className="fa fa-clock-o" aria-hidden="true"></i></div>
-              <h3>Horaires d&rsquo;ouverture</h3>
+              <h3>Horaires d'ouverture</h3>
               <p>
                 {contact.hours1Label && contact.hours1Value
                   ? `${contact.hours1Label} : ${contact.hours1Value}`

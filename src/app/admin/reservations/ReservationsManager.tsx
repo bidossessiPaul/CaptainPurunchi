@@ -55,9 +55,11 @@ export default function ReservationsManager() {
     ? (searchParams.get("type") as ActiveType)
     : "all";
 
+  const initialDate = searchParams.get("date") ?? "";
+
   const [activeType, setActiveType] = useState<ActiveType>(initialType);
   const [activeStatus, setActiveStatus] = useState("all");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(initialDate);
 
   const [tableReservations, setTableReservations] = useState<TableReservation[]>([]);
   const [roomReservations, setRoomReservations] = useState<RoomReservation[]>([]);
@@ -65,41 +67,58 @@ export default function ReservationsManager() {
 
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
-  const [formMode, setFormMode] = useState<FormMode>(null);
+
+  // Auto-open create form when coming from calendar with date + type
+  const autoCreateType = initialDate && initialType !== "all" ? initialType : null;
+  const [formMode, setFormMode] = useState<FormMode>(
+    autoCreateType ? { action: "create", type: autoCreateType } : null
+  );
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-
-    if (activeType === "all") {
-      const statusParam = activeStatus !== "all" ? `status=${activeStatus}` : "";
-      const [tRes, rRes, eRes] = await Promise.all([
-        fetch(`/api/table-reservations${statusParam ? `?${statusParam}` : ""}`),
-        fetch(`/api/room-reservations${statusParam ? `?${statusParam}` : ""}`),
-        fetch(`/api/event-reservations${statusParam ? `?${statusParam}` : ""}`),
-      ]);
-      setTableReservations(await tRes.json());
-      setRoomReservations(await rRes.json());
-      setEventReservations(await eRes.json());
-    } else if (activeType === "table") {
-      const params = new URLSearchParams();
-      if (selectedDate) params.set("date", selectedDate);
-      if (activeStatus !== "all") params.set("status", activeStatus);
-      const qs = params.toString();
-      const res = await fetch(`/api/table-reservations${qs ? `?${qs}` : ""}`);
-      setTableReservations(await res.json());
-    } else if (activeType === "room") {
-      let url = `/api/room-reservations`;
-      if (activeStatus !== "all") url += `?status=${activeStatus}`;
-      const res = await fetch(url);
-      setRoomReservations(await res.json());
-    } else {
-      let url = `/api/event-reservations`;
-      if (activeStatus !== "all") url += `?status=${activeStatus}`;
-      const res = await fetch(url);
-      setEventReservations(await res.json());
+    try {
+      if (activeType === "all") {
+        const statusParam = activeStatus !== "all" ? `status=${activeStatus}` : "";
+        const [tRes, rRes, eRes] = await Promise.all([
+          fetch(`/api/table-reservations${statusParam ? `?${statusParam}` : ""}`),
+          fetch(`/api/room-reservations${statusParam ? `?${statusParam}` : ""}`),
+          fetch(`/api/event-reservations${statusParam ? `?${statusParam}` : ""}`),
+        ]);
+        const tData = await tRes.json();
+        const rData = await rRes.json();
+        const eData = await eRes.json();
+        setTableReservations(Array.isArray(tData) ? tData : []);
+        setRoomReservations(Array.isArray(rData) ? rData : []);
+        setEventReservations(Array.isArray(eData) ? eData : []);
+      } else if (activeType === "table") {
+        const params = new URLSearchParams();
+        if (selectedDate) params.set("date", selectedDate);
+        if (activeStatus !== "all") params.set("status", activeStatus);
+        const qs = params.toString();
+        const res = await fetch(`/api/table-reservations${qs ? `?${qs}` : ""}`);
+        const data = await res.json();
+        setTableReservations(Array.isArray(data) ? data : []);
+      } else if (activeType === "room") {
+        let url = `/api/room-reservations`;
+        if (activeStatus !== "all") url += `?status=${activeStatus}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        setRoomReservations(Array.isArray(data) ? data : []);
+      } else {
+        let url = `/api/event-reservations`;
+        if (activeStatus !== "all") url += `?status=${activeStatus}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        setEventReservations(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.error("Erreur chargement réservations:", err);
+      setTableReservations([]);
+      setRoomReservations([]);
+      setEventReservations([]);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }, [activeType, activeStatus, selectedDate]);
 
   useEffect(() => {
@@ -180,10 +199,32 @@ export default function ReservationsManager() {
 
   return (
     <>
+      {/* Date context banner */}
+      {initialDate && !formMode && (
+        <div className="alert alert-info d-flex align-items-center gap-2 mb-3">
+          <i className="fa-solid fa-calendar-day"></i>
+          <span>
+            Date sélectionnée : <strong>{new Date(initialDate + "T00:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</strong>
+          </span>
+          <div className="ms-auto d-flex gap-2">
+            <button className="btn btn-sm btn-primary" onClick={() => setFormMode({ action: "create", type: "table" })}>
+              <i className="fa-solid fa-utensils me-1"></i>Table
+            </button>
+            <button className="btn btn-sm btn-warning" onClick={() => setFormMode({ action: "create", type: "room" })}>
+              <i className="fa-solid fa-bed me-1"></i>Chambre
+            </button>
+            <button className="btn btn-sm btn-info text-white" onClick={() => setFormMode({ action: "create", type: "event" })}>
+              <i className="fa-solid fa-people-group me-1"></i>Événement
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Form */}
       {formMode && formMode.type === "table" && (
         <TableReservationForm
           reservation={formMode.action === "edit" ? formMode.data : null}
+          initialDate={formMode.action === "create" ? initialDate : undefined}
           onSave={handleFormSave}
           onCancel={() => setFormMode(null)}
         />
@@ -191,6 +232,7 @@ export default function ReservationsManager() {
       {formMode && formMode.type === "room" && (
         <RoomReservationForm
           reservation={formMode.action === "edit" ? formMode.data : null}
+          initialDate={formMode.action === "create" ? initialDate : undefined}
           onSave={handleFormSave}
           onCancel={() => setFormMode(null)}
         />
@@ -272,7 +314,7 @@ export default function ReservationsManager() {
                 className={`btn ${selectedDate === todayStr() ? "btn-primary" : "btn-outline-primary"}`}
                 onClick={() => setSelectedDate(todayStr())}
               >
-                Aujourd&apos;hui
+                Aujourd'hui
               </button>
               <input
                 type="date"

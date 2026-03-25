@@ -14,7 +14,19 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Galerie Photos | Captain Purunchi Cotonou",
     description: "D\u00e9couvrez en images l\u2019exp\u00e9rience Captain Purunchi : fruits de mer, rooftop, chambres et ambiance \u00e0 Cotonou.",
+    url: "/galerie",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Galerie Captain Purunchi" }],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Galerie Photos | Captain Purunchi Cotonou",
+    description: "Photos du Captain Purunchi \u00e0 Cotonou : plats, rooftop, chambres et \u00e9v\u00e9nements.",
+  },
+  keywords: [
+    "galerie photos Captain Purunchi", "photos restaurant Cotonou",
+    "images fruits de mer Cotonou", "photos rooftop Cotonou",
+    "galerie restaurant B\u00e9nin", "Captain Purunchi photos",
+  ],
   alternates: { canonical: "/galerie" },
 };
 

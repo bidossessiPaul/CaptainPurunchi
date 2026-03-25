@@ -54,6 +54,10 @@ const menuItems: MenuItem[] = [
   { href: "/admin/blog", icon: "fa-solid fa-file-pen", label: "Blog", page: "blog" },
   { href: "/admin/comments", icon: "fa-solid fa-comments", label: "Commentaires", badge: "comments", page: "comments" },
 
+  // Outils
+  { label: "Outils", type: "label" },
+  { href: "/admin/qrcode", icon: "fa-solid fa-qrcode", label: "QR Codes", page: "qrcode" },
+
   // Administration
   { label: "Administration", type: "label" },
   { href: "/admin/contact", icon: "fa-solid fa-envelope", label: "Messages", badge: "messages", page: "contact" },
@@ -108,7 +112,7 @@ export default function Sidebar({ onClose }: { onClose: () => void }) {
     return () => clearInterval(interval);
   }, []);
 
-  const userRole = user?.role || "super_admin";
+  const userRole = user?.role || "staff";
 
   // Filter menu items based on role permissions
   const filteredItems = menuItems.filter((item) => {

@@ -97,18 +97,18 @@ export default function ContactManager() {
 
   return (
     <div className="row">
-      {/* Coordonn&eacute;es */}
+      {/* Coordonnées */}
       <div className="col-lg-6">
         <div className="card">
           <div className="card-header">
             <h5 className="card-title mb-0">
               <i className="iconoir-phone me-2"></i>
-              Coordonn&eacute;es
+              Coordonnées
             </h5>
           </div>
           <div className="card-body">
             <div className="mb-3">
-              <label className="form-label">T&eacute;l&eacute;phone</label>
+              <label className="form-label">Téléphone</label>
               <input
                 type="text"
                 className="form-control"
@@ -132,7 +132,7 @@ export default function ContactManager() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Cotonou, B&eacute;nin"
+                placeholder="Cotonou, Bénin"
                 value={form.address}
                 onChange={(e) => handleChange("address", e.target.value)}
               />
@@ -142,7 +142,7 @@ export default function ContactManager() {
               <textarea
                 className="form-control"
                 rows={3}
-                placeholder="Votre escale gourmande au c&oelig;ur de Cotonou..."
+                placeholder="Votre escale gourmande au cœur de Cotonou..."
                 value={form.footerDesc}
                 onChange={(e) => handleChange("footerDesc", e.target.value)}
               />
@@ -151,18 +151,18 @@ export default function ContactManager() {
         </div>
       </div>
 
-      {/* R&eacute;seaux sociaux */}
+      {/* Réseaux sociaux */}
       <div className="col-lg-6">
         <div className="card">
           <div className="card-header">
             <h5 className="card-title mb-0">
               <i className="iconoir-internet me-2"></i>
-              R&eacute;seaux sociaux
+              Réseaux sociaux
             </h5>
           </div>
           <div className="card-body">
             <div className="mb-3">
-              <label className="form-label">WhatsApp (num&eacute;ro avec indicatif, sans +)</label>
+              <label className="form-label">WhatsApp (numéro avec indicatif, sans +)</label>
               <div className="input-group">
                 <span className="input-group-text"><i className="fa-brands fa-whatsapp"></i></span>
                 <input
@@ -210,7 +210,7 @@ export default function ContactManager() {
           <div className="card-header">
             <h5 className="card-title mb-0">
               <i className="iconoir-clock me-2"></i>
-              Horaires d&apos;ouverture
+              Horaires d'ouverture
             </h5>
           </div>
           <div className="card-body">
@@ -309,7 +309,7 @@ export default function ContactManager() {
           {saved && (
             <span className="text-success">
               <i className="iconoir-check me-1"></i>
-              Enregistr&eacute; avec succ&egrave;s
+              Enregistré avec succès
             </span>
           )}
         </div>

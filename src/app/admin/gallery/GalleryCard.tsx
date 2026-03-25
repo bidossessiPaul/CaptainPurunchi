@@ -92,7 +92,7 @@ export default function GalleryCard({
             className="badge bg-info"
             style={{ position: "absolute", top: "10px", left: "50px" }}
           >
-            VID&Eacute;O
+            VIDÉO
           </span>
         )}
 
@@ -114,7 +114,7 @@ export default function GalleryCard({
               justifyContent: "center",
             }}
           >
-            <span className="badge bg-secondary fs-14">D&eacute;sactiv&eacute;</span>
+            <span className="badge bg-secondary fs-14">Désactivé</span>
           </div>
         )}
       </div>

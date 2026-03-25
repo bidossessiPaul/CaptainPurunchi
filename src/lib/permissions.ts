@@ -36,7 +36,8 @@ export type AdminPage =
   | "caisse"
   | "factures"
   | "stock"
-  | "ravitaillement";
+  | "ravitaillement"
+  | "qrcode";
 
 type Action = "read" | "create" | "update" | "delete" | "approve";
 
@@ -64,6 +65,7 @@ const PATH_TO_PAGE: Record<string, AdminPage> = {
   "/admin/factures": "factures",
   "/admin/stock": "stock",
   "/admin/ravitaillement": "ravitaillement",
+  "/admin/qrcode": "qrcode",
 };
 
 // Map API paths to page keys
@@ -116,6 +118,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: ["read", "create", "update", "delete"],
     stock: ["read", "create", "update", "delete"],
     ravitaillement: ["read", "create", "update", "delete"],
+    qrcode: ["read"],
   },
   director: {
     dashboard: ["read"],
@@ -140,6 +143,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: ["read", "create", "update", "delete"],
     stock: ["read", "create", "update", "delete"],
     ravitaillement: ["read", "create", "update", "delete"],
+    qrcode: ["read"],
   },
   manager: {
     dashboard: ["read"],
@@ -164,6 +168,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: ["read", "create", "update"],
     stock: ["read", "create", "update", "delete"],
     ravitaillement: ["read", "create", "update", "delete"],
+    qrcode: ["read"],
   },
   accountant: {
     dashboard: ["read"],
@@ -188,6 +193,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: ["read", "create", "update", "delete"],
     stock: ["read"],
     ravitaillement: ["read"],
+    qrcode: ["read"],
   },
   cashier: {
     dashboard: ["read"],
@@ -212,6 +218,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: [],
     stock: [],
     ravitaillement: [],
+    qrcode: ["read"],
   },
   waiter: {
     dashboard: ["read"],
@@ -236,6 +243,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: [],
     stock: [],
     ravitaillement: [],
+    qrcode: ["read"],
   },
   receptionist: {
     dashboard: ["read"],
@@ -260,6 +268,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: [],
     stock: [],
     ravitaillement: [],
+    qrcode: ["read"],
   },
   chef: {
     dashboard: ["read"],
@@ -284,6 +293,7 @@ const PERMISSIONS: Record<Role, Record<AdminPage, Action[]>> = {
     factures: [],
     stock: ["read", "create", "update"],
     ravitaillement: ["read", "create", "update"],
+    qrcode: ["read"],
   },
 };
 

@@ -53,10 +53,10 @@ export default function TableReservationForm({ whatsapp }: { whatsapp?: string }
     return (
       <div className="reservation-success text-center" style={{ padding: "40px 20px" }}>
         <i className="fa fa-check-circle" style={{ fontSize: 48, color: "#25d366", marginBottom: 16 }}></i>
-        <h3 style={{ color: "#1a3a5c", marginBottom: 10 }}>R&eacute;servation envoy&eacute;e !</h3>
+        <h3 style={{ color: "#1a3a5c", marginBottom: 10 }}>Réservation envoyée !</h3>
         <p style={{ color: "#666", marginBottom: 20 }}>
-          Nous avons bien re&ccedil;u votre demande de r&eacute;servation.
-          Nous vous confirmerons par t&eacute;l&eacute;phone.
+          Nous avons bien reçu votre demande de réservation.
+          Nous vous confirmerons par téléphone.
         </p>
         {whatsapp && (
           <a
@@ -75,7 +75,7 @@ export default function TableReservationForm({ whatsapp }: { whatsapp?: string }
           onClick={() => setSuccess(false)}
           style={{ cursor: "pointer", marginTop: 16 }}
         >
-          NOUVELLE R&Eacute;SERVATION
+          NOUVELLE RÉSERVATION
         </button>
       </div>
     );
@@ -103,7 +103,7 @@ export default function TableReservationForm({ whatsapp }: { whatsapp?: string }
         <div className="form-box">
           <input
             type="tel"
-            placeholder="T&eacute;l&eacute;phone *"
+            placeholder="Téléphone *"
             required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -171,7 +171,7 @@ export default function TableReservationForm({ whatsapp }: { whatsapp?: string }
       <div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div className="form-box">
           <textarea
-            placeholder="Demandes sp&eacute;ciales (allergies, occasion, espace pr&eacute;f&eacute;r&eacute;, etc.)"
+            placeholder="Demandes spéciales (allergies, occasion, espace préféré, etc.)"
             rows={3}
             value={message}
             onChange={(e) => setMessage(e.target.value)}

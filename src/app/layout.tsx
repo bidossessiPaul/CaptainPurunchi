@@ -9,11 +9,11 @@ const BASE_URL = process.env.SITE_URL || "https://captainpurunchi.com";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Captain Purunchi — Restaurant Fruits de Mer, Bar & H\u00e9bergement \u00e0 Cotonou, B\u00e9nin",
+    default: "Captain Purunchi — Restaurant Fruits de Mer \u00e0 Cotonou",
     template: "%s | Captain Purunchi Cotonou",
   },
   description:
-    "Captain Purunchi : restaurant gastronomique de fruits de mer, bar rooftop vue mer et h\u00e9bergement \u00e0 Cotonou, B\u00e9nin. Produits frais, cuisine du chef, exp\u00e9rience unique bord de mer. R\u00e9servez en ligne.",
+    "Captain Purunchi : restaurant fruits de mer, bar rooftop et h\u00e9bergement \u00e0 Cotonou, B\u00e9nin. Produits frais, cuisine du chef. R\u00e9servez en ligne.",
   keywords: [
     "Captain Purunchi", "Captain Purunchi Cotonou", "restaurant Cotonou",
     "restaurant fruits de mer Cotonou", "restaurant bord de mer Cotonou",
@@ -37,10 +37,11 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     type: "website",
     url: BASE_URL,
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: "Captain Purunchi Cotonou" }],
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Captain Purunchi Cotonou" }],
   },
   twitter: {
     card: "summary_large_image",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Captain Purunchi Cotonou" }],
     title: "Captain Purunchi \u2014 Restaurant & H\u00e9bergement \u00e0 Cotonou",
     description: "Fruits de mer frais, rooftop vue mer et chambres confortables \u00e0 Cotonou, B\u00e9nin.",
   },
@@ -91,7 +92,6 @@ const jsonLd = {
       openingHoursSpecification: [
         { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "11:00", closes: "23:00" },
       ],
-      sameAs: [],
     },
     {
       "@type": "LodgingBusiness",

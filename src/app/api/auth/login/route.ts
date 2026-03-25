@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME, createSessionToken, getLegacySessionToken } from "@/lib/auth";
 import { verifyUserPassword } from "@/lib/user-store";
 import { logActivity } from "@/lib/activity-log-store";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -11,7 +12,17 @@ const COOKIE_OPTS = {
   maxAge: 60 * 60 * 24 * 7, // 7 days
 };
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limiting — 5 attempts per IP per 15 minutes
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { allowed, retryAfter } = checkRateLimit(ip);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Trop de tentatives. Réessayez plus tard." },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+
   const body = await request.json();
   const { email, password } = body;
 

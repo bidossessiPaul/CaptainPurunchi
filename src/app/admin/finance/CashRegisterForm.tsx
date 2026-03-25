@@ -192,7 +192,7 @@ export default function CashRegisterForm({ register, mode, prefill, onSave, onCa
                     onChange={(e) => setClosingBalance(e.target.value)}
                     min="0"
                   />
-                  <small className="text-muted">Comptez l&apos;argent physique dans la caisse et saisissez le montant total</small>
+                  <small className="text-muted">Comptez l'argent physique dans la caisse et saisissez le montant total</small>
                 </div>
               </div>
               <div className="mb-3">

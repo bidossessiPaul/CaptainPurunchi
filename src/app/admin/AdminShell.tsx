@@ -65,11 +65,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
+        const safeFetch = (url: string) =>
+          fetch(url).then((r) => (r.ok ? r.json() : [])).catch(() => []);
         const [orders, tables, rooms, events] = await Promise.all([
-          fetch("/api/orders?status=pending").then((r) => r.json()),
-          fetch("/api/table-reservations?status=pending").then((r) => r.json()),
-          fetch("/api/room-reservations?status=pending").then((r) => r.json()),
-          fetch("/api/event-reservations?status=pending").then((r) => r.json()),
+          safeFetch("/api/orders?status=pending"),
+          safeFetch("/api/table-reservations?status=pending"),
+          safeFetch("/api/room-reservations?status=pending"),
+          safeFetch("/api/event-reservations?status=pending"),
         ]);
 
         const items: NotifItem[] = [];

@@ -19,7 +19,7 @@ export default async function TeamPage() {
       <div className="row">
         <div className="col-sm-12">
           <div className="page-title-box d-md-flex justify-content-md-between align-items-center">
-            <h4 className="page-title">Gestion de l&apos;équipe</h4>
+            <h4 className="page-title">Gestion de l'équipe</h4>
             <div>
               <ol className="breadcrumb mb-0">
                 <li className="breadcrumb-item"><Link href="/admin">Admin</Link></li>

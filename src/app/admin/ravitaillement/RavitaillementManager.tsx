@@ -6,7 +6,7 @@ import type { SupplyList, SupplyListItem } from "@/lib/supply-list-store";
 import { STOCK_UNIT_LABELS } from "@/lib/constants";
 
 function fmt(n: number) {
-  return n.toLocaleString("fr-FR");
+  return Math.round(n).toLocaleString("fr-FR");
 }
 
 export default function RavitaillementManager() {
@@ -46,8 +46,8 @@ export default function RavitaillementManager() {
           setActiveSupplyList(detail);
         }
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error("Erreur chargement ravitaillement:", err);
     }
     setLoading(false);
   }, []);
@@ -320,7 +320,7 @@ export default function RavitaillementManager() {
               <div className="card-header">
                 <h5 className="card-title mb-0">
                   <i className="fa-solid fa-check-circle text-success me-2"></i>
-                  Confirmer l&apos;achat
+                  Confirmer l'achat
                 </h5>
               </div>
               <div className="card-body">

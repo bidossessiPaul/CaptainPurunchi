@@ -39,7 +39,7 @@ export default function MenuDuJour({ dishes, whatsapp }: { dishes: DailyDish[]; 
         <div className="text-center">
           <h2 className="block-title">Menu du Jour</h2>
           <p className="menu-jour-subtitle">
-            Découvrez nos plats frais préparés spécialement pour aujourd&apos;hui
+            Découvrez nos plats frais préparés spécialement pour aujourd'hui
           </p>
         </div>
 

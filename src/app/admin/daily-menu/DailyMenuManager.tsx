@@ -38,9 +38,14 @@ export default function DailyMenuManager() {
 
   const fetchDishes = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/daily-dishes?date=${selectedDate}`);
-    const data = await res.json();
-    setDishes(data);
+    try {
+      const res = await fetch(`/api/daily-dishes?date=${selectedDate}`);
+      const data = await res.json();
+      setDishes(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erreur chargement plats:", err);
+      setDishes([]);
+    }
     setLoading(false);
   }, [selectedDate]);
 
@@ -124,7 +129,7 @@ export default function DailyMenuManager() {
               className={`btn ${selectedDate === todayStr() ? "btn-primary" : "btn-outline-primary"}`}
               onClick={() => setSelectedDate(todayStr())}
             >
-              Aujourd&apos;hui
+              Aujourd'hui
             </button>
             <button
               className={`btn ${selectedDate === tomorrowStr() ? "btn-primary" : "btn-outline-primary"}`}
@@ -141,7 +146,7 @@ export default function DailyMenuManager() {
             />
             <span className="text-muted ms-2 fs-14">
               <i className="iconoir-calendar me-1"></i>
-              {formatDateLabel(selectedDate)} &mdash; {dishes.length} plat{dishes.length !== 1 ? "s" : ""}
+              {formatDateLabel(selectedDate)} — {dishes.length} plat{dishes.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>

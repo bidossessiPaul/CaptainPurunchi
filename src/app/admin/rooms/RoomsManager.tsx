@@ -169,7 +169,7 @@ export default function RoomsManager() {
             Ajouter une chambre
           </button>
           <span className="text-muted ms-3 fs-13">
-            {rooms.length} chambre{rooms.length !== 1 ? "s" : ""} &bull;{" "}
+            {rooms.length} chambre{rooms.length !== 1 ? "s" : ""} •{" "}
             {rooms.filter((r) => r.active).length} active{rooms.filter((r) => r.active).length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -198,7 +198,7 @@ export default function RoomsManager() {
           <div className="card-body text-center py-5">
             <i className="iconoir-home-alt" style={{ fontSize: "48px", color: "#95a0c5" }}></i>
             <h5 className="mt-3">Aucune chambre</h5>
-            <p className="text-muted">Ajoutez votre premi&egrave;re chambre.</p>
+            <p className="text-muted">Ajoutez votre première chambre.</p>
             <button
               className="btn btn-primary"
               onClick={() => setShowForm(true)}

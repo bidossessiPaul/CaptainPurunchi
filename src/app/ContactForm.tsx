@@ -47,8 +47,8 @@ export default function ContactForm({ whatsapp }: { whatsapp?: string }) {
     return (
       <div className="contact-form-success">
         <i className="fa fa-check-circle"></i>
-        <h3>Message envoy&eacute; !</h3>
-        <p>Merci de nous avoir contact&eacute;s. Nous vous r&eacute;pondrons dans les plus brefs d&eacute;lais.</p>
+        <h3>Message envoyé !</h3>
+        <p>Merci de nous avoir contactés. Nous vous répondrons dans les plus brefs délais.</p>
         {whatsapp && (
           <a
             href={`https://wa.me/${whatsapp}`}
@@ -79,7 +79,7 @@ export default function ContactForm({ whatsapp }: { whatsapp?: string }) {
         />
         <input
           type="tel"
-          placeholder="T&eacute;l&eacute;phone *"
+          placeholder="Téléphone *"
           required
           value={phone}
           onChange={(e) => setPhone(e.target.value)}

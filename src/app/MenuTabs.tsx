@@ -30,7 +30,7 @@ export default function MenuTabs({ categories }: { categories: MenuCategoryWithI
           <h2 className="block-title text-center">Notre Carte</h2>
           <p className="title-caption text-center">
             Des saveurs authentiques, des produits frais et des recettes
-            qui vous transportent au c&oelig;ur de l&apos;oc&eacute;an.
+            qui vous transportent au cœur de l'océan.
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export default function MenuTabs({ categories }: { categories: MenuCategoryWithI
         </div>
 
         <div className="menu-see-more">
-          <Link href="/menu">Voir la carte compl&egrave;te</Link>
+          <Link href="/menu">Voir la carte complète</Link>
         </div>
       </div>
     </div>

@@ -158,7 +158,7 @@ export default function TestimonialsManager() {
             Ajouter un avis
           </button>
           <span className="text-muted ms-3 fs-13">
-            {testimonials.length} avis &bull;{" "}
+            {testimonials.length} avis •{" "}
             {testimonials.filter((t) => t.active).length} actif{testimonials.filter((t) => t.active).length !== 1 ? "s" : ""}
           </span>
         </div>

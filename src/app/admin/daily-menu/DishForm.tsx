@@ -72,7 +72,7 @@ export default function DishForm({ dish, selectedDate, onSave, onCancel }: DishF
               <input type="text" className="form-control" placeholder="3.000 F" value={price} onChange={(e) => setPrice(e.target.value)} required />
             </div>
             <div className="col-md-3 mb-3">
-              <label className="form-label">Cat&eacute;gorie *</label>
+              <label className="form-label">Catégorie *</label>
               <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)}>
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>

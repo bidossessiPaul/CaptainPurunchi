@@ -174,7 +174,7 @@ export async function markItemPurchased(itemId: string, data: {
   const allItems = await query("SELECT purchased FROM supply_list_items WHERE supplyListId = ?", [item.supplyListId]);
   const allPurchased = allItems.every((i: any) => i.purchased === 1 || i.purchased === true);
   if (allPurchased) {
-    await query("UPDATE supply_lists SET status = 'completed' WHERE id = ?", [item.supplyListId]);
+    await query("UPDATE supply_lists SET status = 'completed', updatedAt = ? WHERE id = ?", [new Date(), item.supplyListId]);
   }
 
   return item;
