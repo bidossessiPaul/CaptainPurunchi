@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME, createSessionToken, getLegacySessionToken } from "@/lib/auth";
 import { verifyUserPassword } from "@/lib/user-store";
 import { logActivity } from "@/lib/activity-log-store";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { checkRateLimit, recordFailedAttempt, resetAttempts } from "@/lib/rate-limiter";
 
 const COOKIE_OPTS = {
   httpOnly: true,
@@ -30,9 +30,11 @@ export async function POST(request: NextRequest) {
   if (email && password) {
     const user = await verifyUserPassword(email, password);
     if (!user) {
+      recordFailedAttempt(ip);
       return NextResponse.json({ error: "Email ou mot de passe incorrect" }, { status: 401 });
     }
 
+    resetAttempts(ip);
     const token = await createSessionToken(user.id, user.role);
     const response = NextResponse.json({
       success: true,
@@ -52,6 +54,7 @@ export async function POST(request: NextRequest) {
 
   // Legacy flow: password only → ADMIN_PASSWORD check
   if (password && password === process.env.ADMIN_PASSWORD) {
+    resetAttempts(ip);
     const token = await getLegacySessionToken();
     const response = NextResponse.json({
       success: true,
@@ -61,5 +64,6 @@ export async function POST(request: NextRequest) {
     return response;
   }
 
+  recordFailedAttempt(ip);
   return NextResponse.json({ error: "Identifiants incorrects" }, { status: 401 });
 }
