@@ -74,10 +74,14 @@ export async function getHomepageData(): Promise<HomepageData> {
       todaysDishes: todaysDishes as any[],
     };
 
-    // Cache for 60 seconds
     cache = { data, expiresAt: Date.now() + 60_000 };
-
     return data;
+  } catch (err) {
+    console.error("[homepage-data] DB error:", err);
+    return {
+      heroSlides: [], specialties: [], galleryImages: [], rooms: [],
+      events: [], blogPosts: [], testimonials: [], contact: null, todaysDishes: [],
+    };
   } finally {
     conn.release();
   }

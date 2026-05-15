@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
-// MySQL connection pool configuration (TiDB Serverless)
 const poolConfig = {
     host: process.env.MYSQL_HOST || 'localhost',
     user: process.env.MYSQL_USER,
@@ -15,17 +14,10 @@ const poolConfig = {
     waitForConnections: true,
     connectionLimit: 5,
     queueLimit: 0,
-    // Timeouts for TiDB Serverless (cold starts can be slow)
     connectTimeout: 30000,
-    // Recycle stale connections
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
-    // Force UTF-8 for proper accent handling
-    charset: 'utf8mb4',
-    // Required for TiDB Serverless (SSL mandatory)
-    ssl: {
-        rejectUnauthorized: true
-    }
+    charset: 'utf8mb4'
 };
 
 export const pool = mysql.createPool(poolConfig);
