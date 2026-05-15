@@ -18,8 +18,8 @@ function toRoom(r: {
   return {
     ...r,
     active: r.active === 1,
-    features: JSON.parse(r.features) as string[],
-    gallery: JSON.parse(r.gallery) as string[],
+    features: (() => { try { const p = JSON.parse(r.features || '[]'); return Array.isArray(p) ? p : []; } catch { return []; } })(),
+    gallery: (() => { try { const p = JSON.parse(r.gallery || '[]'); return Array.isArray(p) ? p : []; } catch { return []; } })(),
     createdAt: r.createdAt.toISOString(),
   };
 }

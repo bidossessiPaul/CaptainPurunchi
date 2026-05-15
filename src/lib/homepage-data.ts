@@ -52,11 +52,21 @@ export async function getHomepageData(): Promise<HomepageData> {
       conn.execute("SELECT * FROM daily_dishes WHERE availableDate = ? AND active = 1 ORDER BY `order` ASC", [today]),
     ]);
 
+    const safeJsonArray = (val: unknown): string[] => {
+      try { const p = JSON.parse(val as string || '[]'); return Array.isArray(p) ? p : []; } catch { return []; }
+    };
+
     const data: HomepageData = {
       heroSlides: heroSlides as any[],
       specialties: specialties as any[],
       galleryImages: galleryImages as any[],
-      rooms: rooms as any[],
+      rooms: (rooms as any[]).map(r => ({
+        ...r,
+        active: r.active === 1,
+        gallery: safeJsonArray(r.gallery),
+        features: safeJsonArray(r.features),
+        createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : r.createdAt,
+      })),
       events: events as any[],
       blogPosts: blogPosts as any[],
       testimonials: testimonials as any[],
