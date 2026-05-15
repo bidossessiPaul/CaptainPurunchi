@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { query } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 const BASE_URL = process.env.SITE_URL || "https://captainpurunchi.com";
 
 interface BlogPost {
