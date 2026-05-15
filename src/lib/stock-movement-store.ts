@@ -90,8 +90,8 @@ export async function createStockMovement(data: {
 }
 
 export async function deleteStockMovement(id: string): Promise<void> {
-  const movementRows = await query('SELECT * FROM stock_movements WHERE id = ?', [id]);
-  const movement = movementRows[0] as StockMovement | undefined;
+  const movementRows = await query('SELECT id, type, quantity, stockItemId FROM stock_movements WHERE id = ?', [id]);
+  const movement = movementRows[0] as Pick<StockMovement, 'id' | 'type' | 'quantity' | 'stockItemId'> | undefined;
   if (!movement) return;
 
   // Reverse the stock change

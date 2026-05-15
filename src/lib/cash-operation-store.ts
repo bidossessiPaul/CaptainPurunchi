@@ -52,11 +52,11 @@ export async function sumOperationsByPaymentMethod(cashRegisterId: string): Prom
   totalEncaissements: number;
   totalRetraits: number;
 }> {
-  const ops = await query('SELECT * FROM cash_operations WHERE cashRegisterId = ?', [cashRegisterId]);
+  const ops = await query('SELECT type, amount, paymentMethod FROM cash_operations WHERE cashRegisterId = ?', [cashRegisterId]);
 
   const result = { especes: 0, carte: 0, mtnMoney: 0, moovMoney: 0, virement: 0, totalEncaissements: 0, totalRetraits: 0 };
 
-  for (const op of ops as CashOperation[]) {
+  for (const op of ops as Pick<CashOperation, 'type' | 'amount' | 'paymentMethod'>[]) {
     const sign = op.type === "encaissement" ? 1 : -1;
     const amount = op.amount * sign;
 

@@ -4,17 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
-
-interface NotifItem {
-  id: string;
-  type: "order" | "table" | "room" | "event";
-  label: string;
-  sub: string;
-  icon: string;
-  color: string;
-  href: string;
-  time: string;
-}
+import { NotificationProvider, useNotifications } from "./NotificationContext";
 
 interface UserInfo {
   id: string;
@@ -24,14 +14,17 @@ interface UserInfo {
   avatar: string | null;
 }
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+// Composant interne qui consomme le contexte (doit être enfant de NotificationProvider)
+function AdminShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarSize, setSidebarSize] = useState<"default" | "collapsed">("default");
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotifItem[]>([]);
   const [user, setUser] = useState<UserInfo | null>(null);
   const notifRef = useRef<HTMLLIElement>(null);
   const isLoginPage = pathname === "/admin/login";
+
+  // Données de notification issues du contexte partagé
+  const { notifItems: notifications } = useNotifications();
 
   // Fetch current user
   useEffect(() => {
@@ -59,80 +52,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   const closeSidebar = useCallback(() => {
     setSidebarSize("collapsed");
-  }, []);
-
-  // Fetch pending notifications
-  useEffect(() => {
-    const fetchNotifs = async () => {
-      try {
-        const safeFetch = (url: string) =>
-          fetch(url).then((r) => (r.ok ? r.json() : [])).catch(() => []);
-        const [orders, tables, rooms, events] = await Promise.all([
-          safeFetch("/api/orders?status=pending"),
-          safeFetch("/api/table-reservations?status=pending"),
-          safeFetch("/api/room-reservations?status=pending"),
-          safeFetch("/api/event-reservations?status=pending"),
-        ]);
-
-        const items: NotifItem[] = [];
-
-        for (const o of orders) {
-          items.push({
-            id: o.id,
-            type: "order",
-            label: o.customerName,
-            sub: `${o.items?.length ?? 0} article(s) — ${o.totalAmount} FCFA`,
-            icon: "fa-solid fa-bag-shopping",
-            color: "info",
-            href: "/admin/orders",
-            time: o.createdAt,
-          });
-        }
-        for (const t of tables) {
-          items.push({
-            id: t.id,
-            type: "table",
-            label: t.name,
-            sub: `Table — ${t.numberOfPersons} pers.`,
-            icon: "fa-solid fa-utensils",
-            color: "primary",
-            href: "/admin/reservations?type=table",
-            time: t.createdAt,
-          });
-        }
-        for (const r of rooms) {
-          items.push({
-            id: r.id,
-            type: "room",
-            label: r.customerName,
-            sub: `Chambre — ${r.roomName}`,
-            icon: "fa-solid fa-bed",
-            color: "warning",
-            href: "/admin/reservations?type=room",
-            time: r.createdAt,
-          });
-        }
-        for (const e of events) {
-          items.push({
-            id: e.id,
-            type: "event",
-            label: e.customerName,
-            sub: `Événement — ${e.eventTitle}`,
-            icon: "fa-solid fa-people-group",
-            color: "danger",
-            href: "/admin/reservations?type=event",
-            time: e.createdAt,
-          });
-        }
-
-        items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-        setNotifications(items);
-      } catch {}
-    };
-
-    fetchNotifs();
-    const interval = setInterval(fetchNotifs, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   // Close dropdown on click outside
@@ -444,5 +363,15 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </div>
       </div>
     </div>
+  );
+}
+
+// Export par défaut : enveloppe AdminShellInner dans le NotificationProvider
+// → un seul polling partagé entre AdminShell et Sidebar
+export default function AdminShell({ children }: { children: React.ReactNode }) {
+  return (
+    <NotificationProvider>
+      <AdminShellInner>{children}</AdminShellInner>
+    </NotificationProvider>
   );
 }

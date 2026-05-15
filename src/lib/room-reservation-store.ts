@@ -47,7 +47,7 @@ export async function checkRoomAvailability(
   excludeId?: string
 ): Promise<boolean> {
   let sql = `
-    SELECT * FROM room_reservations
+    SELECT id FROM room_reservations
     WHERE roomId = ?
       AND status != 'cancelled'
       AND checkIn < ?

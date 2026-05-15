@@ -44,17 +44,24 @@ export async function readActiveBlogPosts(): Promise<BlogPost[]> {
 export async function readBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   // Try exact slug match first
   const posts = await query('SELECT * FROM blog_posts WHERE slug = ? AND active = 1', [slug]);
-  let post = posts[0] || null;
+  if (posts[0]) return toBlogPost(posts[0]);
 
-  // Fallback: find by generated slug from title
-  if (!post) {
-    const all = await query('SELECT * FROM blog_posts WHERE active = 1');
-    post = all.find((p: { id: string; title: string }) => {
-      const gen = slugify(p.title) + "-" + p.id.slice(0, 6);
-      return gen === slug;
+  // Fallback: the generated slug ends with "-" + first 6 chars of UUID
+  // Extract the suffix to narrow down candidates
+  const suffixMatch = slug.match(/-([a-f0-9]{6})$/);
+  if (suffixMatch) {
+    const idPrefix = suffixMatch[1];
+    const candidates = await query(
+      'SELECT * FROM blog_posts WHERE active = 1 AND id LIKE ?',
+      [`${idPrefix}%`]
+    );
+    const found = candidates.find((p: { id: string; title: string }) => {
+      return slugify(p.title) + "-" + p.id.slice(0, 6) === slug;
     }) || null;
+    return found ? toBlogPost(found) : null;
   }
-  return post ? toBlogPost(post) : null;
+
+  return null;
 }
 
 export function generateSlug(title: string, id: string): string {
