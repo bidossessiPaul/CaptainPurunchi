@@ -20,6 +20,7 @@ export const PUT = apiHandler(async (
   const data: Record<string, unknown> = {};
   if (body.title !== undefined) data.title = body.title;
   if (body.description !== undefined) data.description = body.description;
+  if (body.details !== undefined) data.details = body.details;
   if (body.src !== undefined) data.src = body.src;
   if (body.active !== undefined) data.active = Boolean(body.active);
 

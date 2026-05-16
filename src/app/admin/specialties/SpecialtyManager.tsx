@@ -12,13 +12,23 @@ export default function SpecialtyManager() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  // Form state
+  // Form state (création)
   const [showForm, setShowForm] = useState(false);
   const [formTitle, setFormTitle] = useState("");
   const [formDesc, setFormDesc] = useState("");
   const [formFile, setFormFile] = useState<File | null>(null);
   const [formPreview, setFormPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Form state (édition)
+  const [editTarget, setEditTarget] = useState<Specialty | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editDetails, setEditDetails] = useState("");
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const [editPreview, setEditPreview] = useState<string | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const editFileRef = useRef<HTMLInputElement>(null);
 
   // Fetch
   const fetchItems = useCallback(async () => {
@@ -88,6 +98,47 @@ export default function SpecialtyManager() {
     }
 
     setSubmitting(false);
+  };
+
+  // Ouvrir le formulaire d'édition
+  const handleEditClick = (item: Specialty) => {
+    setEditTarget(item);
+    setEditTitle(item.title);
+    setEditDesc(item.description);
+    setEditDetails((item as Specialty & { details?: string }).details || "");
+    setEditFile(null);
+    setEditPreview(item.src || null);
+    if (editFileRef.current) editFileRef.current.value = "";
+  };
+
+  // Sauvegarder les modifications
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget || !editTitle.trim() || !editDesc.trim()) return;
+    setEditSubmitting(true);
+
+    let src = editTarget.src;
+
+    // Si nouvelle image sélectionnée, uploader d'abord
+    if (editFile) {
+      const formData = new FormData();
+      formData.append("file", editFile);
+      const uploadRes = await fetch("/api/specialties/upload", { method: "POST", body: formData });
+      if (uploadRes.ok) {
+        const data = await uploadRes.json();
+        src = data.src;
+      }
+    }
+
+    await fetch(`/api/specialties/${editTarget.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: editTitle.trim(), description: editDesc.trim(), details: editDetails.trim(), src }),
+    });
+
+    await fetchItems();
+    setEditTarget(null);
+    setEditSubmitting(false);
   };
 
   // Toggle active
@@ -299,6 +350,7 @@ export default function SpecialtyManager() {
                 index={i}
                 onToggleActive={handleToggleActive}
                 onDelete={handleDeleteClick}
+                onEdit={handleEditClick}
                 onMoveUp={handleMoveUp}
                 onMoveDown={handleMoveDown}
                 isFirst={i === 0}
@@ -307,6 +359,80 @@ export default function SpecialtyManager() {
               />
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal d'édition */}
+      {editTarget && (
+        <div className="modal show d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Modifier la spécialité</h5>
+                <button className="btn-close" onClick={() => setEditTarget(null)} />
+              </div>
+              <form onSubmit={handleEditSubmit}>
+                <div className="modal-body">
+                  <div className="row">
+                    <div className="col-md-4 mb-3">
+                      <label className="form-label fs-13">Image (optionnel — laisser vide pour garder l&apos;actuelle)</label>
+                      <input
+                        ref={editFileRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/avif"
+                        className="form-control form-control-sm"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) { setEditFile(file); setEditPreview(URL.createObjectURL(file)); }
+                        }}
+                      />
+                      {editPreview && (
+                        <div className="mt-2" style={{ height: "120px", backgroundImage: `url(${editPreview})`, backgroundSize: "cover", backgroundPosition: "center", borderRadius: "8px" }} />
+                      )}
+                    </div>
+                    <div className="col-md-8">
+                      <div className="mb-3">
+                        <label className="form-label fs-13">Titre</label>
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label fs-13">Description courte</label>
+                        <textarea
+                          className="form-control form-control-sm"
+                          rows={2}
+                          value={editDesc}
+                          onChange={(e) => setEditDesc(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label fs-13">Contenu détaillé <span className="text-muted">(page dédiée — Markdown simplifié)</span></label>
+                        <textarea
+                          className="form-control form-control-sm"
+                          rows={8}
+                          value={editDetails}
+                          onChange={(e) => setEditDetails(e.target.value)}
+                          placeholder="## Titre&#10;### Sous-titre&#10;- Liste&#10;Paragraphe normal"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setEditTarget(null)}>Annuler</button>
+                  <button type="submit" className="btn btn-primary" disabled={editSubmitting}>
+                    {editSubmitting ? <><span className="spinner-border spinner-border-sm me-2" />Enregistrement...</> : <><i className="iconoir-check me-1"></i>Enregistrer</>}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
 

@@ -7,6 +7,7 @@ interface SpecialtyCardProps {
   index: number;
   onToggleActive: (id: string, active: boolean) => void;
   onDelete: (id: string) => void;
+  onEdit: (item: Specialty) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   isFirst: boolean;
@@ -24,6 +25,7 @@ export default function SpecialtyCard({
   index,
   onToggleActive,
   onDelete,
+  onEdit,
   onMoveUp,
   onMoveDown,
   isFirst,
@@ -135,6 +137,13 @@ export default function SpecialtyCard({
               title="Descendre"
             >
               <i className="iconoir-arrow-down"></i>
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => onEdit(item)}
+              title="Modifier"
+            >
+              <i className="iconoir-edit-pencil"></i>
             </button>
             <button
               className="btn btn-sm btn-outline-danger"

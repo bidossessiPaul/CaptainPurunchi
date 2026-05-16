@@ -5,6 +5,7 @@ function toSpecialty(s: {
   id: string;
   title: string;
   description: string;
+  details: string | null;
   src: string;
   order: number;
   active: number;
@@ -41,14 +42,15 @@ export async function countSpecialties(): Promise<number> {
 export async function createSpecialty(data: {
   title: string;
   description: string;
+  details?: string;
   src: string;
   order: number;
   active: boolean;
 }): Promise<Specialty> {
   const id = crypto.randomUUID();
   await query(
-    'INSERT INTO specialties (id, title, description, src, `order`, active) VALUES (?, ?, ?, ?, ?, ?)',
-    [id, data.title, data.description, data.src, data.order, data.active ? 1 : 0]
+    'INSERT INTO specialties (id, title, description, details, src, `order`, active) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [id, data.title, data.description, data.details || null, data.src, data.order, data.active ? 1 : 0]
   );
   const created = await readSpecialtyById(id);
   if (!created) throw new Error('Failed to create specialty');
@@ -58,6 +60,7 @@ export async function createSpecialty(data: {
 export async function updateSpecialty(id: string, data: Partial<{
   title: string;
   description: string;
+  details: string;
   src: string;
   order: number;
   active: boolean;
@@ -72,6 +75,10 @@ export async function updateSpecialty(id: string, data: Partial<{
   if (data.description !== undefined) {
     fields.push('description = ?');
     values.push(data.description);
+  }
+  if (data.details !== undefined) {
+    fields.push('details = ?');
+    values.push(data.details);
   }
   if (data.src !== undefined) {
     fields.push('src = ?');
