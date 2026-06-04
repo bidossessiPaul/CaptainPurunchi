@@ -8,17 +8,17 @@ const INITIAL_COUNT = 3;
 interface Specialty {
   id: string;
   title: string;
+  slug: string;
   description: string;
   src: string;
 }
 
 export default function Specialties({ items }: { items: Specialty[] }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
 
   if (items.length === 0) return null;
 
-  const visible = showAll ? items : items.slice(0, INITIAL_COUNT);
+  const visible = items.slice(0, INITIAL_COUNT);
   const hasMore = items.length > INITIAL_COUNT;
 
   return (
@@ -42,7 +42,7 @@ export default function Specialties({ items }: { items: Specialty[] }) {
             return (
               <Link
                 key={item.id}
-                href={`/specialites/${item.id}`}
+                href={`/specialites/${item.slug}`}
                 className="specialty-card"
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
@@ -84,16 +84,9 @@ export default function Specialties({ items }: { items: Specialty[] }) {
 
         {hasMore && (
           <div className="text-center mt-4">
-            <button
-              className="btn btn-outline-light specialty-voir-plus"
-              onClick={() => setShowAll((v) => !v)}
-            >
-              {showAll ? (
-                <><i className="iconoir-arrow-up me-2"></i>Voir moins</>
-              ) : (
-                <><i className="iconoir-arrow-down me-2"></i>Voir les {items.length - INITIAL_COUNT} autres spécialités</>
-              )}
-            </button>
+            <Link href="/specialites" className="btn-site">
+              Voir toutes les spécialités ({items.length})
+            </Link>
           </div>
         )}
       </div>

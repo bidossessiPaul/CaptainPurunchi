@@ -8,15 +8,14 @@ const NAV_ITEMS = [
   { href: "/galerie", label: "Galerie", key: "galerie" },
   { href: "/chambres", label: "Chambres", key: "chambres" },
   { href: "/evenements", label: "\u00c9v\u00e9nements", key: "evenements" },
-  { href: "/blog", label: "Blog", key: "blog" },
-  { href: "/reservation", label: "R\u00e9servation", key: "reservation" },
+{ href: "/reservation", label: "R\u00e9servation", key: "reservation" },
   { href: "/contact", label: "Contact", key: "contact" },
 ];
 
 export default function Navbar({ activePage }: { activePage?: string }) {
   return (
     <div id="site-header">
-      <header id="header" className="header-block-top">
+      <header id="header" className="header-block-top" suppressHydrationWarning>
         <div className="container">
           <div className="row">
             <div className="main-menu">

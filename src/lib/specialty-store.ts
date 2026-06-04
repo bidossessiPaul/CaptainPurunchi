@@ -1,9 +1,19 @@
 import { query, cachedQuery } from "@/lib/db";
 import type { Specialty } from "@/app/types/specialty";
 
+export function slugify(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function toSpecialty(s: {
   id: string;
   title: string;
+  slug: string;
   description: string;
   details: string | null;
   src: string;
@@ -13,6 +23,7 @@ function toSpecialty(s: {
 }): Specialty {
   return {
     ...s,
+    slug: s.slug || slugify(s.title),
     active: s.active === 1,
     createdAt: s.createdAt.toISOString()
   };
@@ -34,6 +45,12 @@ export async function readSpecialtyById(id: string): Promise<Specialty | null> {
   return toSpecialty(items[0]);
 }
 
+export async function readSpecialtyBySlug(slug: string): Promise<Specialty | null> {
+  const items = await query('SELECT * FROM specialties WHERE slug = ?', [slug]);
+  if (items.length === 0) return null;
+  return toSpecialty(items[0]);
+}
+
 export async function countSpecialties(): Promise<number> {
   const result = await query('SELECT COUNT(*) as count FROM specialties');
   return result[0].count;
@@ -48,9 +65,10 @@ export async function createSpecialty(data: {
   active: boolean;
 }): Promise<Specialty> {
   const id = crypto.randomUUID();
+  const slug = slugify(data.title);
   await query(
-    'INSERT INTO specialties (id, title, description, details, src, `order`, active) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [id, data.title, data.description, data.details || null, data.src, data.order, data.active ? 1 : 0]
+    'INSERT INTO specialties (id, title, slug, description, details, src, `order`, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [id, data.title, slug, data.description, data.details || null, data.src, data.order, data.active ? 1 : 0]
   );
   const created = await readSpecialtyById(id);
   if (!created) throw new Error('Failed to create specialty');
@@ -71,6 +89,8 @@ export async function updateSpecialty(id: string, data: Partial<{
   if (data.title !== undefined) {
     fields.push('title = ?');
     values.push(data.title);
+    fields.push('slug = ?');
+    values.push(slugify(data.title));
   }
   if (data.description !== undefined) {
     fields.push('description = ?');

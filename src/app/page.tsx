@@ -9,6 +9,7 @@ import Specialties from "./Specialties";
 import Testimonials from "./Testimonials";
 import { getHomepageData } from "@/lib/homepage-data";
 import MenuDuJour from "./MenuDuJour";
+import VideoPromo from "./VideoPromo";
 import TableReservationForm from "./TableReservationForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -197,6 +198,8 @@ export default async function Home() {
           </div>
         </div>
       </div>
+
+      <VideoPromo />
 
       <Gallery images={galleryImages} />
       <Rooms rooms={rooms} whatsapp={contact.whatsapp} />
