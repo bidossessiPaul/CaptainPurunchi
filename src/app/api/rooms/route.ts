@@ -9,7 +9,7 @@ export const GET = apiHandler(async () => {
 
 export const POST = apiHandler(async (request: Request) => {
   const body = await request.json();
-  const { name, shortDesc, price, thumb, capacity, features, description, gallery } = body;
+  const { name, shortDesc, price, thumb, capacity, size, bedType, view, features, description, gallery } = body;
 
   if (!name || !price) {
     return NextResponse.json({ error: "name and price are required" }, { status: 400 });
@@ -23,6 +23,9 @@ export const POST = apiHandler(async (request: Request) => {
     price,
     thumb: thumb || "",
     capacity: capacity || "",
+    size: size || undefined,
+    bedType: bedType || undefined,
+    view: view || undefined,
     features: features || [],
     description: description || "",
     gallery: gallery || [],

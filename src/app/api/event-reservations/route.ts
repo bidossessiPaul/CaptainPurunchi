@@ -53,11 +53,13 @@ export const POST = apiHandler(async (request) => {
         { label: "Événement", value: eventTitle },
         { label: "Participants", value: attendees || "Non précisé" },
       ],
-    }).catch(() => {});
+    }).catch((err) => console.error("[MAIL] Customer event confirmation failed:", err?.message));
+  } else {
+    console.warn("[MAIL] No email provided for event reservation by", customerName);
   }
 
   // Notify team (non-blocking)
-  notifyTeamNewReservation("event", customerName, `${eventTitle} — ${attendees || "?"} pers.`, eventTitle).catch(() => {});
+  notifyTeamNewReservation("event", customerName, `${eventTitle} — ${attendees || "?"} pers.`, eventTitle).catch((err) => console.error("[MAIL] Team notification failed:", err?.message));
 
   return NextResponse.json(reservation, { status: 201 });
 });

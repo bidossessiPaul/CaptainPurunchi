@@ -51,11 +51,13 @@ export const POST = apiHandler(async (request) => {
         { label: "Heure", value: time },
         { label: "Personnes", value: numberOfPersons },
       ],
-    }).catch(() => {});
+    }).catch((err) => console.error("[MAIL] Customer table confirmation failed:", err?.message));
+  } else {
+    console.warn("[MAIL] No email provided for table reservation by", name);
   }
 
   // Notify team (non-blocking)
-  notifyTeamNewReservation("table", name, `${numberOfPersons} pers. à ${time}`, date).catch(() => {});
+  notifyTeamNewReservation("table", name, `${numberOfPersons} pers. à ${time}`, date).catch((err) => console.error("[MAIL] Team notification failed:", err?.message));
 
   return NextResponse.json(reservation, { status: 201 });
 });

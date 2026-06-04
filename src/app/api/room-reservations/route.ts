@@ -58,11 +58,13 @@ export const POST = apiHandler(async (request) => {
         { label: "Départ", value: checkOut },
         { label: "Voyageurs", value: guests || "Non précisé" },
       ],
-    }).catch(() => {});
+    }).catch((err) => console.error("[MAIL] Customer room confirmation failed:", err?.message));
+  } else {
+    console.warn("[MAIL] No email provided for room reservation by", customerName);
   }
 
   // Notify team (non-blocking)
-  notifyTeamNewReservation("room", customerName, `${roomName} du ${checkIn} au ${checkOut}`, checkIn).catch(() => {});
+  notifyTeamNewReservation("room", customerName, `${roomName} du ${checkIn} au ${checkOut}`, checkIn).catch((err) => console.error("[MAIL] Team notification failed:", err?.message));
 
   return NextResponse.json(
     reservation,

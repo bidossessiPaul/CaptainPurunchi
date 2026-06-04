@@ -23,6 +23,9 @@ export const PUT = apiHandler(async (
   if (body.features !== undefined) data.features = body.features;
   if (body.description !== undefined) data.description = body.description;
   if (body.gallery !== undefined) data.gallery = body.gallery;
+  if (body.size !== undefined) data.size = body.size;
+  if (body.bedType !== undefined) data.bedType = body.bedType;
+  if (body.view !== undefined) data.view = body.view;
   if (body.active !== undefined) data.active = Boolean(body.active);
 
   const updated = await updateRoom(id, data);

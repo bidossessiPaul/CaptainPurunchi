@@ -11,6 +11,9 @@ interface RoomFormProps {
     price: string;
     thumb: string;
     capacity: string;
+    size?: string;
+    bedType?: string;
+    view?: string;
     features: string[];
     description: string;
     gallery: string[];
@@ -24,6 +27,9 @@ export default function RoomForm({ room, onSubmit, onCancel }: RoomFormProps) {
   const [price, setPrice] = useState(room?.price || "");
   const [thumb, setThumb] = useState(room?.thumb || "");
   const [capacity, setCapacity] = useState(room?.capacity || "");
+  const [size, setSize] = useState(room?.size || "");
+  const [bedType, setBedType] = useState(room?.bedType || "");
+  const [view, setView] = useState(room?.view || "");
   const [features, setFeatures] = useState<string[]>(room?.features || []);
   const [newFeature, setNewFeature] = useState("");
   const [description, setDescription] = useState(room?.description || "");
@@ -97,6 +103,9 @@ export default function RoomForm({ room, onSubmit, onCancel }: RoomFormProps) {
       price: price.trim(),
       thumb,
       capacity: capacity.trim(),
+      size: size.trim() || undefined,
+      bedType: bedType.trim() || undefined,
+      view: view.trim() || undefined,
       features,
       description: description.trim(),
       gallery,
@@ -141,6 +150,36 @@ export default function RoomForm({ room, onSubmit, onCancel }: RoomFormProps) {
                 placeholder="Ex: 2 personnes"
                 value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label fs-13">Superficie</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                placeholder="Ex: 25 m²"
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label fs-13">Type de lit</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                placeholder="Ex: Lit double, Lits jumeaux"
+                value={bedType}
+                onChange={(e) => setBedType(e.target.value)}
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label fs-13">Vue</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                placeholder="Ex: Vue mer, Vue jardin"
+                value={view}
+                onChange={(e) => setView(e.target.value)}
               />
             </div>
 

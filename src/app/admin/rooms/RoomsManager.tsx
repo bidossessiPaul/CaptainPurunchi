@@ -32,6 +32,9 @@ export default function RoomsManager() {
     price: string;
     thumb: string;
     capacity: string;
+    size?: string;
+    bedType?: string;
+    view?: string;
     features: string[];
     description: string;
     gallery: string[];
@@ -59,6 +62,9 @@ export default function RoomsManager() {
     price: string;
     thumb: string;
     capacity: string;
+    size?: string;
+    bedType?: string;
+    view?: string;
     features: string[];
     description: string;
     gallery: string[];
