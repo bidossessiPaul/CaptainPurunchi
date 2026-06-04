@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const INITIAL_COUNT = 3;
+const INITIAL_COUNT = 6;
 
 interface Specialty {
   id: string;
