@@ -51,6 +51,7 @@ export async function POST(request: Request) {
     if (msg.includes("Unique constraint")) {
       return NextResponse.json({ error: "Cet email est déjà utilisé" }, { status: 409 });
     }
-    throw e;
+    const errMsg = e instanceof Error ? e.message : "Erreur interne";
+    return NextResponse.json({ error: errMsg }, { status: 500 });
   }
 }

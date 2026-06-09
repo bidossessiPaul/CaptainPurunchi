@@ -56,14 +56,12 @@ export async function createUser(data: {
   role: string;
 }): Promise<UserPublic> {
   const hash = await bcrypt.hash(data.password, 10);
-  const result = await query('INSERT INTO users SET ?', [{
-    name: data.name,
-    email: data.email,
-    password: hash,
-    role: data.role,
-    updatedAt: new Date(),
-  }]);
-  const rows = await query('SELECT * FROM users WHERE id = ?', [(result as { insertId: string }).insertId]);
+  const id = crypto.randomUUID();
+  await query(
+    'INSERT INTO users (id, name, email, password, role, updatedAt) VALUES (?, ?, ?, ?, ?, ?)',
+    [id, data.name, data.email, hash, data.role, new Date()]
+  );
+  const rows = await query('SELECT * FROM users WHERE id = ?', [id]);
   return toPublic(rows[0]);
 }
 
@@ -80,7 +78,8 @@ export async function updateUser(
   if (data.password) update.password = await bcrypt.hash(data.password, 10);
 
   update.updatedAt = new Date();
-  await query('UPDATE users SET ? WHERE id = ?', [update, id]);
+  const setClauses = Object.keys(update).map(k => `\`${k}\` = ?`).join(', ');
+  await query(`UPDATE users SET ${setClauses} WHERE id = ?`, [...Object.values(update), id]);
   const rows = await query('SELECT * FROM users WHERE id = ?', [id]);
   return toPublic(rows[0]);
 }
