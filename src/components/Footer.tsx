@@ -45,8 +45,6 @@ export default function Footer({ contact }: { contact: ContactInfo }) {
                 <li><Link href="/chambres">Chambres</Link></li>
                 <li><Link href="/evenements">Événements</Link></li>
                 <li><Link href="/reservation">Réservation</Link></li>
-                <li><Link href="/a-propos">À Propos</Link></li>
-                <li><Link href="/faq">FAQ</Link></li>
               </ul>
             </div>
 

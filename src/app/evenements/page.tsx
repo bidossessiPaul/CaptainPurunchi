@@ -36,67 +36,15 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const BASE_URL = process.env.SITE_URL || "https://captainpurunchi.com";
-
 export default async function EvenementsPage() {
   const [events, contact] = await Promise.all([
     readActiveEvents(),
     readContactInfo(),
   ]);
 
-  const eventsJsonLd = events.length > 0 ? {
-    "@context": "https://schema.org",
-    "@graph": events.map((ev) => ({
-      "@type": "Event",
-      name: ev.title,
-      description: ev.shortDesc || ev.description || "",
-      ...(ev.thumb && { image: ev.thumb }),
-      startDate: `2026-${ev.month?.padStart(2, "0") || "01"}-${ev.day?.padStart(2, "0") || "01"}`,
-      eventStatus: "https://schema.org/EventScheduled",
-      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-      location: {
-        "@type": "Place",
-        name: ev.location || "Captain Purunchi",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "O6bp 2556 pk 3, Fidjrossè",
-          addressLocality: "Cotonou",
-          addressCountry: "BJ",
-        },
-      },
-      organizer: {
-        "@type": "Organization",
-        name: "Captain Purunchi",
-        url: BASE_URL,
-      },
-      ...(ev.price && ev.price !== "Gratuit" && ev.price !== "0" ? {
-        offers: {
-          "@type": "Offer",
-          price: ev.price.replace(/[^0-9]/g, "") || "0",
-          priceCurrency: "XOF",
-          availability: "https://schema.org/InStock",
-          url: `${BASE_URL}/evenements`,
-        },
-      } : {
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: "XOF",
-          availability: "https://schema.org/InStock",
-        },
-      }),
-    })),
-  } : null;
-
   return (
     <div className="evenements-page">
       <Breadcrumbs items={[{ name: "Événements", href: "/evenements" }]} />
-      {eventsJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventsJsonLd).replace(/<\/script>/gi, "<\\/script>") }}
-        />
-      )}
       <Navbar activePage="evenements" />
 
       <div className="evenements-page-header">
