@@ -86,11 +86,70 @@ export default async function Home() {
     ...(sameAs.length > 0 && { sameAs }),
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "Où se trouve le Captain Purunchi à Cotonou ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Le Captain Purunchi est situé à O6bp 2556 pk 3, Fidjrossè, Cotonou, Bénin. Proche de l'aéroport et des plages, facilement accessible en voiture.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Quels sont les horaires du Captain Purunchi ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Le Captain Purunchi est ouvert du lundi au dimanche. Lundi : 9h–22h. Mardi au dimanche : 9h–23h.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Peut-on réserver une table en ligne au Captain Purunchi ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Oui, vous pouvez réserver votre table directement en ligne via notre formulaire de réservation, ou nous contacter par téléphone et WhatsApp au +229 01 912 770 70.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Le Captain Purunchi propose-t-il des chambres ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Oui, le Captain Purunchi dispose de 4 types de chambres (Confort, Standard, Suite Capitaine, Familiale) à partir de 20 000 FCFA la nuit, avec petit-déjeuner, Wi-Fi et climatisation inclus.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "D'où viennent les fruits de mer du Captain Purunchi ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Nos fruits de mer sont approvisionnés chaque matin directement depuis le port de pêche de Cotonou, garantissant une fraîcheur maximale à chaque plat.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Peut-on privatiser le Captain Purunchi pour un événement ?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Oui, nous proposons la privatisation du restaurant, du rooftop ou de la terrasse pour vos événements : anniversaires, mariages, séminaires, cocktails. Contactez-nous pour un devis.",
+        },
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <ScrollReveal />
       <Navbar activePage="accueil" />
@@ -206,6 +265,51 @@ export default async function Home() {
       <Events events={events} whatsapp={contact.whatsapp} />
       <Blog posts={blogPosts} />
       <Testimonials testimonials={testimonials} />
+
+      {/* FAQ */}
+      <section className="faq-section pad-top-100 pad-bottom-100" id="faq">
+        <div className="container">
+          <div className="wow fadeIn" data-wow-duration="1s" data-wow-delay="0.1s" suppressHydrationWarning>
+            <h2 className="block-title text-center">Questions fréquentes</h2>
+          </div>
+          <div className="faq-grid">
+            {[
+              {
+                q: "Où se trouve le Captain Purunchi ?",
+                a: "Situé à Fidjrossè, Cotonou (O6bp 2556 pk 3), proche de l'aéroport et des plages. Facilement accessible en voiture, avec parking gratuit sur place.",
+              },
+              {
+                q: "Quels sont les horaires d'ouverture ?",
+                a: "Lundi : 9h–22h. Mardi au dimanche : 9h–23h. Nous vous accueillons tous les jours, midi et soir.",
+              },
+              {
+                q: "D'où viennent les fruits de mer ?",
+                a: "Nos fruits de mer sont approvisionnés chaque matin directement depuis le port de pêche de Cotonou — fraîcheur garantie à chaque plat.",
+              },
+              {
+                q: "Peut-on réserver une table en ligne ?",
+                a: "Oui, directement via notre formulaire en ligne, par téléphone ou WhatsApp au +229 01 912 770 70. Confirmation rapide et gratuite.",
+              },
+              {
+                q: "Le Captain Purunchi propose-t-il des chambres ?",
+                a: "Oui, 4 types de chambres à partir de 20 000 FCFA/nuit. Wi-Fi, climatisation et petit-déjeuner inclus. Accès direct au restaurant et rooftop.",
+              },
+              {
+                q: "Peut-on privatiser le lieu pour un événement ?",
+                a: "Absolument. Rooftop, salle intérieure ou terrasse disponibles pour anniversaires, mariages, séminaires et cocktails. Contactez-nous pour un devis.",
+              },
+            ].map(({ q, a }) => (
+              <div key={q} className="faq-item">
+                <h3 className="faq-question">{q}</h3>
+                <p className="faq-answer">{a}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center" style={{ marginTop: "40px" }}>
+            <a href="/faq" className="btn btn-primary-outline">Voir toutes les questions</a>
+          </div>
+        </div>
+      </section>
 
       {/* Reservation */}
       <div id="reservation" className="reservations-main pad-top-100 pad-bottom-100">

@@ -8,7 +8,8 @@ const NAV_ITEMS = [
   { href: "/galerie", label: "Galerie", key: "galerie" },
   { href: "/chambres", label: "Chambres", key: "chambres" },
   { href: "/evenements", label: "\u00c9v\u00e9nements", key: "evenements" },
-{ href: "/reservation", label: "R\u00e9servation", key: "reservation" },
+  { href: "/reservation", label: "R\u00e9servation", key: "reservation" },
+  { href: "/a-propos", label: "\u00c0 Propos", key: "a-propos" },
   { href: "/contact", label: "Contact", key: "contact" },
 ];
 
