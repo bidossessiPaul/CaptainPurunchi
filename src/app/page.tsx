@@ -113,9 +113,9 @@ export default async function Home() {
                 </p>
                 <p>
                   Notre cuisine met à l'honneur les produits frais de la
-                  pêche locale, avec une spécialité pour les fruits de mer
-                  et les grillades préparés avec passion par notre équipe.
-                  Poissons brasés, homards grillés, crevettes flambées
+                  pêche locale, avec une spécialité dans les fruits de mer
+                  et les grillades préparées avec passion par notre équipe.
+                  Poissons grillés, homards rôtis, crevettes flambées
                   — chaque plat raconte une histoire de fraîcheur et de saveurs.
                 </p>
                 <p>
