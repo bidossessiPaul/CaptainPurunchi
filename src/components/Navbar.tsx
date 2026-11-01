@@ -3,10 +3,10 @@
 import Link from "next/link";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Accueil", key: "accueil" },
   { href: "/menu", label: "Menu", key: "menu" },
   { href: "/galerie", label: "Galerie", key: "galerie" },
   { href: "/chambres", label: "Chambres", key: "chambres" },
+  { href: "/sejour-all-inclusive", label: "Séjour All Inclusive", key: "sejour" },
   { href: "/evenements", label: "\u00c9v\u00e9nements", key: "evenements" },
 { href: "/reservation", label: "R\u00e9servation", key: "reservation" },
   { href: "/contact", label: "Contact", key: "contact" },

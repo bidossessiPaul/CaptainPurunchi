@@ -31,7 +31,7 @@ export default async function SejourPage() {
   return (
     <div className="sj">
       <Breadcrumbs items={[{ name: "Séjour All Inclusive", href: "/sejour-all-inclusive" }]} />
-      <Navbar />
+      <Navbar activePage="sejour" />
 
       <section className="sj-hero">
         <div className="sj-hero-overlay" />
