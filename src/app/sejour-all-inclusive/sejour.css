@@ -122,3 +122,9 @@
 .sj-choose { display: block; text-align: center; margin-top: 18px; padding: 12px; border-radius: 999px; font-weight: 700; font-size: 14px; background: var(--sand); color: var(--ink); transition: background .2s, color .2s; }
 .sj-tier:hover .sj-choose { background: var(--ink); color: #fff; }
 .sj-tier.selected .sj-choose { background: var(--gold); color: #fff; }
+
+/* Tablet: avoid an orphan card in a 2-column grid */
+@media (min-width: 560px) and (max-width: 991px) {
+  .sj-tier:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .sj-tier:last-child:nth-child(odd) .sj-tier-img { height: 200px; }
+}
