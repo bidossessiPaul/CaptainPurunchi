@@ -8,7 +8,7 @@ export async function readContactInfo(): Promise<ContactInfo> {
   let info = rows[0];
 
   if (!info) {
-    await query('INSERT INTO contact_info SET ?', [{ id: SINGLETON_ID, updatedAt: new Date() }]);
+    await query('INSERT IGNORE INTO contact_info (id, updatedAt) VALUES (?, ?)', [SINGLETON_ID, new Date()]);
     const newRows = await query('SELECT * FROM contact_info WHERE id = ?', [SINGLETON_ID]);
     info = newRows[0];
   }
